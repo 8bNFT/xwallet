@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+:root {
+    --accent: #154EFF;
+    --d-accent: #0f41d8;
+    --l-accent: #FBFCFF;
+    --grey: #727272;
+    --d-grey: #5a5a5a;
+    --l-grey: #F3F3F3;
+
+}
+
+body, html {
+    margin: 0;
+    top: 0;
+    left: 0;
+}
+
+body {
+    background: #fff;
+    min-height: 100vh;
+    width: 100%;
+}
