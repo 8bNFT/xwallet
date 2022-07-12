@@ -2,17 +2,27 @@
     export let steps, defaultConfig, stepStore, overlayCloses
 
     import { createStepStore } from "@/stores/steps";
-    import FooterButton from "./form/footer_button.svelte";
-    import TitleButton from "./form/title_button.svelte";
-    import { fade, scale } from "svelte/transition";
-
-    let test = "why"
+    import FooterButton from "./FooterButton.svelte";
+    import TitleButton from "./TitleButton.svelte";
+    import { fade, scale, fly } from "svelte/transition";
 
     const STEP_STORE = stepStore || createStepStore(steps.length, false)
+
+    let direction = true
+    let last_step = $STEP_STORE
+
+    const detectDirection = (step) => {
+        let _temp = last_step
+        last_step = step
+        if(_temp > step) return direction = false
+        return direction = true
+    }
+
+    $: console.log(detectDirection($STEP_STORE))
 </script>
 
-<div in:fade={{duration: 500}} out:fade={{duration: 150}} on:click={overlayCloses && defaultConfig.close ? defaultConfig.close : null} class="overlay"></div>
-<div in:scale={{start: 0.8, duration: 500}} out:scale={{start: 0.8, duration: 150}} class="cont_fixed">
+<div in:fade={{duration: 200}} out:fade={{duration: 150}} on:click={overlayCloses && defaultConfig.close ? defaultConfig.close : null} class="overlay"></div>
+<div in:scale={{start: 0.8, duration: 350}} out:scale={{start: 0.8, duration: 150}} class="cont_fixed">
     <div class="cont">
         {#if defaultConfig.close}
             <div class="close" on:click={defaultConfig.close}>
@@ -25,13 +35,14 @@
             </div>
         {/if}
         <div class="title_strip">
-            {#if steps[$STEP_STORE].title?.primary}
+            {#if $STEP_STORE > 0 && steps[$STEP_STORE].title?.prev !== false}
                 <TitleButton 
-                    type="primary"
-                    config={steps[$STEP_STORE].title.primary}
-                    defaultConfig={defaultConfig.title.primary}
+                    type="prev"
+                    config={steps[$STEP_STORE].title?.prev}
+                    defaultConfig={defaultConfig.title.prev}
                     current={$STEP_STORE}
                     max={STEP_STORE.getMax()}
+                    action={STEP_STORE.prev}
                 />
             {/if}
             {#if steps[$STEP_STORE].title?.text}
@@ -40,23 +51,35 @@
                 {:else if typeof steps[$STEP_STORE].title.text === "function"}
                     <span>{steps[$STEP_STORE].title.text({current: $STEP_STORE, max: STEP_STORE.getMax()})}</span>
                 {/if}
+            {:else if steps[$STEP_STORE].title !== false && defaultConfig.title.text}
+                {#if typeof defaultConfig.title.text === "string"}
+                    <span>{defaultConfig.title.text}</span>
+                {:else if defaultConfig.title.text === "function"}
+                    <span>{defaultConfig.title.text({current: $STEP_STORE, max: STEP_STORE.getMax()})}</span>
+                {/if}
             {/if}
-            {#if steps[$STEP_STORE].title?.secondary}
+            {#if steps[$STEP_STORE].title?.next}
                 <TitleButton 
-                    type="secondary"
-                    config={steps[$STEP_STORE].title.secondary}
-                    defaultConfig={defaultConfig.title.secondary}
+                    type="next"
+                    config={steps[$STEP_STORE].title?.next}
+                    defaultConfig={defaultConfig.title.next}
                     current={$STEP_STORE}
                     max={STEP_STORE.getMax()}
+                    action={STEP_STORE.next}
                 />
             {/if}
         </div>
-        <div class="content">
-            <svelte:component
-                this={steps[$STEP_STORE].component} 
-                {...steps[$STEP_STORE].props} 
-                stepControl={STEP_STORE}    
-            />
+        <div class="content_holder">
+            {#key $STEP_STORE}
+                <div out:fly={{x: direction && -400 || 400}} in:fly={{x: direction && 400 || -400}} class="content">
+                    <svelte:component
+                        this={steps[$STEP_STORE].component} 
+                        {...(steps[$STEP_STORE].props || {})} 
+                        {...(defaultConfig.props || {})}
+                        stepControl={STEP_STORE}    
+                    />
+                </div>
+            {/key}
         </div>
         <div class="footer_buttons">
             {#if steps[$STEP_STORE].footer?.primary}
@@ -87,12 +110,13 @@
     .overlay {
         position: fixed;
         z-index: 1;
-        background: rgba(0, 0, 0);
-        opacity: .25;
+        background: rgba(255, 255, 255, .5);
+        opacity: 1;
         height: 100%;
         width: 100%;
         left: 0;
         top: 0;
+        backdrop-filter: blur(20px);
     }
 
     .cont_fixed {
@@ -103,25 +127,25 @@
         transform: translate(-50%, -50%);
         max-width: 400px;
         width: 100%;
-        background: white;
-        border-radius: 16px;
-        overflow: hidden;
     }
 
     .cont {
+        background: white;
+        width: 100%;
+        border-radius: 16px;
         position: relative;
+        box-shadow: 0 0 80px rgba(0, 0, 0, .1);
         width: 100%;
     }
 
     .close {
         padding: .25rem;
         position: absolute;
-        right: 1rem;
-        top: 1rem;
-        transform: translate(50%, -50%);
+        right: -1rem;
+        top: -1rem;
         cursor: pointer;
-        opacity: .4;
-        transition: opacity .15s
+        opacity: .7;
+        transition: opacity .15s; 
     }
 
     .close:hover {
@@ -146,26 +170,45 @@
     }
 
     .cont {
-        padding: 1.5rem
+        padding: 1.5rem;
     }
 
     .title_strip {
-        display: flex;
-        justify-content: space-evenly;
+        display: grid;
+        grid-template-columns: 1fr 3fr 1fr;
         text-align: center;
     }
 
     .title_strip span {
         font-weight: 500;
+        grid-column: 2;
     }
 
-    .title_strip > * {
+    :global(.title_strip button:nth-child(2)) {
+        grid-column: 3;
+    }
+
+    :global(.title_strip > *) {
         margin-bottom: 1.5rem
+    }
+
+    .content_holder {
+        display: grid;
+        overflow: hidden;
+    }
+
+    .content {
+        grid-area: 1 / 1;
     }
 
     @media screen and (max-width: 400px){
         .cont_fixed {
             border-radius: 0;
+        }
+
+        .close {
+            right: 0;
+            top: -1.5rem
         }
     }
 </style>

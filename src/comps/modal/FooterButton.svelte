@@ -1,7 +1,7 @@
 <script>
     export let type, config, defaultConfig, current, max
 
-    import Button from '@/comps/button.svelte';
+    import Button from '@/comps/Button.svelte';
 
     $: text = config.text || defaultConfig.text
     $: action = config.action || defaultConfig.action
