@@ -157,6 +157,7 @@
         position: relative;
         box-shadow: 0 0 80px rgba(0, 0, 0, .1);
         width: 100%;
+        padding: 1.5rem;
     }
 
     .close {
@@ -198,10 +199,6 @@
         margin-top: .5rem
     }
 
-    .cont {
-        padding: 1.5rem;
-    }
-
     .title_strip {
         display: grid;
         grid-template-columns: 1fr 3fr 1fr;
@@ -226,6 +223,9 @@
         overflow: hidden;
         align-items: flex-start;
         align-content: flex-start;
+        width: calc(100% + 3rem);
+        margin-left: -1.5rem;
+        padding: 0 1.5rem;
     }
 
     .content {

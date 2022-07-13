@@ -4,7 +4,7 @@
     import { createStepStore } from "src/stores/steps";
     import { createPayloadStore } from "src/stores/payload"
     import { allValid, validate } from "src/validation/validate";
-    import { isEthAddress, isLtOrEq, isNotEq, isPositiveNumber } from "src/validation/validators";
+    import { isEthAddress, isIMXUser, isLtOrEq, isNotEq, isPositiveNumber } from "src/validation/validators";
     import { Wallet } from "src/stores/wallet";
     import TransferReview from "./TransferReview.svelte";
 
@@ -15,17 +15,28 @@
 
     const STEP_STORE = createStepStore(3, false)
 
+    const validationStore = createPayloadStore({
+        coin: {}, amount: {}, receiver: {}
+    })
+
     const payloadStore = createPayloadStore({
         coin: {
             value: Object.keys($Balances)[0]
         },
         amount: {
             value: 1,
-            validators: [isPositiveNumber, (v) => isLtOrEq(v, $Balances[$payloadStore.coin.value].balance.parsed)]
+            validators: [
+                [isPositiveNumber, "Value must be more than 0"], 
+                [(v) => isLtOrEq(v, $Balances[$payloadStore.coin.value].balance.parsed), () => `Not enough balance (${$Balances[$payloadStore.coin.value].balance.parsed} ${$Balances[$payloadStore.coin.value].symbol})`]
+            ]
         },
         receiver: {
             value: "",
-            validators: [isEthAddress, (v) => isNotEq(v.toLowerCase(), $User.address)]
+            validators: [
+                [isEthAddress, "Invalid ETH address"], 
+                [(v) => isNotEq(v.toLowerCase(), $User.address), "Receiver can't be same as sender"],
+                [async (v, controller) => isIMXUser(v, controller, Wallet.getNetwork()), "Receiver not registered on L2"]
+            ]
         }
     })
 
@@ -75,7 +86,7 @@
                 }
             }
         },
-        props: { formStore: payloadStore },
+        props: { formStore: payloadStore, validationStore },
         close: () => {
             STEP_STORE.reset()
             open = false
@@ -118,8 +129,9 @@
     ]
 
     let open = false
+    const controllerStore = {}
 
-    $: validate($payloadStore)
+    $: validate($payloadStore, validationStore, controllerStore)
 </script>
 
 <button on:click={() => {STEP_STORE.reset(); open = true; console.log($payloadStore)}} style="z-index: 100; position: relative">Toggle transfer flow</button>

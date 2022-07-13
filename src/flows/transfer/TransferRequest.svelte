@@ -1,5 +1,5 @@
 <script>
-    export let formStore
+    export let formStore, validationStore
 
     import { Wallet } from "src/stores/wallet";
     import BasicInput from "src/comps/BasicInput.svelte";
@@ -23,23 +23,7 @@
 </script>
 
 <Select bind:value={$formStore.coin.value} options={balancesToOptions($Balances)} />
-
-<div>
-    <CfxInput placeholder={"Amount to send"} bind:value={$formStore.amount.value} valid={$formStore.amount.valid} label="Amount" asset={$Balances[$formStore.coin.value]} />
-</div>
-<div><BasicInput placeholder={"Receiver address"} label="Receiver" bind:value={$formStore.receiver.value} valid={$formStore.receiver.valid} /></div>
-
-<style>
-    div {
-        margin-top: 1rem
-    }
-
-    /* temp select */
-    select {
-        border: 2px solid var(--l-grey);
-        border-radius: 8px;
-        padding: 20px .35rem;
-        font-size: 1rem;
-        outline-color: var(--accent);
-    }
-</style>
+<div class="separator"></div>
+<CfxInput placeholder={"Amount to send"} bind:value={$formStore.amount.value} valid={$validationStore.amount.valid} error={$validationStore.amount.error} label="Amount" asset={$Balances[$formStore.coin.value]} />
+<div class="separator"></div>
+<BasicInput placeholder={"Receiver address"} label="Receiver" bind:value={$formStore.receiver.value} valid={$validationStore.receiver.valid}  error={$validationStore.receiver.error} />

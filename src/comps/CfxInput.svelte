@@ -4,11 +4,13 @@
 
 <script>
     import { createToggleStore } from "src/stores/toggle";
-import { assetToUSD, USDToAsset } from "src/util/cfx";
+    import { assetToUSD, USDToAsset } from "src/util/cfx";
     import { fly } from "svelte/transition";
-    import Toggle from "./Toggle.svelte";
+    import Toggle from "src/comps/Toggle.svelte";
+    import Label from "src/comps/Label.svelte"
+    import ErrorMessage from "./ErrorMessage.svelte";
 
-    export let value, valid, label, asset, placeholder = ""
+    export let value, valid, error, label, asset, placeholder = ""
 
     let usd_value
     let crypto_value = value
@@ -56,43 +58,38 @@ import { assetToUSD, USDToAsset } from "src/util/cfx";
 </script>
 
 
-<div class="input" class:active class:invalid={!valid}>
-    <label for={id}>
-        {label}
-        {#if !valid}
-            <svg xmlns="http://www.w3.org/2000/svg" width="9.149" height="8.697" viewBox="0 0 9.149 8.697">
-                <line id="Line_14" data-name="Line 14" x2="6.322" y2="5.871" transform="translate(1.413 1.413)" fill="none" stroke="#ff1515" stroke-linecap="round" stroke-width="2"/>
-                <line id="Line_15" data-name="Line 15" x1="6.322" y2="5.871" transform="translate(1.413 1.413)" fill="none" stroke="#ff1515" stroke-linecap="round" stroke-width="2"/>
-            </svg>          
-        {/if}
-    </label>
+<div class:active class:invalid={!valid}>
+    <Label {id} {active} error={!valid} {label} />
     
-    <div class="cfx_flex">
-        {#if $toggleStore === "usd"}
-            <input step="1" type="number" {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value={usd_value}>
-        {:else}
-            <input step="0.05" type="number" {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value={crypto_value}>
-        {/if}
-        <div class="toggle">
-            <Toggle {toggleStore} small={true} />
+    <div class="input" class:active class:invalid={!valid}>
+        <div class="cfx_flex">
+            {#if $toggleStore === "usd"}
+                <input step="1" type="number" {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value={usd_value}>
+            {:else}
+                <input step="0.05" type="number" {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value={crypto_value}>
+            {/if}
+            <div class="toggle">
+                <Toggle {toggleStore} small={true} />
+            </div>
+        </div>
+        <div class="secondary__holder">
+            {#if $toggleStore === "usd"}
+                <div in:fly|local={{y: 30, opacity: 1}} out:fly|local={{y: 30, opacity: 1}} class="secondary">≈ {crypto_value || 0} {asset.symbol}</div>
+            {:else}
+                <div in:fly|local={{y: -30, opacity: 1}} out:fly|local={{y: -30, opacity: 1}} class="secondary">≈ ${usd_value || 0}</div>
+            {/if}
         </div>
     </div>
-    <div class="secondary__holder">
-        {#if $toggleStore === "usd"}
-            <div in:fly|local={{y: 30, opacity: 1}} out:fly|local={{y: 30, opacity: 1}} class="secondary">≈ {crypto_value || 0} {asset.symbol}</div>
-        {:else}
-            <div in:fly|local={{y: -30, opacity: 1}} out:fly|local={{y: -30, opacity: 1}} class="secondary">≈ ${usd_value || 0}</div>
-        {/if}
-    </div>
+
+    <ErrorMessage {error} />
 </div>
 
 <style>
     .input {
-        padding: .35rem 0rem;
         border: 2px solid var(--l-grey);
         border-radius: 8px;
         transition: border-color .15s;
-        position: relative;
+        padding: .75rem
     }
 
     .input.active {
@@ -103,26 +100,13 @@ import { assetToUSD, USDToAsset } from "src/util/cfx";
         border-color: #ff1515
     }
 
-    label {
-        cursor: text;
-        margin-left: .75rem;
-        font-size: .7rem;
-        color: var(--grey);
-        text-transform: uppercase;
-        transition: color .15s
-    }
-
-    .active label {
-        color: var(--accent)
-    }
-
     input {
+        font-size: 1rem;
         display: block;
         width: 100%;
         border: none;
         outline: none;
-        font-size: 1rem;
-        padding: .4rem .75rem;
+        padding-right: .3rem;
         padding-bottom: .2rem;
         -moz-appearance: textfield;
     }
@@ -140,7 +124,6 @@ import { assetToUSD, USDToAsset } from "src/util/cfx";
 
     .toggle {
         flex-shrink: 0;
-        margin-right: .7rem
     }
 
     .secondary__holder {
@@ -152,8 +135,7 @@ import { assetToUSD, USDToAsset } from "src/util/cfx";
         grid-area: 1 / 1;
         display: flex;
         align-items: center;
-        padding: 0rem .75rem;
-        padding-bottom: .4rem;
+        /* padding-bottom: .4rem; */
         font-size: .85em;
         color: var(--grey);
         user-select: none;

@@ -2,7 +2,7 @@ import { readable, writable, get } from 'svelte/store';
 import { createLink } from './imx.js';
 import BN from 'bignumber.js';
 
-const API = network => `https://api${network === "testnet" && ".ropsten." || "."}x.immutable.com`
+export const API = (network, path = "") => `https://api${network === "testnet" && ".ropsten." || "."}x.immutable.com` + path
 
 const createUserStore = async (network, Link) => {
     const { subscribe, set, update } = writable(false);
@@ -116,17 +116,17 @@ const initializeWalletStore = async network => {
 export function createWalletStore(){
     const { subscribe, set } = writable(false)
 
-    let init = false
-    const initialize = async network => {
-        if(init) return true
-        set(await initializeWalletStore(network))
-        init = true
+    let network
+    const initialize = async _network => {
+        set(await initializeWalletStore(_network))
+        network = _network
         return true
     }
 
     return {
         subscribe, 
-        initialize
+        initialize,
+        getNetwork: _ => network
     }
 }
 

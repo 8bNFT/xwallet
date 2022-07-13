@@ -3,7 +3,9 @@
 </script>
 
 <script>
-    export let value, valid, label, placeholder = ""
+    export let value, valid, error, label, placeholder = ""
+    import ErrorMessage from "./ErrorMessage.svelte"
+    import Label from "./Label.svelte"
 
     let active = false
     const id = `basic_input_${++local_id}`
@@ -11,53 +13,31 @@
 
 
 <div class="input" class:active class:invalid={!valid}>
-    <label for={id}>
-        {label}
-        {#if !valid}
-            <svg xmlns="http://www.w3.org/2000/svg" width="9.149" height="8.697" viewBox="0 0 9.149 8.697">
-                <line id="Line_14" data-name="Line 14" x2="6.322" y2="5.871" transform="translate(1.413 1.413)" fill="none" stroke="#ff1515" stroke-linecap="round" stroke-width="2"/>
-                <line id="Line_15" data-name="Line 15" x1="6.322" y2="5.871" transform="translate(1.413 1.413)" fill="none" stroke="#ff1515" stroke-linecap="round" stroke-width="2"/>
-            </svg>          
-        {/if}
-    </label>
+    <Label {active} {id} {label} error={!valid} />
     <input {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value>
+    
+    <ErrorMessage {error} />
 </div>
 
 <style>
-    .input {
-        padding: .35rem 0rem;
+    input {
         border: 2px solid var(--l-grey);
         border-radius: 8px;
-        transition: border-color .15s
-    }
-
-    .input.active {
-        border-color: var(--accent)
-    }
-
-    .input.active.invalid {
-        border-color: #ff1515
-    }
-
-    label {
-        cursor: text;
-        margin-left: .75rem;
-        font-size: .7rem;
-        color: var(--grey);
-        text-transform: uppercase;
-        transition: color .15s
-    }
-
-    .active label {
-        color: var(--accent)
-    }
-
-    input {
+        transition: border-color .15s;
         display: block;
         width: 100%;
-        border: none;
         outline: none;
         font-size: 1rem;
-        padding: .4rem .75rem;
+        padding: .75rem;
+        padding-right: .35rem;
+    }
+
+    .active input {
+        border-color: var(--accent);
+        box-shadow: 0 0 15px rgba(21, 78, 255, .08);
+    }
+
+    .active.invalid input {
+        border-color: #ff1515
     }
 </style>

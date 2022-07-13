@@ -1,9 +1,11 @@
 <script>
     export let label, data, note
+
+    import Label from "src/comps/Label.svelte"
 </script>
 
 <div>
-    <span class="label">{label}</span>
+    <Label {label} />
     <div class="data">{data}</div>
     {#if note}
     <span class="note">{note}</span>
@@ -11,13 +13,7 @@
 </div>
 
 <style>
-    .label {
-        color: var(--grey);
-        font-size: .85rem;
-    }
-
     .data {
-        margin-top: .3rem;
         margin-bottom: 0rem
     }
 

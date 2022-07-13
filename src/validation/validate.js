@@ -1,30 +1,53 @@
-const runValidators = (validators, value) => {
-    for(let validator of validators){
-        if(!validator(value)) return false
+import { get } from "svelte/store"
+
+const runValidators = async ({validators, value}, controller) => {
+    for(let [validator, message] of validators){
+        const validationResult = await validator(value, controller)
+        if(!validationResult){
+            if(typeof message === "function") return { message: message() }
+            return { message }
+        }
     }
 
     return true
 }
 
-export const validate = (payload, emptyInvalid = false) => {
+export const validate = async (payload, validationStore, controllerStore = {}, emptyInvalid = false) => {
+    const { controller: previousController } = controllerStore
+    if(previousController) previousController.abort()
+
+    const controller = new AbortController()
+    controllerStore.controller = controller
+
+    const validationPayload = {...get(validationStore)}
+
     for(let [k, v] of Object.entries(payload)){
-        if(!v.validators || (!emptyInvalid && (typeof v.value === "undefined" || v.value === "" || v.value === null)) || runValidators(v.validators, v.value)){
-            payload[k].valid = true
-            continue
+        validationPayload[k].valid = true
+        validationPayload[k].error = false
+
+        if(!v.validators || (!emptyInvalid && (typeof v.value === "undefined" || v.value === "" || v.value === null))) continue
+
+        const validationResult = await runValidators(v, controller)
+        if(validationResult === true) continue
+
+        validationPayload[k] = {
+            valid: false,
+            error: validationResult.message || ""
         }
-        
-        payload[k].valid = false
     }
+
+    if(controller.signal.aborted === true) return
+    validationStore.set(validationPayload)
 }
 
 export const allValid = (payload, emptyInvalid = false) => {
-    for(let [k, v] of Object.entries(payload)){
-        if(!v.validators || (!emptyInvalid && (typeof v.value === "undefined" || v.value === "" || v.value === null)) || runValidators(v.validators, v.value)){
-            continue
-        }
+    // for(let [k, v] of Object.entries(payload)){
+    //     if(!v.validators || (!emptyInvalid && (typeof v.value === "undefined" || v.value === "" || v.value === null)) || runValidators(v.validators, v.value)){
+    //         continue
+    //     }
         
-        return false
-    }
+    //     return false
+    // }
 
     return true
 }

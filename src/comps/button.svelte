@@ -8,7 +8,7 @@
     button {
         border: none;
         outline: none;
-        font-size: 1rem;
+        font-size: .95rem;
         cursor: pointer;
         transition: background .2s, opacity .2s, color .2s
     }
@@ -20,8 +20,8 @@
     button.primary {
         background: var(--accent);
         color: white;
-        border-radius: 14px;
-        padding: 24px 48px;
+        border-radius: 8px;
+        padding: 14px 32px;
     }
 
     button.primary[disabled] {

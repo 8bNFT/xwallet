@@ -1,3 +1,5 @@
+import { API } from "src/stores/wallet"
+
 export const isNumber = v => !isNaN(v)
 
 export const isNegativeNumber = v => isNumber(v) && Number(v) < 0
@@ -35,3 +37,18 @@ export const isTruthy = v => v
 export const isFalse = v => v === false || v === "false"
 
 export const isFalsy = v => !v
+
+export const isIMXUser = async (user, controller, network) => {
+    try {
+        const response = await fetch(API(network, "/v1/users/") + user, {
+            signal: controller.signal
+        })
+
+        const { accounts } = await response.json()
+        if(!accounts || !accounts.length) return false
+        return true
+    }catch(err){
+        console.log(err)
+        return false
+    }
+}
