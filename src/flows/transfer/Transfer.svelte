@@ -76,17 +76,23 @@
             }
         },
         props: { formStore: payloadStore },
-        close: () => open = false
+        close: () => {
+            STEP_STORE.reset()
+            open = false
+        }
     }
 
     $: steps = [
         {
             component: TransferRequest, 
             props: {title: "This is test #1"}, 
+            title: {
+                text: "Send some " + tokens[$payloadStore.coin.value].symbol
+            },
             footer: {
                 primary: {
                     text: "Review request"
-                }
+                },
             }
         },
         {

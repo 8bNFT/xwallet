@@ -190,11 +190,11 @@
         width: 100%
     }
 
-    :global(.footer_buttons button:nth-child(1)) {
-        margin-top: 1.5rem
+    :global(.footer_buttons > div:nth-child(1)) {
+        margin-top: 2.5rem
     }
 
-    :global(.footer_buttons button:nth-child(2)) {
+    :global(.footer_buttons > div:nth-child(2)) {
         margin-top: .5rem
     }
 
@@ -218,7 +218,7 @@
     }
 
     :global(.title_strip > *) {
-        margin-bottom: 1.5rem
+        margin-bottom: 2.5rem
     }
 
     .content_holder {
@@ -232,8 +232,12 @@
         grid-area: 1 / 1;
     }
 
-    @media screen and (max-width: 400px){
+    @media screen and (max-width: 800px){
         .cont_fixed {
+            max-width: none
+        }
+
+        .cont {
             border-radius: 0;
         }
 

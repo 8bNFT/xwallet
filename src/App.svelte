@@ -1,7 +1,7 @@
 <script>
   import { Wallet } from 'src/stores/wallet';
   import Transfer from 'src/flows/transfer/Transfer.svelte';
-import { assetToUSD } from './util/cfx';
+  import { assetToUSD } from './util/cfx';
 
   const walletPromise = Wallet.initialize("testnet")
 

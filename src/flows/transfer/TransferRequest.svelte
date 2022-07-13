@@ -4,15 +4,25 @@
     import { Wallet } from "src/stores/wallet";
     import BasicInput from "src/comps/BasicInput.svelte";
     import CfxInput from "src/comps/CfxInput.svelte";
+    import Select from "src/comps/Select.svelte";
+
+    const balancesToOptions = (balances) => {
+        const options = []
+        for(const [id, value] of Object.entries(balances)){
+            options.push({
+                value: id,
+                label: value.symbol,
+                icon: value.image_url || "https://design-system.immutable.com/currency_icons/currency--erc20.svg"
+            })
+        }
+
+        return options
+    }
 
     $: Balances = $Wallet.Balances
 </script>
 
-<select bind:value={$formStore.coin.value}>
-    {#each Object.entries($Balances) as [id, coin]}
-        <option value={id}>{coin.symbol}</option>
-    {/each}
-</select>
+<Select bind:value={$formStore.coin.value} options={balancesToOptions($Balances)} />
 
 <div>
     <CfxInput placeholder={"Amount to send"} bind:value={$formStore.amount.value} valid={$formStore.amount.valid} label="Amount" asset={$Balances[$formStore.coin.value]} />
