@@ -8,9 +8,13 @@
     button {
         border: none;
         outline: none;
-        font-size: .95rem;
+        font-size: 1rem;
         cursor: pointer;
         transition: background .2s, opacity .2s, color .2s
+    }
+
+    button[disabled] {
+        cursor: not-allowed
     }
 
     button.primary {
@@ -18,6 +22,11 @@
         color: white;
         border-radius: 14px;
         padding: 24px 48px;
+    }
+
+    button.primary[disabled] {
+        background: var(--l-grey) !important;
+        color: var(--grey) !important;
     }
 
     button.primary:hover {
@@ -29,6 +38,10 @@
         color: var(--grey);
         padding: 16px 24px;
         opacity: .8;
+    }
+
+    button.secondary[disabled] {
+        opacity: .6 !important;
     }
 
     button.secondary:hover {

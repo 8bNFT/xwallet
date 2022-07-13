@@ -1,12 +1,15 @@
 <script>
     export let toggleStore, small = false
+
+    $: options = toggleStore.options
+    $: disabled = toggleStore.disabled
 </script>
 
-<div class="cont" class:small on:click={toggleStore.toggle}>
-    {#each toggleStore.options() as option}
+<div class="cont" class:small on:click={$disabled ? null : toggleStore.toggle} class:disabled={$disabled}>
+    {#each $options as option}
         <div class="option" class:active={option === $toggleStore}>{option}</div>
     {/each}
-    <div class={toggleStore.options().indexOf($toggleStore) == 0 ? 'background left' : 'background right'}></div>
+    <div class={$options.indexOf($toggleStore) == 0 ? 'background' : 'background right'}></div>
 </div>
 
 <style>
@@ -19,6 +22,11 @@
         position: relative;
     }
 
+    .cont.disabled {
+        opacity: .6;
+        cursor: not-allowed
+    }
+
     .cont.small {
         padding: .3rem;
         border-radius: 4px
@@ -28,8 +36,6 @@
         padding: .5rem;
         font-size: .75rem;
         font-weight: 500;
-        flex: 50%;
-        flex-shrink: 0;
         text-align: center;
         background: rgba(255, 255, 255, 0);
         cursor: pointer;
@@ -37,6 +43,15 @@
         position: relative;
         user-select: none;
         text-transform: uppercase;
+        opacity: .6
+    }
+
+    .disabled .option {
+        cursor: not-allowed
+    }
+
+    .option.active {
+        opacity: 1
     }
 
     .small .option {

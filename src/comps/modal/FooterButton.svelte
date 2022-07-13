@@ -1,10 +1,10 @@
 <script>
-    export let type, config, defaultConfig, current, max
+    export let type, config, defaultConfig, current, max, disabled
 
-    import Button from '@/comps/Button.svelte';
+    import Button from 'src/comps/Button.svelte';
 
     $: text = config.text || defaultConfig.text
     $: action = config.action || defaultConfig.action
 </script>
 
-<Button action={action({current, max})} {type} text={typeof text === "string" ? text : typeof text === "function" ? text({current, max}) : ""} />
+<Button {disabled} action={action({current, max})} {type} text={typeof text === "string" ? text : typeof text === "function" ? text({current, max}) : ""} />

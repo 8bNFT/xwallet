@@ -2,46 +2,107 @@
     import StepperForm from "src/comps/modal/StepperModal.svelte";
     import TransferRequest from "./TransferRequest.svelte";
     import { createStepStore } from "src/stores/steps";
+    import { createPayloadStore } from "src/stores/payload"
+    import { allValid, validate } from "src/validation/validate";
+    import { isEthAddress, isLtOrEq, isNotEq, isPositiveNumber } from "src/validation/validators";
+    import { Wallet } from "src/stores/wallet";
+    import TransferReview from "./TransferReview.svelte";
 
-    const formStore = {
-        value: ""
+    let User = $Wallet.User
+    let Balances = $Wallet.Balances
+    let tokens = $Wallet.tokens
+    let Link = $Wallet.Link
+
+    const STEP_STORE = createStepStore(3, false)
+
+    const payloadStore = createPayloadStore({
+        coin: {
+            value: Object.keys($Balances)[0]
+        },
+        amount: {
+            value: 1,
+            validators: [isPositiveNumber, (v) => isLtOrEq(v, $Balances[$payloadStore.coin.value].balance.parsed)]
+        },
+        receiver: {
+            value: "",
+            validators: [isEthAddress, (v) => isNotEq(v.toLowerCase(), $User.address)]
+        }
+    })
+
+    const extractTransferPayload = () => {
+        const token = tokens[$payloadStore.coin.value]
+
+        if(token.id === "ETH"){
+            return [
+                {
+                    type: "ETH",
+                    amount: $payloadStore.amount.value,
+                    toAddress: $payloadStore.receiver.value
+                }
+            ]
+        }
+
+        return [
+            {
+                type: "ERC20",
+                tokenAddress: token.token_address,
+                symbol: token.symbol,
+                amount: $payloadStore.amount.value,
+                toAddress: $payloadStore.receiver.value
+            }
+        ]
     }
 
-    const defaultConfig = {
+    $: defaultConfig = {
         title: {
-            text: "Transfer",
+            text: "Transfer " + tokens[$payloadStore.coin.value].symbol,
         },
         footer: {
             primary: {
-                text: "This is a primary button",
+                text: "Next",
                 action: ({ current, max }) => {
                     if(current === max){
                         return () => console.log("Finish")
                     }
                     return STEP_STORE.next
-                }
+                },
+                disabled: () => !allValid($payloadStore, true)
             },
             secondary: {
-                text: "This is a secondary button",
+                text: "Back",
                 action: ({ current, max }) => {
                     return STEP_STORE.prev
                 }
             }
         },
-        props: { formStore },
+        props: { formStore: payloadStore },
         close: () => open = false
     }
 
-    const steps = [
+    $: steps = [
         {
             component: TransferRequest, 
             props: {title: "This is test #1"}, 
-            footer: {primary: true}
+            footer: {
+                primary: {
+                    text: "Review request"
+                }
+            }
         },
         {
-            component: TransferRequest, 
+            component: TransferReview, 
             props: {title: "This is test #2"}, 
-            footer: {primary: true, secondary: true}
+            footer: {
+                primary: {
+                    text: "Transfer " + tokens[$payloadStore.coin.value].symbol,
+                    action: () => { 
+                        return async () => {
+                            await $Link.transfer(extractTransferPayload())
+                            STEP_STORE.next()
+                        }
+                    }
+                }
+            }
         },
         {
             component: TransferRequest, 
@@ -50,17 +111,18 @@
         }
     ]
 
-    const STEP_STORE = createStepStore(steps.length, false)
-    let open = true
+    let open = false
+
+    $: validate($payloadStore)
 </script>
 
-<button on:click={() => {STEP_STORE.reset(); open = true; console.log(formStore)}} style="z-index: 100; position: relative">Toggle open</button>
+<button on:click={() => {STEP_STORE.reset(); open = true; console.log($payloadStore)}} style="z-index: 100; position: relative">Toggle transfer flow</button>
 
 {#if open}
 <StepperForm 
     {steps}
     {defaultConfig}
     stepStore={STEP_STORE}
-    overlayCloses={false}
+    overlayCloses={true}
 />
 {/if}

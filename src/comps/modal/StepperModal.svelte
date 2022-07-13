@@ -1,10 +1,11 @@
 <script>
     export let steps, defaultConfig, stepStore, overlayCloses
 
-    import { createStepStore } from "@/stores/steps";
+    import { createStepStore } from "src/stores/steps";
     import FooterButton from "./FooterButton.svelte";
     import TitleButton from "./TitleButton.svelte";
     import { fade, scale, fly } from "svelte/transition";
+    import { flyIn, flyOut, heightIn, heightOut } from "src/util/transition"
 
     const STEP_STORE = stepStore || createStepStore(steps.length, false)
 
@@ -18,11 +19,11 @@
         return direction = true
     }
 
-    $: console.log(detectDirection($STEP_STORE))
+    $: detectDirection($STEP_STORE)
 </script>
 
 <div in:fade={{duration: 200}} out:fade={{duration: 150}} on:click={overlayCloses && defaultConfig.close ? defaultConfig.close : null} class="overlay"></div>
-<div in:scale={{start: 0.8, duration: 350}} out:scale={{start: 0.8, duration: 150}} class="cont_fixed">
+<div in:fly={{y: 200, duration: 350}} out:scale={{start: 0.8, duration: 150}} class="cont_fixed">
     <div class="cont">
         {#if defaultConfig.close}
             <div class="close" on:click={defaultConfig.close}>
@@ -71,7 +72,11 @@
         </div>
         <div class="content_holder">
             {#key $STEP_STORE}
-                <div out:fly={{x: direction && -400 || 400}} in:fly={{x: direction && 400 || -400}} class="content">
+                <div
+                    out:flyOut|local={{x: direction && -400 || 400, duration: 350}} 
+                    in:flyIn|local={{x: direction && 400 || -400, duration: 350}} 
+                    class="content"
+                >
                     <svelte:component
                         this={steps[$STEP_STORE].component} 
                         {...(steps[$STEP_STORE].props || {})} 
@@ -83,23 +88,27 @@
         </div>
         <div class="footer_buttons">
             {#if steps[$STEP_STORE].footer?.primary}
-                <FooterButton 
-                    type="primary"
-                    config={steps[$STEP_STORE].footer.primary}
-                    defaultConfig={defaultConfig.footer.primary}
-                    current={$STEP_STORE}
-                    max={STEP_STORE.getMax()}
-                />
+                <div in:heightIn|local={{ duration: 350}} out:heightOut|local={{ duration: 350}}>
+                    <FooterButton 
+                        disabled={steps[$STEP_STORE].footer?.primary.disabled && steps[$STEP_STORE].footer.primary.disabled() || defaultConfig.footer.primary.disabled()}
+                        type="primary"
+                        config={steps[$STEP_STORE].footer.primary}
+                        defaultConfig={defaultConfig.footer.primary}
+                        current={$STEP_STORE}
+                        max={STEP_STORE.getMax()}
+                    />
+                </div>
             {/if}
-    
             {#if steps[$STEP_STORE].footer?.secondary}
-                <FooterButton 
-                    type="secondary"
-                    config={steps[$STEP_STORE].footer.secondary}
-                    defaultConfig={defaultConfig.footer.secondary}
-                    current={$STEP_STORE}
-                    max={STEP_STORE.getMax()}
-                />
+                <div in:heightIn|local={{ duration: 350}} out:heightOut|local={{ duration: 350}}>
+                    <FooterButton 
+                        type="secondary"
+                        config={steps[$STEP_STORE].footer.secondary}
+                        defaultConfig={defaultConfig.footer.secondary}
+                        current={$STEP_STORE}
+                        max={STEP_STORE.getMax()}
+                    />
+                </div>
             {/if}
         </div>
     </div>
@@ -123,10 +132,22 @@
         z-index: 2;
         position: fixed;
         left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
+        top: 250px;
+        transform: translateX(-50%);
         max-width: 400px;
         width: 100%;
+    }
+
+    @media screen and (max-height: 800px){
+        .cont_fixed {
+            top: 100px
+        }
+    }
+
+    @media screen and (max-height: 600px){
+        .cont_fixed {
+            top: 50px
+        }
     }
 
     .cont {
@@ -159,6 +180,14 @@
     .cont, .footer_buttons, .content {
         display: flex;
         flex-direction: column;
+    }
+
+    .footer_buttons {
+        overflow: hidden;
+    }
+
+    :global(.footer_buttons button) {
+        width: 100%
     }
 
     :global(.footer_buttons button:nth-child(1)) {
@@ -195,6 +224,8 @@
     .content_holder {
         display: grid;
         overflow: hidden;
+        align-items: flex-start;
+        align-content: flex-start;
     }
 
     .content {
