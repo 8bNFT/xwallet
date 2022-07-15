@@ -29,7 +29,7 @@
 
     const convertToCrypto = (usd_value)=>{
         const USD = Math.floor(usd_value * 10) / 10
-        if(isNaN(USD)) return null
+        if(isNaN(USD)) return ""
 
         return limitPrecision(USDToAsset(USD, ASSET_USD), asset.precision)
     }
@@ -45,7 +45,7 @@
         const sanitizedValue = newValue !== "" ? String(newValue).replace(',', '.') : ""
 
         if(isFiat && !force){
-            usd_value = sanitizedValue
+            usd_value = !isNaN(sanitizedValue) && limitPrecision(sanitizedValue, 2) || sanitizedValue
             const crypto = convertToCrypto(usd_value)
             crypto_value = crypto
             return value = crypto
@@ -53,7 +53,7 @@
 
         if(isNaN(sanitizedValue)){
             value = ""
-            usd_value = convertToFiat(sanitizedValue)
+            usd_value = "0"
             return crypto_value = sanitizedValue
         }
 
@@ -61,7 +61,7 @@
         if(value !== limitValue) value = limitValue
         crypto_value = limitValue
 
-        return usd_value = convertToFiat(value)
+        return usd_value = limitPrecision(convertToFiat(value), 2)
     }
 
     const updateAsset = (asset) => {
@@ -77,13 +77,32 @@
         }
     }
 
-    const updateInput = ({ target: { value } }) => updateValue(value)
+    const updateInput = (event) => {
+        event.preventDefault()
+        const { key, target: { value: oldValue, selectionStart, selectionEnd } } = event
+        const valueArray = oldValue.split("")
+        const selection = selectionEnd - selectionStart
+
+        if(".0123456789".includes(key)){
+            if(key === "."){
+                if(!valueArray.includes(".")) valueArray.splice(selectionStart, selection, key)
+            } else {
+                valueArray.splice(selectionStart, selection, key)
+            }
+        }
+
+        updateValue(valueArray.join(""))
+    }
+
+    const refreshInput = (event) => {
+        if(!["Backspace", "Delete"].includes(event.key)) return event.preventDefault()
+        return updateValue(event.target.value)
+    }
 
     $: updateAsset(asset)
     $: !ASSET_USD ? disableToggle() : toggleStore.enable()
     $: $toggleStore || ASSET_USD, updateValue()
     $: checkExternalUpdate(value)
-    $: typeof usd_value === "number" ? usd_value = Math.floor(usd_value * (10 ** 2)) / (10 ** 2) : null
 </script>
 
 <div class:active class:invalid={!valid}>
@@ -95,9 +114,9 @@
     <div class="input" class:active class:invalid={!valid}>
         <div class="cfx_flex">
             {#if $toggleStore === "usd"}
-                <input pattern="\d*" on:keyup={updateInput} {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value={usd_value}>
+                <input pattern="\d*" on:keyup={refreshInput} on:keypress={updateInput} {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value={usd_value}>
             {:else}
-                <input pattern="\d*" on:keyup={updateInput} {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value={crypto_value}>
+                <input pattern="\d*" on:keyup={refreshInput} on:keypress={updateInput} {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value={crypto_value}>
             {/if}
             <div class="toggle">
                 <Toggle {toggleStore} small={true} />
