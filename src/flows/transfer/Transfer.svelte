@@ -6,7 +6,7 @@
     import { createStepStore } from "src/stores/steps";
     import { createGenericStore, createGenericStores, withValidation } from "src/stores/payload"
     import { allValid, validate } from "src/validation/validate";
-    import { isEthAddress, isIMXUser, isLtOrEq, isNotEq, isPositiveNumber } from "src/validation/validators";
+    import { isEthAddress, isGtOrEq, isIMXUser, isLtOrEq, isNotEq, isNumber, isPositiveNumber, verifyPrecision } from "src/validation/validators";
     import { Wallet } from "src/stores/wallet";
     import { handleTransferCall } from "./transfer";
 
@@ -24,9 +24,12 @@
                     value: Object.keys($Balances)[0]
                 },
                 amount: {
-                    value: 1,
+                    value: "",
                     validators: [
+                        [isNumber, "Value must be a number"],
                         [isPositiveNumber, "Value must be more than 0"], 
+                        [(v) => isGtOrEq(v, $Balances[$payloadStore.coin].minimum), () => `Value must be greater than ${$Balances[$payloadStore.coin].minimum}`],
+                        [(v) => verifyPrecision(v, $Balances[$payloadStore.coin].precision), () => `Decimal precision cannot exceed ${$Balances[$payloadStore.coin].precision} places`],
                         [(v) => isLtOrEq(v, $Balances[$payloadStore.coin].balance.parsed), () => `Not enough balance (${$Balances[$payloadStore.coin].balance.parsed} ${$Balances[$payloadStore.coin].symbol})`]
                     ]
                 },

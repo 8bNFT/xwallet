@@ -10,21 +10,20 @@
     import Label from "src/comps/Label.svelte"
     import ErrorMessage from "./ErrorMessage.svelte";
 
-    export let value, valid, error, label, asset, placeholder = ""
+    export let value, valid, error, label, asset
 
     const toggleStore = createToggleStore([asset.symbol, "usd"])
     $: toggleStore.updateOption(0, asset.symbol)
 
     const id = `cfx_input_${++local_id}`
     let usd_value = 0
-    let crypto_value = value
-    let currentAsset = asset
+    let last_usd = 0
     let active = false
     $: ASSET_USD = asset.price || 0
 
     const convertToFiat = (crypto_value)=>{
         if(isNaN(crypto_value)) return ""
-        return assetToUSD(value, ASSET_USD)
+        return limitPrecision(assetToUSD(value, ASSET_USD), 2)
     }
 
     const convertToCrypto = (usd_value)=>{
@@ -39,70 +38,28 @@
         toggleStore.disable()
     }
 
-    const updateValue = (newValue, force = false) => {
-        const isFiat = $toggleStore === "usd"
-        if(typeof newValue === "undefined") newValue = $toggleStore === "usd" ? usd_value : crypto_value
-        const sanitizedValue = newValue !== "" ? String(newValue).replace(',', '.') : ""
-
-        if(isFiat && !force){
-            usd_value = !isNaN(sanitizedValue) && limitPrecision(sanitizedValue, 2) || sanitizedValue
-            const crypto = convertToCrypto(usd_value)
-            crypto_value = crypto
-            return value = crypto
-        }
-
-        if(isNaN(sanitizedValue)){
-            value = ""
-            usd_value = "0"
-            return crypto_value = sanitizedValue
-        }
-
-        const limitValue = sanitizedValue !== "" ? limitPrecision(sanitizedValue, asset.precision) : ""
-        if(value !== limitValue) value = limitValue
-        crypto_value = limitValue
-
-        return usd_value = limitPrecision(convertToFiat(value), 2)
+    const sanitizeValue = v => {
+        value = String(v).replace(",", ".")
     }
 
-    const updateAsset = (asset) => {
-        if(currentAsset.id === asset.id) return
-        currentAsset = asset
-    }
-
-    const checkExternalUpdate = (_value) => {
-        const value = String(_value)
-        if(value !== crypto_value){
-            if(value === "" && isNaN(crypto_value)) return
-            return updateValue(value, true)
-        }
-    }
-
-    const updateInput = (event) => {
-        event.preventDefault()
-        const { key, target: { value: oldValue, selectionStart, selectionEnd } } = event
-        const valueArray = oldValue.split("")
-        const selection = selectionEnd - selectionStart
-
-        if(".0123456789".includes(key)){
-            if(key === "."){
-                if(!valueArray.includes(".")) valueArray.splice(selectionStart, selection, key)
+    const handleConversion = (cv, fv) => {
+        if($toggleStore === "usd"){
+            if(last_usd === fv){
+                value = cv
+                usd_value = convertToFiat(cv)
             } else {
-                valueArray.splice(selectionStart, selection, key)
+                value = convertToCrypto(fv)
             }
+        } else {
+            usd_value = convertToFiat(cv)
         }
 
-        updateValue(valueArray.join(""))
+        last_usd = usd_value
     }
 
-    const refreshInput = (event) => {
-        if(!["Backspace", "Delete"].includes(event.key)) return event.preventDefault()
-        return updateValue(event.target.value)
-    }
-
-    $: updateAsset(asset)
     $: !ASSET_USD ? disableToggle() : toggleStore.enable()
-    $: $toggleStore || ASSET_USD, updateValue()
-    $: checkExternalUpdate(value)
+    $: sanitizeValue(value)
+    $: $toggleStore, handleConversion(value, usd_value)
 </script>
 
 <div class:active class:invalid={!valid}>
@@ -114,9 +71,9 @@
     <div class="input" class:active class:invalid={!valid}>
         <div class="cfx_flex">
             {#if $toggleStore === "usd"}
-                <input pattern="\d*" on:keyup={refreshInput} on:keypress={updateInput} {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value={usd_value}>
+                <input pattern="\d*" placeholder={"Amount in USD"} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value={usd_value}>
             {:else}
-                <input pattern="\d*" on:keyup={refreshInput} on:keypress={updateInput} {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value={crypto_value}>
+                <input pattern="\d*" placeholder={`Amount in ${asset.symbol.toUpperCase()}`} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value={value}>
             {/if}
             <div class="toggle">
                 <Toggle {toggleStore} small={true} />
@@ -124,7 +81,7 @@
         </div>
         <div class="secondary__holder">
             {#if $toggleStore === "usd"}
-                <div in:fly|local={{y: 30, opacity: 1}} out:fly|local={{y: 30, opacity: 1}} class="secondary">≈ {crypto_value || 0} {asset.symbol}</div>
+                <div in:fly|local={{y: 30, opacity: 1}} out:fly|local={{y: 30, opacity: 1}} class="secondary">≈ {value || 0} {asset.symbol}</div>
             {:else}
                 <div in:fly|local={{y: -30, opacity: 1}} out:fly|local={{y: -30, opacity: 1}} class="secondary">≈ ${usd_value || 0}</div>
             {/if}
@@ -186,7 +143,6 @@
         grid-area: 1 / 1;
         display: flex;
         align-items: center;
-        /* padding-bottom: .4rem; */
         font-size: .85em;
         color: var(--grey);
         user-select: none;

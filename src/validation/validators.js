@@ -38,6 +38,8 @@ export const isFalse = v => v === false || v === "false"
 
 export const isFalsy = v => !v
 
+export const verifyPrecision = (v, precision) => !String(v).includes(".") || String(v).length - String(v).indexOf(".") - 1 <= precision
+
 export const isIMXUser = async (user, controller, network) => {
     try {
         const response = await fetch(API(network, "/v1/users/") + user, {

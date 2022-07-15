@@ -29,7 +29,7 @@
 
 <Select bind:value={$formStore.coin} options={balancesToOptions($Balances)} />
 <div class="separator"></div>
-<CfxInput placeholder={"Amount to send"} bind:value={$formStore.amount} valid={$validationStore.amount.valid} error={$validationStore.amount.error} label="Amount" asset={$Balances[$formStore.coin]}>
+<CfxInput bind:value={$formStore.amount} valid={$validationStore.amount.valid} error={$validationStore.amount.error} label="Amount" asset={$Balances[$formStore.coin]}>
     <LabelButton slot="label-right" value={"Max. " + $Balances[$formStore.coin].balance.parsed + " " + $Balances[$formStore.coin].symbol} on:click={setAmount} />
 </CfxInput>
 <div class="separator"></div>
