@@ -16,3 +16,6 @@ export const limitPrecision = (num, precision) => {
     }
     return limited
 }
+
+export const parseWithDecimals = (amount, decimals, precision) => 
+    (new BigNumber(amount).times(new BigNumber(Math.pow(10, parseInt('-' + decimals))))).toString(precision)

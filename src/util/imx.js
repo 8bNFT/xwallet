@@ -1,0 +1,1 @@
+export const API = (network, path = "") => `https://api${network === "testnet" && ".ropsten." || "."}x.immutable.com` + path

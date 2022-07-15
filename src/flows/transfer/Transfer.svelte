@@ -128,7 +128,18 @@
                         STEP_STORE.reset()
                     }
                 },
-                secondary: Wallet.getNetwork() === "testnet" ? false : {
+                secondary: Wallet.getNetwork() === "testnet" ? 
+                $resultStore.error ? 
+                {
+                    text: () =>  "Cancel",
+                    action: () => () => {
+                        open = false
+                        resetFlow()
+                        return STEP_STORE.reset()
+                    }
+                } :
+                false :
+                {
                     text: () =>  $resultStore.error ? "Cancel" : "View on Immutascan",
                     action: () => () => {
                         open = false

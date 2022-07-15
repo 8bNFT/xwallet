@@ -3,8 +3,13 @@
   import Transfer from 'src/flows/transfer/Transfer.svelte';
   import { assetToUSD } from './util/cfx';
   import Tooltip from 'src/comps/Tooltip.svelte';
+  import { getERC20Balance } from './util/blockchain';
 
   const walletPromise = Wallet.initialize("testnet")
+
+  let balance = new Promise(()=>{})
+
+  const fetchBalance = () => balance = getERC20Balance({ wallet: $User.address, token: $Balances["0x73f99ca65b1a0aef2d4591b1b543d789860851bf"] })
 
   $: User = $Wallet.User
   $: Balances = $Wallet.Balances
@@ -20,6 +25,14 @@
       {#each Object.values($Balances) as asset}
         <div>{asset.balance.parsed} {asset.symbol} (${assetToUSD(asset.balance.parsed, asset.price)})</div>
       {/each}
+
+      <!-- {fetchBalance()} -->
+
+      <!-- {#await balance}
+        Loading FCT balance
+      {:then _b}
+        {_b}
+      {/await} -->
 
       <Transfer />
       {$User.address} 

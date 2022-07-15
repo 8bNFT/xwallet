@@ -1,4 +1,4 @@
-import { API } from "src/stores/wallet"
+import { API } from "src/util/imx"
 
 export const isNumber = v => !isNaN(v)
 

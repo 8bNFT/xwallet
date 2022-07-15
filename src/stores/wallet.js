@@ -1,8 +1,7 @@
+import { parseWithDecimals } from 'src/util/cfx.js';
 import { readable, writable, get } from 'svelte/store';
 import { createLink } from './imx.js';
-import BN from 'bignumber.js';
-
-export const API = (network, path = "") => `https://api${network === "testnet" && ".ropsten." || "."}x.immutable.com` + path
+import { API } from 'src/util/imx.js';
 
 const createUserStore = async (network, Link) => {
     const { subscribe, set, update } = writable(false);
@@ -68,7 +67,7 @@ const createBalanceStore = async (network, token_info, userStore) => {
                         if(!["balance", "preparing_withdrawal", "withdrawable"].includes(key)) continue
                         balances[key] = {
                             raw: balances[key],
-                            parsed: balances[key] ? ((new BN(balances[key])).times(new BN(Math.pow(10, parseInt('-' + token_info[id].decimals))))).toString(10) : 0
+                            parsed: balances[key] ? parseWithDecimals(balances[key], token_info[id].decimals, token_info[id].precision) : 0
                         }
                     }
                     state[id] = {...balances, ...token_info[id]}

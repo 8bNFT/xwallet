@@ -57,6 +57,7 @@
 
     $: !ASSET_USD ? disableToggle() : toggleStore.enable()
     $: sanitizeValue(value)
+    // TODO: prevent rounding errors (re-conversion if only toggling)
     $: $toggleStore, handleConversion(value, usd_value)
 </script>
 

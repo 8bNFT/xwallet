@@ -64,6 +64,7 @@
 		padding: .4rem .6rem;
 		position: fixed;
 		font-size: .9rem;
-		color: var(--grey)
+		color: var(--grey);
+		z-index: 2147483647;
 	}
 </style>
