@@ -62,7 +62,7 @@
     <div on:click={() => open = !open} class="select" bind:this={container}>
         <div class="current">
             {#if valueStore.icon}
-                <img src={valueStore.icon} alt={valueStore.label + "icon"} class="icon" />
+                <img src={valueStore.icon} alt={`${valueStore.label} icon`} class="icon" on:error={valueStore.fallback_icon ? this.src = valueStore.fallback_icon : null} />
             {/if}
             <span>{valueStore.label}</span>
         </div>
@@ -76,7 +76,7 @@
             {#each options as option}
                 <div class="option" class:selected={option.value === value} class:disabled={option.unavailable} on:click={option.unavailable ? null : () => setOption(option.value)}>
                     {#if option.icon}
-                        <img src={option.icon} alt={option.label + "icon"} class="icon" />
+                        <img src={option.icon} class="icon" alt={`${option.label} icon`} on:error={option.fallback_icon ? this.src = option.fallback_icon : null} />
                     {/if}
                     <span>{option.label}</span>
                     {#if option.value === value}

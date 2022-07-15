@@ -37,7 +37,8 @@ export const getERC20Balance = async ({ wallet, token, network }) => {
 
 export const getETHBalance = async ({ wallet, network }) => {
     const web3 = buildWeb3(network)
-    return await web3.eth.getBalance(wallet)
+    const balance = await web3.eth.getBalance(wallet)
+    return parseWithDecimals(balance, 18, 10)
 }
 
 export const getTokenBalance = ({ wallet, token, network }) => {

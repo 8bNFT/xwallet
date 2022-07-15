@@ -23,7 +23,7 @@
 
     const convertToFiat = (crypto_value)=>{
         if(isNaN(crypto_value)) return ""
-        return limitPrecision(assetToUSD(value, ASSET_USD), 2)
+        return assetToUSD(value, ASSET_USD)
     }
 
     const convertToCrypto = (usd_value)=>{

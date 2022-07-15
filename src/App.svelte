@@ -4,6 +4,7 @@
   import { assetToUSD } from './util/cfx';
   import Tooltip from 'src/comps/Tooltip.svelte';
   import { getERC20Balance } from './util/blockchain';
+  import Deposit from './flows/deposit/Deposit.svelte';
 
   const walletPromise = Wallet.initialize("testnet")
 
@@ -34,7 +35,9 @@
         {_b}
       {/await} -->
 
-      <Transfer />
+      <!-- <Transfer /> -->
+
+      <Deposit />
       {$User.address} 
       <Tooltip title="Disconnect your wallet">
         <button on:click={User.logout}>Disconnect</button>

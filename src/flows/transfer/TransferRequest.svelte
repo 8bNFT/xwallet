@@ -13,7 +13,8 @@
             options.push({
                 value: id,
                 label: value.symbol,
-                icon: value.image_url || "https://design-system.immutable.com/currency_icons/currency--erc20.svg"
+                icon: value.image_url || "https://design-system.immutable.com/currency_icons/currency--erc20.svg",
+                fallback_icon: "https://design-system.immutable.com/currency_icons/currency--erc20.svg"
             })
         }
 

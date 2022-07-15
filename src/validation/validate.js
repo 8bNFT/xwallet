@@ -22,6 +22,8 @@ export const validate = async ({ payloadStore, validationStore, currentControlle
     const validationPayload = {...get(validationStore)}
 
     for(let [k, value] of Object.entries(payloadStore)){
+        if(!validationPayload[k]) continue
+
         const { value: previousValue, reactiveRevalidation, validators } = validationPayload[k]
         if(previousValue === value && reactiveRevalidation === false) continue
 
@@ -56,6 +58,8 @@ export const allValid = ({ payloadStore, validationStore, emptyInvalid = false, 
     currentController.controller = controller
 
     for(let k of Object.keys(payloadStore)){
+        if(!validationStore[k]) continue
+
         const value = payloadStore[k]
         const { valid } = validationStore[k]
 
