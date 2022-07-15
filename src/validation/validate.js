@@ -12,25 +12,33 @@ const runValidators = async ({validators, value}, controller) => {
     return true
 }
 
-export const validate = async (payload, validationStore, controllerStore = {}, emptyInvalid = false) => {
-    const { controller: previousController } = controllerStore
+export const validate = async ({ payloadStore, validationStore, currentController = {}, emptyInvalid = false }) => {
+    const { controller: previousController } = currentController
     if(previousController) previousController.abort()
 
     const controller = new AbortController()
-    controllerStore.controller = controller
+    currentController.controller = controller
 
     const validationPayload = {...get(validationStore)}
 
-    for(let [k, v] of Object.entries(payload)){
-        validationPayload[k].valid = true
-        validationPayload[k].error = false
+    for(let [k, value] of Object.entries(payloadStore)){
+        const { value: previousValue, reactiveRevalidation, validators } = validationPayload[k]
+        if(previousValue === value && reactiveRevalidation === false) continue
 
-        if(!v.validators || (!emptyInvalid && (typeof v.value === "undefined" || v.value === "" || v.value === null))) continue
+        validationPayload[k] = {
+            ...validationPayload[k],
+            value,
+            valid: true,
+            error: false
+        }
 
-        const validationResult = await runValidators(v, controller)
+        if(!validators || (!emptyInvalid && (typeof value === "undefined" || value === "" || value === null))) continue
+
+        const validationResult = await runValidators({ validators, value }, controller)
         if(validationResult === true) continue
 
         validationPayload[k] = {
+            ...validationPayload[k],
             valid: false,
             error: validationResult.message || ""
         }
@@ -40,14 +48,22 @@ export const validate = async (payload, validationStore, controllerStore = {}, e
     validationStore.set(validationPayload)
 }
 
-export const allValid = (payload, emptyInvalid = false) => {
-    // for(let [k, v] of Object.entries(payload)){
-    //     if(!v.validators || (!emptyInvalid && (typeof v.value === "undefined" || v.value === "" || v.value === null)) || runValidators(v.validators, v.value)){
-    //         continue
-    //     }
-        
-    //     return false
-    // }
+export const allValid = ({ payloadStore, validationStore, emptyInvalid = false, currentController }) => {
+    const { controller: previousController } = currentController
+    if(previousController) previousController.abort()
 
+    const controller = new AbortController()
+    currentController.controller = controller
+
+    for(let k of Object.keys(payloadStore)){
+        const value = payloadStore[k]
+        const { valid } = validationStore[k]
+
+        if(controller.signal.aborted === true) return
+        if(emptyInvalid === true && (typeof value === "undefined" || value === "" || value === null)) return false
+        if(!valid) return false
+    }
+
+    if(controller.signal.aborted === true) return
     return true
 }

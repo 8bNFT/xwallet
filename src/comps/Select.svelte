@@ -100,11 +100,12 @@
         border: 2px solid var(--l-grey);
         border-radius: 8px;
         outline-color: var(--accent);
+        transition: all .15s;
     }
 
     .open .select {
-        transition: border-color .15s;
         border-color: var(--accent);
+        box-shadow: 0 0 15px rgba(21, 78, 255, .08);
     }
     
     .current {

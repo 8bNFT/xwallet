@@ -1,5 +1,5 @@
 <script>
-    export let type, config, defaultConfig, current, max, disabled
+    export let type, config, defaultConfig, current, max, disabled, loading
 
     import Button from 'src/comps/Button.svelte';
 
@@ -7,4 +7,4 @@
     $: action = config.action || defaultConfig.action
 </script>
 
-<Button {disabled} action={action({current, max})} {type} text={typeof text === "string" ? text : typeof text === "function" ? text({current, max}) : ""} />
+<Button disabled={disabled || loading} action={action({current, max})} {type} text={loading ? loading : typeof text === "string" ? text : typeof text === "function" ? text({current, max}) : ""} />

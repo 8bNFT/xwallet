@@ -22,9 +22,9 @@ export const isNotEq = (v, x) => v != x
 
 export const isNotEqStrict = (v, x) => v !== x
 
-export const isGtOrEq = (v, x) => isEq(Number(v),  Number(x)) || isGt(Number(v),  Number(x))
+export const isGtOrEq = (v, x) => isEq(Number(v),  Number(x)) || isGt(v, x)
 
-export const isLtOrEq = (v, x) => isEq(Number(v), Number(x)) || isLt(Number(v), Number(x))
+export const isLtOrEq = (v, x) => isEq(Number(v), Number(x)) || isLt(v, x)
 
 export const isEthAddress = v => /^(0x)?[0-9a-f]{40}$/i.test(v.toLowerCase())
 

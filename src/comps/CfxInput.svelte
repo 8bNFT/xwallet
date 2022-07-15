@@ -4,7 +4,7 @@
 
 <script>
     import { createToggleStore } from "src/stores/toggle";
-    import { assetToUSD, USDToAsset } from "src/util/cfx";
+    import { assetToUSD, USDToAsset, limitPrecision } from "src/util/cfx";
     import { fly } from "svelte/transition";
     import Toggle from "src/comps/Toggle.svelte";
     import Label from "src/comps/Label.svelte"
@@ -12,61 +12,92 @@
 
     export let value, valid, error, label, asset, placeholder = ""
 
-    let usd_value
-    let crypto_value = value
-    let active = false
-    $: ASSET_USD = asset.price || 0
-
     const toggleStore = createToggleStore([asset.symbol, "usd"])
     $: toggleStore.updateOption(0, asset.symbol)
 
     const id = `cfx_input_${++local_id}`
+    let usd_value = 0
+    let crypto_value = value
+    let currentAsset = asset
+    let active = false
+    $: ASSET_USD = asset.price || 0
 
     const convertToFiat = (crypto_value)=>{
-        const CRYPTO = parseFloat(crypto_value)
-        if(isNaN(CRYPTO)){
-            value = ""
-            usd_value = ""
-            return
-        }
-
-        value = crypto_value
-        usd_value = assetToUSD(value, ASSET_USD)
+        if(isNaN(crypto_value)) return ""
+        return assetToUSD(value, ASSET_USD)
     }
 
     const convertToCrypto = (usd_value)=>{
-        const USD = parseFloat(usd_value)
-        if(isNaN(USD)){
-            value = ""
-            crypto_value = ""
-            return
-        }
+        const USD = Math.floor(usd_value * 10) / 10
+        if(isNaN(USD)) return null
 
-        value = USDToAsset(USD, ASSET_USD)
-        crypto_value = value
+        return limitPrecision(USDToAsset(USD, ASSET_USD), asset.precision)
     }
 
-    const disableToggle = ()=>{
-        toggleStore.set(asset.symbol)
+    const disableToggle = (usd = false)=>{
+        toggleStore.set(usd ? "usd" : asset.symbol)
         toggleStore.disable()
     }
 
-    $: typeof usd_value === "number" ? usd_value = parseFloat(usd_value.toFixed(2)) : null
-    $: typeof crypto_value === "number" ? crypto_value = parseFloat(crypto_value.toFixed(6)) : null
+    const updateValue = (newValue, force = false) => {
+        const isFiat = $toggleStore === "usd"
+        if(typeof newValue === "undefined") newValue = $toggleStore === "usd" ? usd_value : crypto_value
+        const sanitizedValue = newValue !== "" ? String(newValue).replace(',', '.') : ""
+
+        if(isFiat && !force){
+            usd_value = sanitizedValue
+            const crypto = convertToCrypto(usd_value)
+            crypto_value = crypto
+            return value = crypto
+        }
+
+        if(isNaN(sanitizedValue)){
+            value = ""
+            usd_value = convertToFiat(sanitizedValue)
+            return crypto_value = sanitizedValue
+        }
+
+        const limitValue = sanitizedValue !== "" ? limitPrecision(sanitizedValue, asset.precision) : ""
+        if(value !== limitValue) value = limitValue
+        crypto_value = limitValue
+
+        return usd_value = convertToFiat(value)
+    }
+
+    const updateAsset = (asset) => {
+        if(currentAsset.id === asset.id) return
+        currentAsset = asset
+    }
+
+    const checkExternalUpdate = (_value) => {
+        const value = String(_value)
+        if(value !== crypto_value){
+            if(value === "" && isNaN(crypto_value)) return
+            return updateValue(value, true)
+        }
+    }
+
+    const updateInput = ({ target: { value } }) => updateValue(value)
+
+    $: updateAsset(asset)
     $: !ASSET_USD ? disableToggle() : toggleStore.enable()
-    $: $toggleStore === "usd" ? convertToCrypto(usd_value) : convertToFiat(crypto_value)
+    $: $toggleStore || ASSET_USD, updateValue()
+    $: checkExternalUpdate(value)
+    $: typeof usd_value === "number" ? usd_value = Math.floor(usd_value * (10 ** 2)) / (10 ** 2) : null
 </script>
 
-
 <div class:active class:invalid={!valid}>
-    <Label {id} {active} error={!valid} {label} />
+    <Label {id} {active} error={!valid} {label}>
+        <slot name="label-left" slot="left" />
+        <slot name="label-right" slot="right" />
+    </Label>
     
     <div class="input" class:active class:invalid={!valid}>
         <div class="cfx_flex">
             {#if $toggleStore === "usd"}
-                <input step="1" type="number" {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value={usd_value}>
+                <input pattern="\d*" on:keyup={updateInput} {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value={usd_value}>
             {:else}
-                <input step="0.05" type="number" {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value={crypto_value}>
+                <input pattern="\d*" on:keyup={updateInput} {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value={crypto_value}>
             {/if}
             <div class="toggle">
                 <Toggle {toggleStore} small={true} />
@@ -88,12 +119,13 @@
     .input {
         border: 2px solid var(--l-grey);
         border-radius: 8px;
-        transition: border-color .15s;
+        transition: all .15s;
         padding: .75rem
     }
 
     .input.active {
-        border-color: var(--accent)
+        border-color: var(--accent);
+        box-shadow: 0 0 15px rgba(21, 78, 255, .08);
     }
 
     .input.active.invalid {

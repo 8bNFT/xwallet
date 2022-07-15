@@ -2,6 +2,7 @@
   import { Wallet } from 'src/stores/wallet';
   import Transfer from 'src/flows/transfer/Transfer.svelte';
   import { assetToUSD } from './util/cfx';
+  import Tooltip from 'src/comps/Tooltip.svelte';
 
   const walletPromise = Wallet.initialize("testnet")
 
@@ -21,7 +22,10 @@
       {/each}
 
       <Transfer />
-      {$User.address} <button on:click={User.logout}>Disconnect</button>
+      {$User.address} 
+      <Tooltip title="Disconnect your wallet">
+        <button on:click={User.logout}>Disconnect</button>
+      </Tooltip>
     </div>
   {:else}
     <button on:click={$Wallet.User.login}>Log in</button>

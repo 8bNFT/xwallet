@@ -13,7 +13,10 @@
 
 
 <div class="input" class:active class:invalid={!valid}>
-    <Label {active} {id} {label} error={!valid} />
+    <Label {active} {id} {label} error={!valid}>
+        <slot name="label-left" slot="left" />
+        <slot name="label-right" slot="right" />
+    </Label>
     <input {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value>
     
     <ErrorMessage {error} />
@@ -23,14 +26,14 @@
     input {
         border: 2px solid var(--l-grey);
         border-radius: 8px;
-        transition: border-color .15s;
+        transition: all .15s;
         display: block;
         width: 100%;
         outline: none;
         font-size: 1rem;
         padding: .75rem;
         padding-right: .35rem;
-    }
+    }    
 
     .active input {
         border-color: var(--accent);

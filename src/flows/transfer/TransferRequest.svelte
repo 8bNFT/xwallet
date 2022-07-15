@@ -5,6 +5,7 @@
     import BasicInput from "src/comps/BasicInput.svelte";
     import CfxInput from "src/comps/CfxInput.svelte";
     import Select from "src/comps/Select.svelte";
+    import LabelButton from "src/comps/LabelButton.svelte";
 
     const balancesToOptions = (balances) => {
         const options = []
@@ -19,11 +20,17 @@
         return options
     }
 
+    const setAmount = () => {
+        $formStore.amount = Number($Balances[$formStore.coin].balance.parsed)
+    }
+
     $: Balances = $Wallet.Balances
 </script>
 
-<Select bind:value={$formStore.coin.value} options={balancesToOptions($Balances)} />
+<Select bind:value={$formStore.coin} options={balancesToOptions($Balances)} />
 <div class="separator"></div>
-<CfxInput placeholder={"Amount to send"} bind:value={$formStore.amount.value} valid={$validationStore.amount.valid} error={$validationStore.amount.error} label="Amount" asset={$Balances[$formStore.coin.value]} />
+<CfxInput placeholder={"Amount to send"} bind:value={$formStore.amount} valid={$validationStore.amount.valid} error={$validationStore.amount.error} label="Amount" asset={$Balances[$formStore.coin]}>
+    <LabelButton slot="label-right" value={"Max. " + $Balances[$formStore.coin].balance.parsed + " " + $Balances[$formStore.coin].symbol} on:click={setAmount} />
+</CfxInput>
 <div class="separator"></div>
-<BasicInput placeholder={"Receiver address"} label="Receiver" bind:value={$formStore.receiver.value} valid={$validationStore.receiver.valid}  error={$validationStore.receiver.error} />
+<BasicInput placeholder={"Receiver address"} label="Receiver" bind:value={$formStore.receiver} valid={$validationStore.receiver.valid}  error={$validationStore.receiver.error} />

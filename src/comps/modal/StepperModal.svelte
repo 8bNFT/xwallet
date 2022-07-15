@@ -35,41 +35,43 @@
                 </svg>                  
             </div>
         {/if}
-        <div class="title_strip">
-            {#if $STEP_STORE > 0 && steps[$STEP_STORE].title?.prev !== false}
-                <TitleButton 
-                    type="prev"
-                    config={steps[$STEP_STORE].title?.prev}
-                    defaultConfig={defaultConfig.title.prev}
-                    current={$STEP_STORE}
-                    max={STEP_STORE.getMax()}
-                    action={STEP_STORE.prev}
-                />
-            {/if}
-            {#if steps[$STEP_STORE].title?.text}
-                {#if typeof steps[$STEP_STORE].title.text === "string"}
-                    <span>{steps[$STEP_STORE].title.text}</span>
-                {:else if typeof steps[$STEP_STORE].title.text === "function"}
-                    <span>{steps[$STEP_STORE].title.text({current: $STEP_STORE, max: STEP_STORE.getMax()})}</span>
+        {#if steps[$STEP_STORE].title !== false}
+            <div class="title_strip">
+                {#if $STEP_STORE > 0 && steps[$STEP_STORE].title?.prev !== false}
+                    <TitleButton 
+                        type="prev"
+                        config={steps[$STEP_STORE].title?.prev}
+                        defaultConfig={defaultConfig.title.prev}
+                        current={$STEP_STORE}
+                        max={STEP_STORE.getMax()}
+                        action={STEP_STORE.prev}
+                    />
                 {/if}
-            {:else if steps[$STEP_STORE].title !== false && defaultConfig.title.text}
-                {#if typeof defaultConfig.title.text === "string"}
-                    <span>{defaultConfig.title.text}</span>
-                {:else if defaultConfig.title.text === "function"}
-                    <span>{defaultConfig.title.text({current: $STEP_STORE, max: STEP_STORE.getMax()})}</span>
+                {#if steps[$STEP_STORE].title?.text}
+                    {#if typeof steps[$STEP_STORE].title.text === "string"}
+                        <span>{steps[$STEP_STORE].title.text}</span>
+                    {:else if typeof steps[$STEP_STORE].title.text === "function"}
+                        <span>{steps[$STEP_STORE].title.text({current: $STEP_STORE, max: STEP_STORE.getMax()})}</span>
+                    {/if}
+                {:else if steps[$STEP_STORE].title !== false && defaultConfig.title.text}
+                    {#if typeof defaultConfig.title.text === "string"}
+                        <span>{defaultConfig.title.text}</span>
+                    {:else if defaultConfig.title.text === "function"}
+                        <span>{defaultConfig.title.text({current: $STEP_STORE, max: STEP_STORE.getMax()})}</span>
+                    {/if}
                 {/if}
-            {/if}
-            {#if steps[$STEP_STORE].title?.next}
-                <TitleButton 
-                    type="next"
-                    config={steps[$STEP_STORE].title?.next}
-                    defaultConfig={defaultConfig.title.next}
-                    current={$STEP_STORE}
-                    max={STEP_STORE.getMax()}
-                    action={STEP_STORE.next}
-                />
-            {/if}
-        </div>
+                {#if steps[$STEP_STORE].title?.next}
+                    <TitleButton 
+                        type="next"
+                        config={steps[$STEP_STORE].title?.next}
+                        defaultConfig={defaultConfig.title.next}
+                        current={$STEP_STORE}
+                        max={STEP_STORE.getMax()}
+                        action={STEP_STORE.next}
+                    />
+                {/if}
+            </div>
+        {/if}
         <div class="content_holder">
             {#key $STEP_STORE}
                 <div
@@ -91,6 +93,7 @@
                 <div in:heightIn|local={{ duration: 350}} out:heightOut|local={{ duration: 350}}>
                     <FooterButton 
                         disabled={steps[$STEP_STORE].footer?.primary.disabled && steps[$STEP_STORE].footer.primary.disabled() || defaultConfig.footer.primary.disabled()}
+                        loading={steps[$STEP_STORE].footer?.primary.loading && steps[$STEP_STORE].footer.primary.loading() || false}
                         type="primary"
                         config={steps[$STEP_STORE].footer.primary}
                         defaultConfig={defaultConfig.footer.primary}
