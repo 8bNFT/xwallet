@@ -38,9 +38,7 @@
         toggleStore.disable()
     }
 
-    const sanitizeValue = v => {
-        value = String(v).replace(",", ".")
-    }
+    const sanitizeValue = v => value = limitPrecision(String(v).replace(",", "."), asset.precision)
 
     const handleConversion = (cv, fv) => {
         if($toggleStore === "usd"){

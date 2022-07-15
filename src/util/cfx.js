@@ -6,6 +6,8 @@ export const USDToAsset = (amount, price) => price ? (amount / price) : 0
 
 export const limitPrecision = (num, precision) => {
     const stringNum = String(num)
+    if(isNaN(num) || num === "") return num
+
     const limited = (new BigNumber(num)).toFixed(precision, BigNumber.ROUND_DOWN)
 
     if((new BigNumber(limited)).eq(new BigNumber(num))){
