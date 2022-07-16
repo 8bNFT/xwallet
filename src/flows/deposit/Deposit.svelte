@@ -61,9 +61,7 @@
             },
             secondary: {
                 text: "Back",
-                action: ({ current, max }) => {
-                    return STEP_STORE.prev
-                },
+                action: ({ current, max }) => STEP_STORE.prev,
                 disabled: () => loading
             }
         },

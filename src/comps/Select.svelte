@@ -47,7 +47,7 @@
         optionsCont.scrollTop = selected.offsetTop
     }
 
-    $: !value ? findFirstValue(options) : null
+    $: if(!value) findFirstValue(options)
     $: valueStore = findOption(value)
     $: open && resizeSelect()
 </script>
