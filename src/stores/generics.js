@@ -40,3 +40,23 @@ export function withValidation(payload){
 
 	return [payloadStore, validationStore]
 }
+
+function createFlowStore(){
+	const { subscribe, set, update, reset } = createGenericStore({ flow: false, props: {} })
+
+	const deposit = (token) => set({ flow: "deposit", props: token && { coin: { value: token } } || {} })
+	const transfer = (token) => set({ flow: "transfer", props: token && { coin: { value: token } } || {} })
+	// const deposit = (token) => set({ flow: "deposit", props: { coin: { value: token } } })
+	// const deposit = (token) => set({ flow: "deposit", props: { coin: { value: token } } })
+
+	return {
+		subscribe,
+		set,
+		update,
+		reset,
+		deposit,
+		transfer
+	}
+}
+
+export const FlowStore = createFlowStore()

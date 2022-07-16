@@ -99,16 +99,21 @@ const createBalanceStore = async (network, token_info, userStore) => {
 }
 
 const initializeWalletStore = async network => {
-    const Link = createLink(network)
+    const LinkStore = createLink(network)
     const tokenInformation = await fetchTokens(network)
-    const UserStore = await createUserStore(network, Link)
-    const Balances = await createBalanceStore(network, tokenInformation, UserStore)
+    const UserStore = await createUserStore(network, LinkStore)
+    const BalanceInformation = await createBalanceStore(network, tokenInformation, UserStore)
 
+    Link = LinkStore
+    Balances = BalanceInformation
+    User = UserStore
+    tokens = tokenInformation
+    
     return {
         User: UserStore,
-        Link,
+        Link: LinkStore,
         tokens: tokenInformation,
-        Balances
+        Balances: BalanceInformation
     }
 }
 
@@ -125,8 +130,13 @@ export function createWalletStore(){
     return {
         subscribe, 
         initialize,
+        isInitialized: () => typeof network !== "undefined",
         getNetwork: _ => network
     }
 }
 
+export let Link
+export let Balances
+export let User
+export let tokens
 export const Wallet = createWalletStore()

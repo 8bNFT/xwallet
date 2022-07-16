@@ -1,16 +1,13 @@
 <script>
     export let formStore, validationStore
 
-    import { Wallet } from "src/stores/wallet";
-    import BasicInput from "src/comps/BasicInput.svelte";
+    import { User, tokens } from "src/stores/wallet";
     import CfxInput from "src/comps/CfxInput.svelte";
     import Select from "src/comps/Select.svelte";
     import LabelButton from "src/comps/LabelButton.svelte";
     import { getTokenBalance } from "src/util/blockchain";
     import { limitPrecision } from "src/util/cfx";
 
-    let User = $Wallet.User
-    let tokens = $Wallet.tokens
     let coin
 
     const balancesToOptions = (balances) => {
@@ -37,8 +34,6 @@
 
     const setAmount = () => $formStore.amount = $formStore[coin]
 
-    $: User = $Wallet.User
-    $: tokens = $Wallet.tokens
     $: fetchBalance($formStore.coin)
 </script>
 

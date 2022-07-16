@@ -1,12 +1,8 @@
 <script>
     export let value, disabled
-
-    import { createEventDispatcher } from 'svelte';
-
-    const emit = createEventDispatcher()
 </script>
 
-<button on:click={() => emit('click', {})} {disabled}>
+<button on:click {disabled}>
     {value}
 </button>
 

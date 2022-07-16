@@ -1,39 +1,41 @@
 <script>
     import StepperForm from "src/comps/modal/StepperModal.svelte";
-    
     import Result from "src/flows/Result.svelte";
     import { createStepStore } from "src/stores/steps";
-    import { createGenericStore, createGenericStores, withValidation } from "src/stores/payload"
+    import { createGenericStore, createGenericStores, withValidation } from "src/stores/generics"
+    import { FlowStore } from 'src/stores/generics';
     import { allValid, validate } from "src/validation/validate";
     import { isGtOrEq, isLtOrEq, isNumber, isPositiveNumber, verifyPrecision } from "src/validation/validators";
-    import { Wallet } from "src/stores/wallet";
+    import { Link, tokens } from "src/stores/wallet";
     import DepositRequest from "./DepositRequest.svelte";
     import DepositReview from "./DepositReview.svelte";
     import { handleDepositCall } from "./deposit";
+    import merge from "lodash.merge"
 
-    let Link = $Wallet.Link
-    let tokens = $Wallet.tokens
     const STEP_STORE = createStepStore(3, false)
     let loading = false
 
     const { resetAll: resetFlow, stores: [payloadStore, validationStore] } = createGenericStores(
         withValidation(
-            {
-                coin: {
-                    value: Object.keys(tokens)[0]
+            merge(
+                {
+                    coin: {
+                        value: Object.keys(tokens)[0]
+                    },
+                    amount: {
+                        value: "",
+                        validators: [
+                            [() => !isNaN($payloadStore[$payloadStore.coin]), "Fetching L1 balance..."],
+                            [isNumber, "Value must be a number"],
+                            [isPositiveNumber, "Value must be more than 0"], 
+                            [(v) => isGtOrEq(v, tokens[$payloadStore.coin].minimum), () => `Value must be greater than ${tokens[$payloadStore.coin].minimum}`],
+                            [(v) => verifyPrecision(v, tokens[$payloadStore.coin].precision), () => `Decimal precision cannot exceed ${tokens[$payloadStore.coin].precision} places`],
+                            [(v) => isLtOrEq(v, $payloadStore[$payloadStore.coin]), () => `Not enough L1 balance (${$payloadStore[$payloadStore.coin]} ${tokens[$payloadStore.coin].symbol})`]
+                        ]
+                    }
                 },
-                amount: {
-                    value: "",
-                    validators: [
-                        [() => !isNaN($payloadStore[$payloadStore.coin]), "Fetching L1 balance..."],
-                        [isNumber, "Value must be a number"],
-                        [isPositiveNumber, "Value must be more than 0"], 
-                        [(v) => isGtOrEq(v, tokens[$payloadStore.coin].minimum), () => `Value must be greater than ${tokens[$payloadStore.coin].minimum}`],
-                        [(v) => verifyPrecision(v, tokens[$payloadStore.coin].precision), () => `Decimal precision cannot exceed ${tokens[$payloadStore.coin].precision} places`],
-                        [(v) => isLtOrEq(v, $payloadStore[$payloadStore.coin]), () => `Not enough L1 balance (${$payloadStore[$payloadStore.coin]} ${tokens[$payloadStore.coin].symbol})`]
-                    ]
-                }
-            }
+                ($FlowStore.props || {})
+            )
         )
     )
 
@@ -66,10 +68,7 @@
             }
         },
         props: { formStore: payloadStore, validationStore },
-        close: () => {
-            STEP_STORE.reset()
-            open = false
-        }
+        close: () => FlowStore.reset()
     }
 
     $: steps = [
@@ -110,35 +109,23 @@
                     text: () => $resultStore.error ? "Try again" : "Done",
                     action: ()=> () => {
                         if($resultStore.error) return STEP_STORE.reset()
-                        open = false
-                        resetFlow()
-                        STEP_STORE.reset()
+                        FlowStore.reset()
                     }
                 },
                 secondary: $resultStore.error ? 
                     {
                         text: () =>  "Cancel",
-                        action: () => () => {
-                            open = false
-                            resetFlow()
-                            return STEP_STORE.reset()
-                        }
+                        action: () => () => FlowStore.reset()
                     } : 
                     false
             }
         }
     ]
-
-    let open = false
 </script>
 
-<button on:click={() => {STEP_STORE.reset(); open = true; console.log($payloadStore)}} style="z-index: 100; position: relative">Toggle deposit flow</button>
-
-{#if open}
-    <StepperForm 
-        {steps}
-        {defaultConfig}
-        stepStore={STEP_STORE}
-        overlayCloses={true}
-    />
-{/if}
+<StepperForm 
+    {steps}
+    {defaultConfig}
+    stepStore={STEP_STORE}
+    overlayCloses={true}
+/>

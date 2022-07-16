@@ -1,48 +1,49 @@
 <script>
     import StepperForm from "src/comps/modal/StepperModal.svelte";
+    import { FlowStore } from 'src/stores/generics';
     import TransferRequest from "./TransferRequest.svelte";
     import TransferReview from "./TransferReview.svelte";
     import Result from "src/flows/Result.svelte";
     import { createStepStore } from "src/stores/steps";
-    import { createGenericStore, createGenericStores, withValidation } from "src/stores/payload"
+    import { createGenericStore, createGenericStores, withValidation } from "src/stores/generics"
     import { allValid, validate } from "src/validation/validate";
     import { isEthAddress, isGtOrEq, isIMXUser, isLtOrEq, isNotEq, isNumber, isPositiveNumber, verifyPrecision } from "src/validation/validators";
-    import { Wallet } from "src/stores/wallet";
+    import { Wallet, User, Balances, tokens, Link } from "src/stores/wallet";
     import { handleTransferCall } from "./transfer";
+    import merge from "lodash.merge";
 
-    let User = $Wallet.User
-    let Balances = $Wallet.Balances
-    let tokens = $Wallet.tokens
-    let Link = $Wallet.Link
     const STEP_STORE = createStepStore(3, false)
     let loading = false
 
     const { resetAll: resetFlow, stores: [payloadStore, validationStore] } = createGenericStores(
         withValidation(
-            {
-                coin: {
-                    value: Object.keys($Balances)[0]
+            merge(
+                {
+                    coin: {
+                        value: Object.keys($Balances)[0]
+                    },
+                    amount: {
+                        value: "",
+                        validators: [
+                            [isNumber, "Value must be a number"],
+                            [isPositiveNumber, "Value must be more than 0"], 
+                            [(v) => isGtOrEq(v, $Balances[$payloadStore.coin].minimum), () => `Value must be greater than ${$Balances[$payloadStore.coin].minimum}`],
+                            [(v) => verifyPrecision(v, $Balances[$payloadStore.coin].precision), () => `Decimal precision cannot exceed ${$Balances[$payloadStore.coin].precision} places`],
+                            [(v) => isLtOrEq(v, $Balances[$payloadStore.coin].balance.parsed), () => `Not enough balance (${$Balances[$payloadStore.coin].balance.parsed} ${$Balances[$payloadStore.coin].symbol})`]
+                        ]
+                    },
+                    receiver: {
+                        value: "",
+                        validators: [
+                            [isEthAddress, "Invalid ETH address"], 
+                            [(v) => isNotEq(v.toLowerCase(), $User.address), "Receiver can't be same as sender"],
+                            [async (v, controller) => isIMXUser(v, controller, Wallet.getNetwork()), "Receiver not registered on L2"]
+                        ],
+                        reactiveRevalidation: false
+                    }
                 },
-                amount: {
-                    value: "",
-                    validators: [
-                        [isNumber, "Value must be a number"],
-                        [isPositiveNumber, "Value must be more than 0"], 
-                        [(v) => isGtOrEq(v, $Balances[$payloadStore.coin].minimum), () => `Value must be greater than ${$Balances[$payloadStore.coin].minimum}`],
-                        [(v) => verifyPrecision(v, $Balances[$payloadStore.coin].precision), () => `Decimal precision cannot exceed ${$Balances[$payloadStore.coin].precision} places`],
-                        [(v) => isLtOrEq(v, $Balances[$payloadStore.coin].balance.parsed), () => `Not enough balance (${$Balances[$payloadStore.coin].balance.parsed} ${$Balances[$payloadStore.coin].symbol})`]
-                    ]
-                },
-                receiver: {
-                    value: "",
-                    validators: [
-                        [isEthAddress, "Invalid ETH address"], 
-                        [(v) => isNotEq(v.toLowerCase(), $User.address), "Receiver can't be same as sender"],
-                        [async (v, controller) => isIMXUser(v, controller, Wallet.getNetwork()), "Receiver not registered on L2"]
-                    ],
-                    reactiveRevalidation: false
-                }
-            }
+                ($FlowStore.props || {})
+            )
         )
     )
 
@@ -55,7 +56,7 @@
 
     $: defaultConfig = {
         title: {
-            text: "Transfer " + tokens[$payloadStore.coin].symbol,
+            text: "Send " + tokens[$payloadStore.coin].symbol,
         },
         footer: {
             primary: {
@@ -77,10 +78,7 @@
             }
         },
         props: { formStore: payloadStore, validationStore },
-        close: () => {
-            STEP_STORE.reset()
-            open = false
-        }
+        close: () => FlowStore.reset()
     }
 
     $: steps = [
@@ -89,7 +87,7 @@
             props: {}, 
             footer: {
                 primary: {
-                    text: "Review request"
+                    text: "Review transfer"
                 },
             }
         },
@@ -123,48 +121,34 @@
                     text: () => $resultStore.error ? "Try again" : "Done",
                     action: ()=> () => {
                         if($resultStore.error) return STEP_STORE.reset()
-                        open = false
-                        resetFlow()
-                        STEP_STORE.reset()
+                        FlowStore.reset()
                     }
                 },
                 secondary: Wallet.getNetwork() === "testnet" ? 
                 $resultStore.error ? 
                 {
                     text: () =>  "Cancel",
-                    action: () => () => {
-                        open = false
-                        resetFlow()
-                        return STEP_STORE.reset()
-                    }
+                    action: () => () => FlowStore.reset()
                 } :
                 false :
                 {
                     text: () =>  $resultStore.error ? "Cancel" : "View on Immutascan",
                     action: () => () => {
-                        open = false
-                        if($resultStore.error){
-                            resetFlow()
-                            return STEP_STORE.reset()
+                        if(!$resultStore.error){
+                            window.open(`https://immutascan.io/tx/${$resultStore.result.transaction_id}`, "_blank")
                         }
 
-                        window.open(`https://immutascan.io/tx/${$resultStore.result.transaction_id}`, "_blank")
+                        FlowStore.reset()
                     }
                 }
             }
         }
     ]
-
-    let open = false
 </script>
 
-<button on:click={() => {STEP_STORE.reset(); open = true; console.log($payloadStore)}} style="z-index: 100; position: relative">Toggle transfer flow</button>
-
-{#if open}
-    <StepperForm 
-        {steps}
-        {defaultConfig}
-        stepStore={STEP_STORE}
-        overlayCloses={true}
-    />
-{/if}
+<StepperForm 
+    {steps}
+    {defaultConfig}
+    stepStore={STEP_STORE}
+    overlayCloses={true}
+/>

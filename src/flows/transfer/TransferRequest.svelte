@@ -1,7 +1,7 @@
 <script>
     export let formStore, validationStore
 
-    import { Wallet } from "src/stores/wallet";
+    import { Balances } from "src/stores/wallet";
     import BasicInput from "src/comps/BasicInput.svelte";
     import CfxInput from "src/comps/CfxInput.svelte";
     import Select from "src/comps/Select.svelte";
@@ -24,8 +24,6 @@
     const setAmount = () => {
         $formStore.amount = Number($Balances[$formStore.coin].balance.parsed)
     }
-
-    $: Balances = $Wallet.Balances
 </script>
 
 <Select bind:value={$formStore.coin} options={balancesToOptions($Balances)} />

@@ -16,6 +16,7 @@
     "@imtbl/imx-sdk": "^1.8.1",
     "bignumber.js": "^9.0.2",
     "buffer": "^6.0.3",
+    "lodash.merge": "^4.6.2",
     "stream-http": "^3.2.0",
     "web3": "^1.7.4"
   }

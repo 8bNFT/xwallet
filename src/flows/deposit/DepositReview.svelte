@@ -1,19 +1,16 @@
 <script>
     export let formStore
 
-    import { Wallet } from "src/stores/wallet";
-    import { assetToUSD } from "src/util/cfx";
+    import { tokens, User, Balances } from "src/stores/wallet";
+    import { assetToUSD, formatFiatDisplay } from "src/util/cfx";
     import BasicInfo from "src/comps/BasicInfo.svelte";
 
-    $: tokens = $Wallet.tokens
-    $: User = $Wallet.User
-    $: Balances = $Wallet.Balances
     $: token = tokens[$formStore.coin]
-    $: usd_value = `≈ $${assetToUSD($formStore.amount, token.price)} (1 ${token.symbol} ≈ $${parseFloat(Number(token.price).toFixed(2))})`
+    $: usd_value = `≈ ${formatFiatDisplay(assetToUSD($formStore.amount, token.price))} (1 ${token.symbol} ≈ ${formatFiatDisplay(Number(token.price).toFixed(2))})`
     $: current = $Balances[$formStore.coin] ? Number($Balances[$formStore.coin].balance.parsed) : 0
-    $: current_usd = `≈ $${assetToUSD(current, token.price)} (1 ${token.symbol} ≈ $${parseFloat(Number(token.price).toFixed(2))})`
+    $: current_usd = `≈ ${formatFiatDisplay(assetToUSD(current, token.price))} (1 ${token.symbol} ≈ ${formatFiatDisplay(Number(token.price).toFixed(2))})`
     $: total = Number($formStore.amount) + (current)
-    $: total_usd = `≈ $${assetToUSD(total, token.price)} (1 ${token.symbol} ≈ $${parseFloat(Number(token.price).toFixed(2))})`
+    $: total_usd = `≈ ${formatFiatDisplay(assetToUSD(total, token.price))} (1 ${token.symbol} ≈ ${formatFiatDisplay(Number(token.price).toFixed(2))})`
 </script>
 
 <BasicInfo label={"Deposit to"} dataTooltip={$User.address} data={`${$User.address.slice(0, 6)}...${$User.address.slice(-6)}`} />
