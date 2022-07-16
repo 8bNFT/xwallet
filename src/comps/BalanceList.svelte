@@ -63,13 +63,13 @@
   }
 
   @media screen and (max-width: 900px){   
-      .balances {
-          width: auto;
-          grid-column: 1;
-          grid-row: 2;
-          margin: 0 1rem;
-          margin-top: -2rem;
-      }
+    .balances {
+        width: auto;
+        grid-column: 1;
+        grid-row: 2;
+        margin: 0 1rem;
+        margin-top: -2rem;
+    }
   }
 
   .asset {
@@ -85,6 +85,24 @@
 
   .asset:hover {
     background-color: var(--l-grey);
+  }
+
+  @media screen and (max-width: 500px){   
+    .asset {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: .5rem;
+    }
+    
+    .asset .amount {
+      padding-left: 1.8rem;
+      text-align: left;
+      margin-top: .3rem
+    }
+
+    .asset.deposit {
+      align-items: center;
+    }
   }
 
   .asset.deposit {
