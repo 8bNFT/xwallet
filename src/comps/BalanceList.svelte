@@ -4,6 +4,7 @@
   import { formatCryptoDisplay, formatFiatDisplay, assetToUSD } from "src/util/cfx";
   import { DEFAULT_TOKEN_ICON } from "src/util/generic";
   import PriceChange from "./PriceChange.svelte";
+import Tooltip from "./Tooltip.svelte";
 </script>
 
 <div class="balances">
@@ -16,17 +17,18 @@
                     {asset.name}
                 </span>
                 {#if asset.change}
+                  <Tooltip title={formatFiatDisplay(asset.price)}>
                     <PriceChange change={asset.change} />
+                  </Tooltip>
                 {/if}
                 </div>
-
                 <div class="amount">
-                <div class="crypto">
-                    {formatCryptoDisplay(asset.balance.parsed)}
-                </div>
-                <div class="fiat">
-                    {formatFiatDisplay(assetToUSD(asset.balance.parsed, asset.price))}
-                </div>
+                  <div class="crypto">
+                      {formatCryptoDisplay(asset.balance.parsed)}
+                  </div>
+                  <div class="fiat">
+                      {formatFiatDisplay(assetToUSD(asset.balance.parsed, asset.price))}
+                  </div>
                 </div>
             </div>
         {/if}

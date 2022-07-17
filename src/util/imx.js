@@ -101,12 +101,59 @@ export const getTransfersTo = async (user, network) => {
     return transformTransfers(result)
 }
 
+const transformOrders = (orders) => {
+    const temp = []
+
+    for(let { user, updated_timestamp: timestamp, order_id: transaction_id, sell, buy } of orders){
+        if(sell.type === buy.type) continue
+
+        let collection, from, token, seller, buyer, token_id
+
+        if(sell.type === "ERC721"){
+            collection = sell.data.properties.collection.name
+            token_id = sell.data.token_id
+            from = false
+            token = buy
+            seller = user
+        } else if(["ETH", "ERC20"].includes(sell.type)) {
+            if(["ETH", "ERC20"].includes(buy.type)) continue
+            collection = buy.data.properties.collection.name
+            token_id = buy.data.token_id
+            from = true
+            token = sell
+            buyer = user
+        } else {
+            continue
+        }
+
+        temp.push({
+            transaction_id,
+            event: from ? "purchase" : "sale",
+            token: token.type === "ETH" && "ETH" || token.data.token_address,
+            amount: parseWithDecimals(`${from && '-' || ''}${token.data.quantity}`, token.data.decimals),
+            from: buyer,
+            to: seller,
+            collection,
+            token_id,
+            timestamp: new Date(timestamp)
+        })
+    }
+
+    console.log(temp)
+
+    return temp
+}
+
+const getOrders = async(user, network) => {
+    const { result } = await fetchWithCache(API(network, `/v1/orders?page_size=200&user=${user}&status=filled`))
+    return transformOrders(result)
+}
 
 export const getEventHistory = async (user, network) => {
     const key = `${user}_${network}`
     if(eventHistory[key] && eventHistory[key].expires > Date.now()) return eventHistory[key].data
 
-    const promises = [getTransfersTo(user, network), getTransfersFrom(user, network), getWithdrawals(user, network), getDeposits(user, network)]
+    const promises = [getTransfersTo(user, network), getTransfersFrom(user, network), getWithdrawals(user, network), getDeposits(user, network), getOrders(user, network)]
     const settled = await Promise.allSettled(promises)
     const success = settled.filter(v => v.status === "fulfilled")
     const merged = success.reduce((acc, { value }) => [...acc, ...value], []).sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
@@ -120,7 +167,7 @@ export const getEventHistoryProgressive = async (user, network, list, signal) =>
     const wrapPromise = async request => {
         try{
             const result = await request
-            list.set([...get(list), ...result].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()))
+            list.set([...get(list), ...result])
             return result
         }catch(err){
             console.log(err)
@@ -133,6 +180,7 @@ export const getEventHistoryProgressive = async (user, network, list, signal) =>
         wrapPromise(getTransfersFrom(user, network)),
         wrapPromise(getWithdrawals(user, network)),
         wrapPromise(getDeposits(user, network)),
+        wrapPromise(getOrders(user, network))
     ])
 
     signal.set(true)

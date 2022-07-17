@@ -4,19 +4,24 @@
     import { EVENT_ICONS, sliceAddress } from "src/util/generic";
     import { formatCryptoDisplay } from "src/util/cfx";
     import { tokens, Wallet } from "src/stores/wallet";
+import Tooltip from "../Tooltip.svelte";
 
     const EVENTS = {
         "transfer_in": "Transfer In",
         "transfer_out": "Transfer Out",
         "deposit": "Deposit",
-        "withdrawal": "Withdrawal"
+        "withdrawal": "Withdrawal",
+        "purchase": "Purchase",
+        "sale": "Sale"
     }
 
     const EVENTS_TO_ICONS = {
         transfer_in: "receive",
         transfer_out: "send",
         withdrawal: "withdraw",
-        deposit: "deposit"
+        deposit: "deposit",
+        purchase: "trade",
+        sale: "trade"
     }
 </script>
 
@@ -26,11 +31,26 @@
     </div>
     <div class="info">
         <div class="type">{EVENTS[event.event]}</div>
-        <div class="timestamp">{event.timestamp.toISOString().split("T")[0]}</div>
+        <Tooltip title={event.timestamp.toUTCString()}>
+            <div class="timestamp">{event.timestamp.toISOString().split("T")[0]}</div>
+        </Tooltip>
     </div>
-    <div class="from">{sliceAddress(event.from)}</div>
-    <div class="to">{sliceAddress(event.to)}</div>
-    <div class="collection">{tokens[event.token].symbol}</div>
+    <div class="from">
+        <Tooltip title={event.from}>
+            {sliceAddress(event.from)}
+        </Tooltip>
+    </div>
+    <div class="to">
+        <Tooltip title={event.to}>
+            {sliceAddress(event.to)}
+        </Tooltip>
+    </div>
+    <div class="collection">
+        {event.collection ? event.collection : tokens[event.token].symbol}
+        {#if event.token_id}
+            <div class="token_id">{event.token_id}</div>
+        {/if}
+    </div>
     <div class="amount" class:negative={event.amount < 0}>
         {formatCryptoDisplay(event.amount)} {tokens[event.token].symbol}
     </div>
@@ -52,6 +72,10 @@
         cursor: pointer
     }
 
+    .event:hover {
+        box-shadow: 0 20px 40px rgba(0, 0, 0, .08);
+    }
+
     .icon {
         display: flex;
         align-items: center;
@@ -71,11 +95,8 @@
         font-weight: 500
     }
 
-    .event:hover {
-        box-shadow: 0 20px 40px rgba(0, 0, 0, .08);
-    }
 
-    .timestamp {
+    .timestamp, .token_id {
         color: var(--grey);
         font-size: .9em
     }

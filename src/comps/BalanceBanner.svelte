@@ -17,9 +17,7 @@
 
         return total
     }
-
-    console.log(filterOfframpTokens($Balances, Wallet.getNetwork()))
-
+    
     $: totalBalance = calculateBalance($Balances)
 </script>
 

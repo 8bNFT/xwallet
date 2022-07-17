@@ -23,8 +23,8 @@
 		const isNewCoord = newCoordSystem(tooltip)
 
 		const bounding  = isNewCoord ? parent.getBoundingClientRect() : {x: 0, y: 0}
-		let newX = Math.min(pageX - bounding.x + (isNewCoord ? parent.offsetLeft : 0) - 10, window.innerWidth - bounding.x - tooltip.clientWidth)
-		let newY = Math.min(pageY - bounding.y + (isNewCoord ? parent.offsetTop : 0) - tooltip.clientHeight - 10, window.innerHeight - bounding.y - tooltip.clientHeight)
+		let newX = Math.min(pageX - bounding.x - window.scrollX + (isNewCoord ? parent.offsetLeft : 0) - 10, window.innerWidth - bounding.x - tooltip.clientWidth)
+		let newY = Math.min(pageY - bounding.y - window.scrollY + (isNewCoord ? parent.offsetTop  : 0) - tooltip.clientHeight - 10, window.innerHeight - bounding.y - tooltip.clientHeight)
 
 		return [newX, newY]
 	}
