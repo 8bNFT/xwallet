@@ -2,6 +2,7 @@
   import { Wallet } from 'src/stores/wallet';
   import Flows from './flows/Flows.svelte';
   import BalanceBanner from './comps/BalanceBanner.svelte';
+  import EventHistory from './comps/history/EventHistory.svelte';
 
   const walletPromise = Wallet.initialize("mainnet")
   $: User = $Wallet.User
@@ -16,6 +17,8 @@
     {#if $User !== false}
       <div style="margin: 2rem .5rem">
         <BalanceBanner />
+
+        <EventHistory />
 
         <Flows />
         <!-- {#each Object.values($Balances) as asset}

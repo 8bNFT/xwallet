@@ -28,6 +28,6 @@ export const formatFiatDisplay = v => fiatFormatter.format(v)
 export const formatCryptoDisplay = v =>{
     const decimalSplit = v.split(".")
     const fiatFormat = formatFiatDisplay(decimalSplit[0]).split('.')[0]
-    return `${fiatFormat.slice(1)}${decimalSplit[1] ? '.' : ''}${decimalSplit[1]}`
+    return `${v.startsWith("-") && "-" || ""}${fiatFormat.split("$")[1]}${decimalSplit[1] ? '.' : ''}${decimalSplit[1] || ""}`
 }
     

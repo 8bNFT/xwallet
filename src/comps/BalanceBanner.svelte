@@ -4,7 +4,7 @@
     import { formatFiatDisplay, assetToUSD } from "src/util/cfx";
     import { filterOfframpTokens } from "src/util/imx";
     import BalanceList from "./BalanceList.svelte";
-    import BannerButton from "./BannerButton.svelte";
+    import BannerButton from "./FlowButton.svelte";
 
     let totalBalance = 0
 

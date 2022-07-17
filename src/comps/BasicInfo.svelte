@@ -1,11 +1,11 @@
 <script>
-    export let label, data, note, labelTooltip, dataTooltip, noteTooltip
+    export let label, data, note, labelTooltip, dataTooltip, noteTooltip, big
 
     import Label from "src/comps/Label.svelte"
-import Tooltip from "./Tooltip.svelte"
+    import Tooltip from "./Tooltip.svelte"
 </script>
 
-<div class="cont">
+<div class="cont" class:big>
     {#if labelTooltip}
         <Tooltip title={labelTooltip}>
             <Label {label} />
@@ -48,5 +48,10 @@ import Tooltip from "./Tooltip.svelte"
         margin-top: .25rem;
         color: var(--grey);
         font-size: .8rem
+    }
+
+    .big .data {
+        font-size: 1.15rem;
+        font-weight: 500
     }
 </style>

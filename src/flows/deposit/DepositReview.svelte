@@ -4,6 +4,7 @@
     import { tokens, User, Balances } from "src/stores/wallet";
     import { assetToUSD, formatFiatDisplay } from "src/util/cfx";
     import BasicInfo from "src/comps/BasicInfo.svelte";
+    import { sliceAddress } from "src/util/generic";
 
     $: token = tokens[$formStore.coin]
     $: usd_value = `≈ ${formatFiatDisplay(assetToUSD($formStore.amount, token.price))} (1 ${token.symbol} ≈ ${formatFiatDisplay(Number(token.price).toFixed(2))})`
@@ -13,7 +14,7 @@
     $: total_usd = `≈ ${formatFiatDisplay(assetToUSD(total, token.price))} (1 ${token.symbol} ≈ ${formatFiatDisplay(Number(token.price).toFixed(2))})`
 </script>
 
-<BasicInfo label={"Deposit to"} dataTooltip={$User.address} data={`${$User.address.slice(0, 6)}...${$User.address.slice(-6)}`} />
+<BasicInfo label={"Deposit to"} dataTooltip={$User.address} data={sliceAddress($User.address)} />
 <div class="separator"></div>
 <BasicInfo label={"Current L2 balance"} data={`${current}`} note={current_usd} />
 <div class="separator"></div>

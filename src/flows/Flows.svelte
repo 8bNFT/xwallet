@@ -4,12 +4,14 @@
     import Deposit from './deposit/Deposit.svelte';
     import Onramp from './onramp/Onramp.svelte';
     import Offramp from './offramp/Offramp.svelte';
+    import Coin from './coin/Coin.svelte';
 
     const flows = {
         "transfer": Transfer,
         "deposit": Deposit,
         "buy": Onramp,
-        "sell": Offramp
+        "sell": Offramp,
+        "coin": Coin
     }
 </script>
 

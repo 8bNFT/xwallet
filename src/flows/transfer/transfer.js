@@ -1,4 +1,5 @@
 import { assetToUSD } from "src/util/cfx"
+import { sliceAddress } from "src/util/generic"
 
 const extractTransferPayload = (payload, token) => {
     if(token.id === "ETH"){
@@ -23,7 +24,7 @@ const extractTransferPayload = (payload, token) => {
 }
 
 const buildTransferSuccess = ({ amount, amount_usd, symbol, receiver}) => {
-    return `You successfully sent <span>${amount} ${symbol} ($${amount_usd})</span> to <span>${receiver.slice(0, 8)}...${receiver.slice(-8)}</span>.`
+    return `You successfully sent <span>${amount} ${symbol} ($${amount_usd})</span> to <span>${sliceAddress(receiver, 8)}</span>.`
 }
 
 const parseTransferResult = (result, token) => {

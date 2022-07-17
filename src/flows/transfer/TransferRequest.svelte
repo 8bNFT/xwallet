@@ -6,6 +6,7 @@
     import CfxInput from "src/comps/CfxInput.svelte";
     import Select from "src/comps/Select.svelte";
     import LabelButton from "src/comps/LabelButton.svelte";
+    import { DEFAULT_TOKEN_ICON } from "src/util/generic";
 
     const balancesToOptions = (balances) => {
         const options = []
@@ -13,8 +14,8 @@
             options.push({
                 value: id,
                 label: value.symbol,
-                icon: value.image_url || "https://design-system.immutable.com/currency_icons/currency--erc20.svg",
-                fallback_icon: "https://design-system.immutable.com/currency_icons/currency--erc20.svg"
+                icon: value.image_url || DEFAULT_TOKEN_ICON,
+                fallback_icon: DEFAULT_TOKEN_ICON
             })
         }
 

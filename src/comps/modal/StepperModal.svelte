@@ -6,7 +6,6 @@
     import TitleButton from "./TitleButton.svelte";
     import { fade, scale, fly } from "svelte/transition";
     import { flyIn, flyOut, heightIn, heightOut } from "src/util/transition"
-import { now } from "svelte/internal";
 
     const STEP_STORE = stepStore || createStepStore(steps.length, false)
 
@@ -139,7 +138,7 @@ import { now } from "svelte/internal";
         z-index: 2;
         position: fixed;
         left: 50%;
-        top: 250px;
+        top: 200px;
         transform: translateX(-50%);
         max-width: 400px;
         width: 100%;

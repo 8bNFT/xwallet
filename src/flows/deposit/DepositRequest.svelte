@@ -7,6 +7,7 @@
     import LabelButton from "src/comps/LabelButton.svelte";
     import { getTokenBalance } from "src/util/blockchain";
     import { limitPrecision } from "src/util/cfx";
+    import { DEFAULT_TOKEN_ICON } from "src/util/generic";
 
     let coin
 
@@ -16,8 +17,8 @@
             options.push({
                 value: id,
                 label: value.symbol,
-                icon: value.image_url || "https://design-system.immutable.com/currency_icons/currency--erc20.svg",
-                fallback_icon: "https://design-system.immutable.com/currency_icons/currency--erc20.svg"
+                icon: value.image_url || DEFAULT_TOKEN_ICON,
+                fallback_icon: DEFAULT_TOKEN_ICON
             })
         }
 

@@ -2,15 +2,16 @@
   import { FlowStore } from "src/stores/generics";
   import { Balances } from "src/stores/wallet";
   import { formatCryptoDisplay, formatFiatDisplay, assetToUSD } from "src/util/cfx";
+  import { DEFAULT_TOKEN_ICON } from "src/util/generic";
   import PriceChange from "./PriceChange.svelte";
 </script>
 
 <div class="balances">
     {#each Object.values($Balances).sort((a, b) => a.name.localeCompare(b.name)) as asset}
         {#if [asset.balance, asset.preparing_withdrawal, asset.withdrawable].some(v => v.parsed > 0)}
-            <div on:click={() => FlowStore.transfer(asset.id)} class="asset">
+            <div on:click={() => FlowStore.coinInformation(asset.id)} class="asset">
                 <div class="info">
-                <img class="icon" alt={`${asset.name} icon`} src={asset.image_url || "https://design-system.immutable.com/currency_icons/currency--erc20.svg"} on:error={(e) => e.target.src = "https://design-system.immutable.com/currency_icons/currency--erc20.svg"} />
+                <img class="icon" alt={`${asset.name} icon`} src={asset.image_url || DEFAULT_TOKEN_ICON} on:error={(e) => e.target.src = DEFAULT_TOKEN_ICON} />
                 <span class="name">
                     {asset.name}
                 </span>

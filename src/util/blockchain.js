@@ -33,7 +33,7 @@ const getBalanceCacheKey = ({ wallet, token, network }) => `${wallet.toLowerCase
 const getBalanceCache = ({ wallet, token, network }) => {
     const key = getBalanceCacheKey({ wallet, token, network })
     const cache = balanceCache[key]
-    if(cache && cache.expires < Date.now()) return cache.data
+    if(cache && cache.expires > Date.now()) return cache.data
     return false
 }
 
