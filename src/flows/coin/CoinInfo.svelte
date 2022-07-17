@@ -59,12 +59,24 @@
 </div>
 
 <div class="bottom">
-    <FlowButton big value={"Send"} on:click={() => FlowStore.send(coin)} />
-    <FlowButton big value={"Receive"} disabled />
-    <FlowButton big value={"Deposit"} on:click={() => FlowStore.deposit(coin)} />
-    <FlowButton big value={"Withdraw"} on:click={() => FlowStore.send(coin)} />
-    <FlowButton big value={"Buy"} on:click={() => FlowStore.buy(coin)} disabled={!Object.keys(onrampTokens).includes(coin)} />
-    <FlowButton big value={"Sell"} on:click={() => FlowStore.sell(coin)} disabled={!Object.keys(offrampTokens).includes(coin)} />
+    <Tooltip title="Send">
+        <FlowButton resetMargin big value={"Send"} on:click={() => FlowStore.send(coin)} />
+    </Tooltip>
+    <Tooltip title="Receive">
+        <FlowButton resetMargin big value={"Receive"} disabled />
+    </Tooltip>
+    <Tooltip title="Deposit">
+        <FlowButton resetMargin big value={"Deposit"} on:click={() => FlowStore.deposit(coin)} />
+    </Tooltip>
+    <Tooltip title="Withdraw">
+        <FlowButton resetMargin big value={"Withdraw"} on:click={() => FlowStore.send(coin)} />
+    </Tooltip>
+    <Tooltip title="Buy">
+        <FlowButton resetMargin big value={"Buy"} on:click={() => FlowStore.buy(coin)} disabled={!Object.keys(onrampTokens).includes(coin)} />
+    </Tooltip>
+    <Tooltip title="Sell">
+        <FlowButton resetMargin big value={"Sell"} on:click={() => FlowStore.sell(coin)} disabled={!Object.keys(offrampTokens).includes(coin)} />
+    </Tooltip>
 </div>
 
 

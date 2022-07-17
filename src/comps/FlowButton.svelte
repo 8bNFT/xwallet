@@ -1,11 +1,11 @@
 <script>
-    export let value, disabled, big
+    export let value, disabled, big, resetMargin
 
     import { EVENT_ICONS } from "src/util/generic";
 </script>
 
 <button {disabled} class:big on:click>
-    <span class="icon">
+    <span class="icon" class:resetMargin>
         {@html EVENT_ICONS[value.toLowerCase()]}
     </span>
     {#if big !== true}
@@ -41,6 +41,8 @@
         transition: background-color .2s;
         color: white
     }
+
+    .icon.resetMargin { margin: 0 }
 
     .big .icon {
         height: 2.5rem;
