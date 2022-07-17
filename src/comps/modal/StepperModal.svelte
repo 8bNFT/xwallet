@@ -6,9 +6,11 @@
     import TitleButton from "./TitleButton.svelte";
     import { fade, scale, fly } from "svelte/transition";
     import { flyIn, flyOut, heightIn, heightOut } from "src/util/transition"
+import { now } from "svelte/internal";
 
     const STEP_STORE = stepStore || createStepStore(steps.length, false)
 
+    let content_holder
     let direction = true
     let last_step = $STEP_STORE
 
@@ -72,9 +74,11 @@
                 {/if}
             </div>
         {/if}
-        <div class="content_holder">
+        <div bind:this={content_holder} class="content_holder">
             {#key $STEP_STORE}
                 <div
+                    on:outrostart={() => content_holder.style.overflow = "hidden"}
+                    on:introend={() => content_holder.style.overflow = "visible"}
                     out:flyOut|local={{x: direction && -400 || 400, duration: 350}} 
                     in:flyIn|local={{x: direction && 400 || -400, duration: 350}} 
                     class="content"
@@ -223,7 +227,7 @@
 
     .content_holder {
         display: grid;
-        overflow: hidden;
+        /* overflow: hidden; */
         align-items: flex-start;
         align-content: flex-start;
         width: calc(100% + 3rem);

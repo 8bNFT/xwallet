@@ -17,7 +17,7 @@ const createUserStore = async (network, Link) => {
 
     async function login(){
         try{
-            const { address, starkPublicKey } = await get(Link).setup({})
+            const { address, starkPublicKey } = await get(Link).setup({ providerPreference: "none" })
             set({address, starkPublicKey, network})
             localStorage.setItem('wallet_' + network, JSON.stringify({address, starkPublicKey, network}))
             return { address, starkPublicKey, network }

@@ -36,7 +36,7 @@
     const resizeSelect = () => {
         if(!container || !open || !optionsCont) return
         const holder = container.closest(".content_holder") || window
-        optionsCont.style.maxHeight = `${holder.clientHeight - bigContainer.offsetHeight - 7}px`
+        optionsCont.style.maxHeight = `${Math.max(holder.clientHeight - bigContainer.offsetHeight - 7, 150)}px`
     }
 
     const scrollToSelected = () => {
