@@ -1,6 +1,8 @@
 <script>
+    export let defaultBalances
+
     import { FlowStore } from "src/stores/generics";
-    import { Balances, Wallet } from "src/stores/wallet";
+    import { Balances, Wallet, User } from "src/stores/wallet";
     import { formatFiatDisplay, assetToUSD } from "src/util/cfx";
     import { filterOfframpTokens } from "src/util/imx";
     import BalanceList from "./BalanceList.svelte";
@@ -9,16 +11,18 @@
     let totalBalance = 0
 
     const calculateBalance = balances => {
+        if(!$Balances) return 0
+
         let total = 0
         for(let asset of Object.values(balances)){
-        if(asset.balance.parsed <= 0 || !asset.price) continue
-        total += Number(assetToUSD(asset.balance.parsed, asset.price))
+            if(asset.balance.parsed <= 0 || !asset.price) continue
+            total += Number(assetToUSD(asset.balance.parsed, asset.price))
         }
 
         return total
     }
     
-    $: totalBalance = calculateBalance($Balances)
+    $: totalBalance = calculateBalance($User ? $Balances : defaultBalances)
 </script>
 
 <div class="banner">
@@ -27,17 +31,17 @@
             <div class="subtitle">Balance</div>
             <h1 class="balance--total">{formatFiatDisplay(totalBalance)}</h1>
             <div class="buttons">
-                <BannerButton disabled={!Object.values($Balances).length} value="Send" on:click={() => FlowStore.set({ flow: "transfer", props: {} })} />
-                <BannerButton disabled value="Receive" on:click={() => FlowStore.set({ flow: "transfer", props: {} })} />
-                <BannerButton value="Deposit" on:click={() => FlowStore.set({ flow: "deposit", props: {} })} />
-                <BannerButton disabled={!Object.values($Balances).length} value="Withdraw" on:click={() => FlowStore.set({ flow: "transfer", props: {} })} />
-                <BannerButton value="Buy" on:click={() => FlowStore.set({ flow: "buy", props: {} })} />
-                <BannerButton disabled={$Balances && !Object.values(filterOfframpTokens($Balances, Wallet.getNetwork())).length} value="Sell" on:click={() => FlowStore.set({ flow: "sell", props: {} })} />
+                <BannerButton disabled={$User === false || !Object.values($Balances).length} value="Send" on:click={() => FlowStore.set({ flow: "transfer", props: {} })} />
+                <BannerButton disabled value="Receive" />
+                <BannerButton disabled={$User === false} value="Deposit" on:click={() => FlowStore.deposit()} />
+                <BannerButton disabled={$User === false || !Object.values($Balances).length} value="Withdraw" on:click={() => FlowStore.set({ flow: "transfer", props: {} })} />
+                <BannerButton disabled={$User === false} value="Buy" on:click={() => FlowStore.buy()} />
+                <BannerButton disabled={$User === false || !$Balances || !Object.values(filterOfframpTokens($Balances, Wallet.getNetwork())).length} value="Sell" on:click={() => FlowStore.set({ flow: "sell", props: {} })} />
             </div>
         </div>
     </div>
 
-    <BalanceList />
+    <BalanceList {defaultBalances} />
   </div>
 
 <style>

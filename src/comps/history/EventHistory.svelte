@@ -23,7 +23,7 @@
         "Amount (asc)": (a, b) => a.amount - b.amount
     }
 
-    $: user = $User.address
+    $: user = $User && $User.address || undefined
     const network = Wallet.getNetwork()
     let currentFilter = filters["All transactions"]
     let currentSort = sorting["Date (desc)"]
@@ -32,14 +32,14 @@
     let eventList = []
     const signal = createGenericStore(false)
 
-    $: if(list && user) getEventHistoryProgressive(user, network, list, signal)
+    $: if(list && user) { getEventHistoryProgressive(user, network, list, signal) } else { list.set([]) }
     $: eventList = ($list.filter(currentFilter)).sort(currentSort)
 </script>
 
-<div class="cont" class:loaded={$signal}>
+<div class="cont" class:loaded={$signal || $User === false}>
     <div class="title">
         <h2>Transaction history</h2>
-        {#if !$signal}
+        {#if !$signal && $User !== false}
             <span class="loading">Loading all events...</span>
         {:else}
             <span class="limit" on:click={() => limit = !limit }>{limit ? `Show all ${eventList.length} events` : `Show first 20 events`}</span>
@@ -62,7 +62,11 @@
     {:else}
         <div style="text-align: center; padding: 3rem 0">
             <h3 style="font-weight: 500">Nothing to see here.. yet!</h3>
-            <span class="note">Only the past 200 transactions of each type are fetched</span>
+            {#if $User === false}
+                <span class="note"><span on:click={User.login} style="text-decoration:underline;cursor:pointer">Connect your wallet</span> in order to see your transaction history</span>
+            {:else}
+                <span class="note">Only the past 200 transactions of each type are fetched</span>
+            {/if}
         </div>
     {/each}
 </div>

@@ -49,7 +49,6 @@ function createFlowStore(){
 	const buy = token => set({ flow: "buy", props: token && { coin: token } || {} })
 	const sell = token => set({ flow: "sell", props: token && { coin: { value: token } } || {} })
 	const coinInformation = token => !token ? null: set({ flow: "coin", props: { coin: token  } })
-	// const deposit = (token) => set({ flow: "deposit", props: { coin: { value: token } } })
 
 	return {
 		subscribe,

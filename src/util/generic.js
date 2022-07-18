@@ -11,3 +11,30 @@ export const EVENT_ICONS = {
 }
 
 export const sliceAddress = (addy, n = 6) => addy ? `${addy.slice(0, n)}...${addy.slice(n * -1)}` : ""
+
+export const generateFakeBalances = tokens => {
+    if(!tokens) return {}
+
+    let temp = []
+    for(let [k, token] of Object.entries(tokens)){
+      temp.push(
+          [k, {
+          ...token,
+          balance: {
+            parsed: "0",
+            raw: "0"
+          },
+          preparing_withdrawal: {
+            parsed: "0",
+            raw: "0"
+          },
+          withdrawable: {
+            parsed: "1",
+            raw: "0"
+          }
+        }]
+      )
+    }
+
+   return Object.fromEntries(temp.splice(0, 5))
+  }

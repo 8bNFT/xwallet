@@ -139,8 +139,6 @@ const transformOrders = (orders) => {
         })
     }
 
-    console.log(temp)
-
     return temp
 }
 

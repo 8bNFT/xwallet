@@ -1,16 +1,18 @@
 <script>
+  export let defaultBalances
+
   import { FlowStore } from "src/stores/generics";
-  import { Balances } from "src/stores/wallet";
+  import { Balances, User } from "src/stores/wallet";
   import { formatCryptoDisplay, formatFiatDisplay, assetToUSD } from "src/util/cfx";
   import { DEFAULT_TOKEN_ICON } from "src/util/generic";
   import PriceChange from "./PriceChange.svelte";
-import Tooltip from "./Tooltip.svelte";
+  import Tooltip from "./Tooltip.svelte";
 </script>
 
 <div class="balances">
-    {#each Object.values($Balances).sort((a, b) => a.name.localeCompare(b.name)) as asset}
+    {#each Object.values($Balances || defaultBalances).sort((a, b) => a.name.localeCompare(b.name)) as asset}
         {#if [asset.balance, asset.preparing_withdrawal, asset.withdrawable].some(v => v.parsed > 0)}
-            <div on:click={() => FlowStore.coinInformation(asset.id)} class="asset">
+            <div on:click={() => $Balances ? FlowStore.coinInformation(asset.id) : null} class="asset">
                 <div class="info">
                 <img class="icon" alt={`${asset.name} icon`} src={asset.image_url || DEFAULT_TOKEN_ICON} on:error={(e) => e.target.src = DEFAULT_TOKEN_ICON} />
                 <span class="name">
@@ -24,20 +26,28 @@ import Tooltip from "./Tooltip.svelte";
                 </div>
                 <div class="amount">
                   <div class="crypto">
+                    {#if $Balances}
                       {formatCryptoDisplay(asset.balance.parsed)}
+                    {:else}
+                      0.00
+                    {/if}
                   </div>
                   <div class="fiat">
-                      {formatFiatDisplay(assetToUSD(asset.balance.parsed, asset.price))}
+                      {formatFiatDisplay(assetToUSD($Balances ? asset.balance.parsed : 1, asset.price))}
                   </div>
                 </div>
             </div>
         {/if}
     {/each}
-    <div on:click={() => FlowStore.deposit()} class="asset deposit">
+    <div on:click={() => $Balances ? FlowStore.deposit() : User.login()} class="asset deposit">
       <div class="info">
         <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9.045 9.045"><g id="Icon_feather-plus" data-name="Icon feather-plus" transform="translate(1 1)"><path id="Path_6" data-name="Path 6" d="M18,7.5v7.045" transform="translate(-14.477 -7.5)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path id="Path_7" data-name="Path 7" d="M7.5,18h7.045" transform="translate(-7.5 -14.477)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></g></svg>
         <span class="name">
+          {#if $Balances}
             Deposit a token
+          {:else}
+            Connect wallet
+          {/if}
         </span>
       </div>
   </div>
