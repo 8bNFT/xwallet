@@ -111,7 +111,7 @@
         height: 40px;
         width: 40px;
         border-radius: 20px;
-        border: 2px solid white;
+        border: 4px solid white;
         margin-right: .5rem
     }
 
@@ -127,7 +127,6 @@
         box-shadow: 0 0 20px rgba(0, 0, 0, .05);
         padding: .5rem;
         padding-bottom: .15rem;
-        /* text-align: right; */
         left: 50%;
         transform: translateX(-50%)
     }
