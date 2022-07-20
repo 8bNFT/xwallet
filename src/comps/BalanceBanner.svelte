@@ -31,12 +31,12 @@
             <div class="subtitle">Balance</div>
             <h1 class="balance--total">{formatFiatDisplay(totalBalance)}</h1>
             <div class="buttons">
-                <BannerButton disabled={$User === false || !Object.values($Balances).length} value="Send" on:click={() => FlowStore.set({ flow: "transfer", props: {} })} />
+                <BannerButton disabled={$User === false || !Object.values($Balances).length} value="Send" on:click={() => FlowStore.transfer()} />
                 <BannerButton disabled value="Receive" />
                 <BannerButton disabled={$User === false} value="Deposit" on:click={() => FlowStore.deposit()} />
-                <BannerButton disabled={$User === false || !Object.values($Balances).length} value="Withdraw" on:click={() => FlowStore.set({ flow: "transfer", props: {} })} />
+                <BannerButton disabled={$User === false || !Object.values($Balances).length} value="Withdraw" on:click={() => FlowStore.withdraw()} />
                 <BannerButton disabled={$User === false} value="Buy" on:click={() => FlowStore.buy()} />
-                <BannerButton disabled={$User === false || !$Balances || !Object.values(filterOfframpTokens($Balances, Wallet.getNetwork())).length} value="Sell" on:click={() => FlowStore.set({ flow: "sell", props: {} })} />
+                <BannerButton disabled={$User === false || !$Balances || !Object.values(filterOfframpTokens($Balances, Wallet.getNetwork())).length} value="Sell" on:click={() => FlowStore.sell()} />
             </div>
         </div>
     </div>

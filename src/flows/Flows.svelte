@@ -5,13 +5,15 @@
     import Onramp from './onramp/Onramp.svelte';
     import Offramp from './offramp/Offramp.svelte';
     import Coin from './coin/Coin.svelte';
+    import Withdrawal from './withdrawal/Withdrawal.svelte';
 
     const flows = {
         "transfer": Transfer,
         "deposit": Deposit,
         "buy": Onramp,
         "sell": Offramp,
-        "coin": Coin
+        "coin": Coin,
+        "withdraw": Withdrawal
     }
 </script>
 

@@ -69,7 +69,7 @@
         <FlowButton resetMargin big value={"Deposit"} on:click={() => FlowStore.deposit(coin)} />
     </Tooltip>
     <Tooltip title="Withdraw">
-        <FlowButton resetMargin big value={"Withdraw"} on:click={() => FlowStore.send(coin)} />
+        <FlowButton resetMargin big value={"Withdraw"} on:click={() => FlowStore.withdraw(coin)} />
     </Tooltip>
     <Tooltip title="Buy">
         <FlowButton resetMargin big value={"Buy"} on:click={() => FlowStore.buy(coin)} disabled={!Object.keys(onrampTokens).includes(coin)} />

@@ -45,6 +45,7 @@ function createFlowStore(){
 	const { subscribe, set, update, reset } = createGenericStore({ flow: false, props: {} })
 
 	const deposit = token => set({ flow: "deposit", props: token && { coin: { value: token } } || {} })
+	const withdraw = token => set({ flow: "withdraw", props: token && { coin: { value: token } } || {} })
 	const transfer = token => set({ flow: "transfer", props: token && { coin: { value: token } } || {} })
 	const buy = token => set({ flow: "buy", props: token && { coin: token } || {} })
 	const sell = token => set({ flow: "sell", props: token && { coin: { value: token } } || {} })
@@ -56,6 +57,7 @@ function createFlowStore(){
 		update,
 		reset,
 		deposit,
+		withdraw,
 		transfer,
 		buy,
 		sell,

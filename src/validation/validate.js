@@ -12,7 +12,7 @@ const runValidators = async ({validators, value}, controller) => {
     return true
 }
 
-export const validate = async ({ payloadStore, validationStore, currentController = {}, emptyInvalid = false }) => {
+export const validate = async ({ payloadStore, validationStore, currentController = {}, emptyInvalid = false, keys }) => {
     const { controller: previousController } = currentController
     if(previousController) previousController.abort()
 
@@ -22,7 +22,7 @@ export const validate = async ({ payloadStore, validationStore, currentControlle
     const validationPayload = {...get(validationStore)}
 
     for(let [k, value] of Object.entries(payloadStore)){
-        if(!validationPayload[k]) continue
+        if(!validationPayload[k] || (keys && !keys.includes(k))) continue
 
         const { value: previousValue, reactiveRevalidation, validators } = validationPayload[k]
         if(previousValue === value && reactiveRevalidation === false) continue
@@ -50,14 +50,14 @@ export const validate = async ({ payloadStore, validationStore, currentControlle
     validationStore.set(validationPayload)
 }
 
-export const allValid = ({ payloadStore, validationStore, emptyInvalid = false, currentController }) => {
+export const allValid = ({ payloadStore, validationStore, emptyInvalid = false, currentController = {}, keys }) => {
     const { controller: previousController } = currentController
     if(previousController) previousController.abort()
 
     const controller = new AbortController()
     currentController.controller = controller
 
-    for(let k of Object.keys(payloadStore)){
+    for(let k of keys || Object.keys(payloadStore)){
         if(!validationStore[k]) continue
 
         const value = payloadStore[k]

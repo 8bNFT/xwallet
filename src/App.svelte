@@ -8,7 +8,7 @@
 
   let defaultBalances = []
 
-  const walletPromise = Wallet.initialize("mainnet")
+  const walletPromise = Wallet.initialize("testnet")
   $: User = $Wallet.User
   $: defaultBalances = generateFakeBalances($Wallet.tokens)
 </script>
