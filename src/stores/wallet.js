@@ -3,6 +3,8 @@ import { readable, writable, get } from 'svelte/store';
 import { createLink } from './imx.js';
 import { API } from 'src/util/imx.js';
 
+const TOKEN_PRICE_API = "http://localhost:3000/tokens/"
+
 const createUserStore = async (network, Link) => {
     const { subscribe, set, update } = writable(false);
 
@@ -42,7 +44,7 @@ const createUserStore = async (network, Link) => {
 }
 
 const fetchTokens = async network => {
-    const result = await fetch('http://localhost:3000/tokens/' + network)
+    const result = await fetch(TOKEN_PRICE_API + network)
     return await result.json()
 }
 

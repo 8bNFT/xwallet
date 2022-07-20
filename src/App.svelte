@@ -5,10 +5,14 @@
   import BalanceBanner from './comps/BalanceBanner.svelte';
   import EventHistory from './comps/history/EventHistory.svelte';
   import { generateFakeBalances } from './util/generic';
+  import EventSkeleton from './comps/skeleton/EventSkeleton.svelte';
+  import BalanceSkeleton from './comps/skeleton/BalanceSkeleton.svelte';
 
   let defaultBalances = []
 
-  const walletPromise = Wallet.initialize("mainnet")
+  const currentNetwork = window.location.hostname === "localhost" || window.location.href.includes("ropsten") || window.location.href.includes("testnet") ? "testnet" : "mainnet"
+  const walletPromise = Wallet.initialize(currentNetwork)
+  
   $: User = $Wallet.User
   $: defaultBalances = generateFakeBalances($Wallet.tokens)
 </script>
@@ -17,8 +21,8 @@
 <Navigation />
 <div style="margin: 2rem .5rem">
 {#await walletPromise}
-  Initializing wallet
-  <!-- Skeleton loader -->
+  <BalanceSkeleton />
+  <EventSkeleton />
 {:then _} 
   <BalanceBanner defaultBalances={User && $User !== false ? [] : defaultBalances} />
   <EventHistory />
