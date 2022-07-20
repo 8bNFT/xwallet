@@ -12,6 +12,7 @@
         "All trades": v => v.event === "purchase" || v.event === "sale",
         "Purchases": v => v.event === "purchase",
         "Sales": v => v.event === "sale",
+        "All bridging": v => v.event === "deposit" || v.event === "withdrawal",
         "Deposits": v => v.event === "deposit",
         "Withdrawals": v => v.event === "withdrawal"
     }

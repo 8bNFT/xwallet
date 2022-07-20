@@ -2,7 +2,7 @@
     export let formStore
 
     import { User, tokens } from "src/stores/wallet";
-    import { assetToUSD } from "src/util/cfx";
+    import { assetToUSD, formatFiatDisplay } from "src/util/cfx";
     import BasicInfo from "src/comps/BasicInfo.svelte";
     import { sliceAddress } from "src/util/generic";
 
