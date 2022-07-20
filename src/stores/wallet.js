@@ -3,7 +3,7 @@ import { readable, writable, get } from 'svelte/store';
 import { createLink } from './imx.js';
 import { API } from 'src/util/imx.js';
 
-const TOKEN_PRICE_API = "http://localhost:3000/tokens/"
+const TOKEN_PRICE_API = "https://tools.immutable.com/token-api/tokens/"
 
 const createUserStore = async (network, Link) => {
     const { subscribe, set, update } = writable(false);
