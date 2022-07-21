@@ -8,7 +8,7 @@
 
 <div class="cont">
     <div class="image">
-        <img in:scale={{start: 0.8, delay: 400}} src={`/emojis/emoji_${status}.png`} alt={status + " emoji"} />
+        <img in:scale={{start: 0.8, delay: 400}} src={`./emojis/emoji_${status}.png`} alt={status + " emoji"} />
     </div>
 
     <div class="title">

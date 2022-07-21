@@ -20,9 +20,12 @@ export const limitPrecision = (num, precision) => {
     return limited
 }
 
-export const parseWithDecimals = (amount, decimals, precision) => 
-    (new BigNumber(amount).times(new BigNumber(Math.pow(10, parseInt('-' + decimals))))).toString(precision)
-
+export const parseWithDecimals = (amount, decimals, precision) => {
+    const _amount = (new BigNumber(amount).times(new BigNumber(Math.pow(10, parseInt('-' + decimals))))).toString()
+    if(!precision) return _amount
+    return limitPrecision(_amount, precision)
+}
+    
 export const formatFiatDisplay = v => fiatFormatter.format(v)
 
 export const formatCryptoDisplay = v =>{
