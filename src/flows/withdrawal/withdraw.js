@@ -23,7 +23,7 @@ const buildFinalizedSuccess = ({ transaction_id, symbol }) => {
         return `You've successfully withdrawn ${symbol} to your L1 account.<br/>Transaction ID: <a target="_blank" href="https://etherscan.io/tx/${transaction_id}">${sliceAddress(transaction_id)}</a>`
     }
 
-    return `You've successfully withdrawn ${symbol} to your L1 account.<br/>Transaction ID: <a target="_blank" href="https://ropsten.etherscan.io/tx/${transaction_id}">${sliceAddress(transaction_id)}</a>`
+    return `You've successfully withdrawn ${symbol} to your L1 account.<br/>Transaction ID: <a target="_blank" href="https://goerli.etherscan.io/tx/${transaction_id}">${sliceAddress(transaction_id)}</a>`
 }
 
 const buildPreparedSuccess = ({ amount, amount_usd, symbol }) => {

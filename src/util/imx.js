@@ -1,15 +1,15 @@
 import { parseWithDecimals } from "./cfx"
 import { get } from "svelte/store"
 
-export const getLinkURL = network => network === "testnet" ? "https://link.ropsten.x.immutable.com" : "https://link.x.immutable.com"
+export const getLinkURL = network => network === "testnet" ? "https://link.sandbox.x.immutable.com" : "https://link.x.immutable.com"
 
-export const getAPIURL = network => network === "testnet" ? "https://api.ropsten.x.immutable.com" : "https://api.x.immutable.com" 
+export const getAPIURL = network => network === "testnet" ? "https://api.sandbox.x.immutable.com" : "https://api.x.immutable.com" 
 
 export const API = (network, path = "") => getAPIURL(network) + path
 
 export const ONRAMP_TOKENS = {
     mainnet: ["ETH", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"],
-    testnet: ["ETH", "0x07865c6e87b9f70255377e024ace6630c1eaa37f"]
+    testnet: ["ETH"]
 }
 
 const filterTokens = (tokens, validTokens) => {

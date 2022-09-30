@@ -3,7 +3,7 @@ import { Wallet } from "src/stores/wallet"
 import { parseWithDecimals } from "./cfx"
 
 const RPC_ENDPOINTS = {
-    testnet: "https://eth-ropsten.alchemyapi.io/v2/l8_rK0oy2uLAVLZwUVBimAc4qwcBTU2z",
+    testnet: "https://eth-goerli.alchemyapi.io/v2/l8_rK0oy2uLAVLZwUVBimAc4qwcBTU2z",
     mainnet: "https://eth-mainnet.alchemyapi.io/v2/l8_rK0oy2uLAVLZwUVBimAc4qwcBTU2z"
 }
 

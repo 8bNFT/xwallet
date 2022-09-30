@@ -10,7 +10,7 @@
 
   let defaultBalances = []
 
-  const currentNetwork = window.location.hostname === "localhost" || window.location.href.includes("ropsten") || window.location.href.includes("testnet") ? "testnet" : "mainnet"
+  const currentNetwork = window.location.hostname === "localhost" || window.location.href.includes("goerli") || window.location.href.includes("testnet") ? "testnet" : "mainnet"
   const walletPromise = Wallet.initialize(currentNetwork)
   
   $: User = $Wallet.User
