@@ -30,12 +30,18 @@ export const createNftTransferStore = () => {
         set(current)
     }
 
+    const toggle = ({ address, id }) => {
+        if(contains({ address, id })) return deselect({ address, id })
+        select({ address, id })
+    }
+
     return {
         subscribe, 
         length,
         contains,
         select,
         deselect,
+        toggle,
         reset: () => set({})
     }
 }

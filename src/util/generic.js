@@ -1,5 +1,9 @@
 export const DEFAULT_TOKEN_ICON = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxLvSc7QnNOFVh1SCKPbYrNTxBVeStbH9u2Q&usqp=CAU"
 
+export const DEFAULT_COLLECTION_ICON = "https://mantial-collections-production.s3.amazonaws.com/0x5c9f8b00db5ae281e8f401789224fe0227f24d81/icon.img"
+
+export const DEFAULT_NFT_IMAGE = "https://files.undeadblocks.com/assets/minted/AMATEUR_1_3.png"
+
 export const EVENT_ICONS = {
     send: `<svg class="bigger" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13.081 13.081"><g id="Icon_feather-arrow-left" data-name="Icon feather-arrow-left" transform="translate(12.374 6.957) rotate(135)"><path id="Path_4" data-name="Path 4" d="M8.838,0H0" transform="translate(0 4.419)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path id="Path_5" data-name="Path 5" d="M4.419,8.838,0,4.419,4.419,0" transform="translate(0)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></g></svg>`,
     receive: `<svg class="bigger" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13.021 13.021"><g id="Icon_feather-arrow-left" data-name="Icon feather-arrow-left" transform="translate(0.707 7.00) rotate(-45)"><path id="Path_4" data-name="Path 4" d="M8.781,0H0" transform="translate(0 4.391)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path id="Path_5" data-name="Path 5" d="M4.391,8.781,0,4.391,4.391,0" transform="translate(0 0)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></g></svg>`,
