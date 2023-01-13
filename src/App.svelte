@@ -1,31 +1,30 @@
 <script>
-  import { Wallet } from 'src/stores/wallet';
-  import Flows from './flows/Flows.svelte';
-  import Navigation from './comps/Navigation.svelte';
-  import BalanceBanner from './comps/BalanceBanner.svelte';
-  import EventHistory from './comps/history/EventHistory.svelte';
-  import { generateFakeBalances } from './util/generic';
-  import EventSkeleton from './comps/skeleton/EventSkeleton.svelte';
-  import BalanceSkeleton from './comps/skeleton/BalanceSkeleton.svelte';
+  import Router from "svelte-spa-router";
+  import { Wallet, User, tokens } from 'src/stores/wallet';
+  import Navigation from 'src/comps/Navigation.svelte';
+  import Skeleton from "src/pages/Skeleton.svelte";
+  import { routes } from "src/routes"
+
+  import { generateFakeBalances } from "src/util/generic";
+  import BalanceBanner from "src/comps/BalanceBanner.svelte";
+  import Flows from "./flows/Flows.svelte";
+
+  const currentNetwork = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.href.includes("goerli") || window.location.href.includes("testnet") ? "testnet" : "mainnet"
+  const walletPromise = Wallet.initialize(currentNetwork)
 
   let defaultBalances = []
 
-  const currentNetwork = window.location.hostname === "localhost" || window.location.href.includes("goerli") || window.location.href.includes("testnet") ? "testnet" : "mainnet"
-  const walletPromise = Wallet.initialize(currentNetwork)
-  
-  $: User = $Wallet.User
-  $: defaultBalances = generateFakeBalances($Wallet.tokens)
+  $: defaultBalances = $User ? [] : generateFakeBalances(tokens)
 </script>
 
 
 <Navigation />
 <div style="margin: 2rem .5rem">
 {#await walletPromise}
-  <BalanceSkeleton />
-  <EventSkeleton />
-{:then _} 
-  <BalanceBanner defaultBalances={User && $User !== false ? [] : defaultBalances} />
-  <EventHistory />
+  <Skeleton />
+{:then _}
+  <BalanceBanner {defaultBalances} />
   <Flows />
+  <Router {routes} />
 {/await}
 </div>

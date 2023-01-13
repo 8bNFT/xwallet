@@ -16,9 +16,7 @@ export default defineConfig({
   resolve: {
     alias: {
       'web3': 'web3/dist/web3.min.js',
-      '@': path.resolve(__dirname, 'src'),
-      'src': path.resolve(__dirname, 'src'),
-      'https': path.resolve(__dirname, 'node_modules/stream-http')
+      'src': path.resolve(__dirname, 'src')
     }
 }
 })

@@ -1,4 +1,4 @@
-export const DEFAULT_TOKEN_ICON = "https://design-system.immutable.com/currency_icons/currency--erc20.svg"
+export const DEFAULT_TOKEN_ICON = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxLvSc7QnNOFVh1SCKPbYrNTxBVeStbH9u2Q&usqp=CAU"
 
 export const EVENT_ICONS = {
     send: `<svg class="bigger" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13.081 13.081"><g id="Icon_feather-arrow-left" data-name="Icon feather-arrow-left" transform="translate(12.374 6.957) rotate(135)"><path id="Path_4" data-name="Path 4" d="M8.838,0H0" transform="translate(0 4.419)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path id="Path_5" data-name="Path 5" d="M4.419,8.838,0,4.419,4.419,0" transform="translate(0)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></g></svg>`,
@@ -29,7 +29,7 @@ export const generateFakeBalances = tokens => {
           raw: "0"
         },
         withdrawable: {
-          parsed: "1",
+          parsed: "0",
           raw: "0"
         }
       }]
