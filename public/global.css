@@ -13,6 +13,8 @@
     --d-grey: #5a5a5a;
     --l-grey: #F3F3F3;
 
+    --max-width: 1040px;
+    --title-weight: 500;
 }
 
 body, html {

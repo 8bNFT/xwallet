@@ -37,6 +37,7 @@
     $: eventList = ($list.filter(currentFilter)).sort(currentSort)
 </script>
 
+
 <div class="cont" class:loaded={$signal || $User === false}>
     <div class="title">
         <h2>Transaction history</h2>
@@ -104,11 +105,6 @@
         outline: none;
         cursor: pointer;
         margin-left: 1rem
-    }
-
-    .cont {
-        margin: auto;
-        max-width: 1040px;
     }
 
     .cont:not(.loaded) {

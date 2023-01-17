@@ -6,6 +6,7 @@
     import TestSelect from 'src/comps/TestSelect.svelte';
     import { generateFakeBalances } from 'src/util/generic';
     import { link } from 'svelte-spa-router';
+    import Title from 'src/comps/Title.svelte';
 
     // let defaultBalances = []
 
@@ -13,7 +14,7 @@
     // $: defaultBalances = generateFakeBalances(tokens)
 </script>
 
-<h1> New page </h1>
+<Title title="NFT inventory" />
 <a href="/" use:link>Home</a>
 
 <TestSelect />

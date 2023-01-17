@@ -42,11 +42,6 @@
         font-weight: 500;
     }
 
-    .cont {
-        margin: auto;
-        max-width: 1040px;
-    }
-
     .cont:not(.loaded) {
         opacity: .5;
         pointer-events: none;

@@ -49,16 +49,12 @@
           </div>
       </div>
     </div>
-    
-  </div>
+</div>
 
 <style>
   .banner {
-    width: 100%;
-    max-width: 1040px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    margin: auto;
     gap: 4rem;
     position: relative;
     align-items: flex-start;

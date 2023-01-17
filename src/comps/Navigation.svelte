@@ -26,6 +26,7 @@
 
 <svelte:window on:click={closeSubmenu} />
 
+
 <nav>
     <!-- <img src="" alt="" class="logo"> -->
     <div class="logo">
@@ -61,8 +62,6 @@
 
 <style>
     nav {
-        max-width: 1040px;
-        margin: auto;
         display: flex;
         align-items: center;
         margin-top: 1rem;

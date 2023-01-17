@@ -42,20 +42,19 @@
                     <div class="image">
                         <img src={nft.image_url || DEFAULT_NFT_IMAGE} on:error={e => e.target.src = DEFAULT_NFT_IMAGE} />
                     </div>
-                    <div class="id">#{nft.token_id}</div>
                     <div class="collection">
-                        <div class="collection_icon">
+                        <!-- <div class="collection_icon">
                             <img src={nft.collection.icon_url || DEFAULT_COLLECTION_ICON} on:error={e => e.target.src = DEFAULT_COLLECTION_ICON} />
-                        </div>
+                        </div> -->
                         <div class="collection_name">{nft.collection.name}</div>
                     </div>
                     <div class="name">{nft.name}</div>
+                    <div class="id">{nft.token_id}</div>
                 </div>
             {/each}
         {/await}
     </div>
 </Selectable>
-
 
 <style>
     .grid {
@@ -63,8 +62,6 @@
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 1rem;
-        max-width: 1040px;
-        margin: 0 auto
     }
 
     .token {
@@ -72,6 +69,7 @@
         border-radius: .5rem;
         transition: all 0.15s;
         padding: .75rem;
+        padding-bottom: 1rem;
         box-shadow: 0 0 12px rgba(0, 0, 0, .1);
     }
 
@@ -110,14 +108,13 @@
     }
 
     .id {
-        margin-bottom: .35rem;
         font-size: .75rem;
     }
 
     .collection {
         display: flex;
         align-items: center;
-        font-size: .85rem;
+        font-size: .75rem;
     }
 
     .collection_name, .id {
@@ -125,15 +122,15 @@
     }
 
     .collection_icon {
-        width: 1.25rem;
-        height: 1.25rem;
+        width: 1.25em;
+        height: 1.25em;
         margin-right: .25rem;
         border-radius: 50%;
         overflow: hidden;
     }
 
     .name {
-        margin-top: .35rem;
-        font-size: .95rem;
+        margin: .25rem 0;
+        font-size: .9rem;
     }
 </style>

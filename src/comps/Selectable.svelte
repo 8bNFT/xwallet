@@ -3,11 +3,11 @@
     import { createEventDispatcher } from "svelte";
     const emit = createEventDispatcher()
 
-    let area
+    // let area
     let drag = {dragging: false, x1: 0, y1: 0, x2: 0, y2: 0, scroll: {x: 0, y: 0}}
 
     const startDrag = e => {
-        if(e.target !== area) return
+        if(e.target.id !== "app") return
         window.getSelection()?.removeAllRanges()
         document.body.style = "user-select: none"
         drag = {
@@ -81,7 +81,7 @@
         overlayCheck(append)
     }
 
-    const updateSelectScroll = e => {
+    const updateSelectScroll = _ => {
         const scroll = { x: window.scrollX, y: window.scrollY }
         const prev = drag.scroll
         
@@ -100,12 +100,14 @@
     <div class="container" bind:this={container}></div>
 {/if}
 
-<div bind:this={area} class="area">
+<div class="area">
     <slot></slot>
 </div>
 
 <style>
     .container {
+        top: -2px;
+        left: -2px;
         position: fixed;
         background: rgba(21, 79, 255, 0.15);
         outline: 2px solid rgba(21, 79, 255, 0.7);

@@ -8,6 +8,7 @@
   import { generateFakeBalances } from "src/util/generic";
   import BalanceBanner from "src/comps/BalanceBanner.svelte";
   import Flows from "./flows/Flows.svelte";
+  import MaxWidth from "./comps/MaxWidth.svelte";
 
   const currentNetwork = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.href.includes("goerli") || window.location.href.includes("testnet") ? "testnet" : "mainnet"
   const walletPromise = Wallet.initialize(currentNetwork)
@@ -17,14 +18,16 @@
   $: defaultBalances = $User ? [] : generateFakeBalances(tokens)
 </script>
 
+<Flows />
 
-<Navigation />
-<div style="margin: 2rem .5rem">
-{#await walletPromise}
-  <Skeleton />
-{:then _}
-  <BalanceBanner {defaultBalances} />
-  <Flows />
-  <Router {routes} />
-{/await}
-</div>
+<MaxWidth>
+  <Navigation />
+  <div style="margin: 2rem .5rem">
+  {#await walletPromise}
+    <Skeleton />
+  {:then _}
+    <BalanceBanner {defaultBalances} />
+    <Router {routes} />
+  {/await}
+  </div>
+</MaxWidth>
