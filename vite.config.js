@@ -16,6 +16,8 @@ export default defineConfig({
   resolve: {
     alias: {
       'web3': 'web3/dist/web3.min.js',
+      'events': path.resolve(__dirname, 'node_modules/events'),
+      'stream': path.resolve(__dirname, 'node_modules/stream-browserify'),
       'src': path.resolve(__dirname, 'src')
     }
 }

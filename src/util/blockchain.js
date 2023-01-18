@@ -2,9 +2,14 @@ import Web3 from "web3"
 import { Wallet } from "src/stores/wallet"
 import { parseWithDecimals } from "./cfx"
 
-const RPC_ENDPOINTS = {
+export const RPC_ENDPOINTS = {
     testnet: "https://eth-goerli.alchemyapi.io/v2/l8_rK0oy2uLAVLZwUVBimAc4qwcBTU2z",
     mainnet: "https://eth-mainnet.alchemyapi.io/v2/l8_rK0oy2uLAVLZwUVBimAc4qwcBTU2z"
+}
+
+export const CHAIN_ID = {
+    testnet: 5,
+    mainnet: 1
 }
 
 const CONTRACT_ABI = {
