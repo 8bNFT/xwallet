@@ -66,4 +66,25 @@ function createFlowStore(){
 	}
 }
 
+export const createOpenCloseStore = initial => {
+	let current = initial || false
+	const { subscribe, set: _set } = writable(current);
+
+	const set = v => {
+		current = v
+		_set(current)
+	}
+
+	return {
+		subscribe,
+		open: () => set(true),
+		close: () => set(false),
+		toggle: () => set(!current),
+		state: () => current,
+		reset: () => set(initial)
+	};
+}
+
+export const WalletDropdown = createOpenCloseStore()
+
 export const FlowStore = createFlowStore()

@@ -6,13 +6,13 @@
     import { walletManager } from "src/stores/wallet"
     import { link } from "svelte-spa-router"
     import { copyToClipboard as copy } from "src/util/generic"
+    import { WalletDropdown } from "src/stores/generics"
 
-    let open = false
     let container
 
-    const closeSubmenu = (e) => {
-        if(!container || container.contains(e.target)) return
-        open = false
+    const closeSubmenu = e => {
+        if(!container || container.contains(e.target) || e.target.closest("[data-dropdown-toggle]")) return
+        WalletDropdown.close()
     }
 
     const copyToClipboard = (e, address) => {
@@ -24,11 +24,10 @@
     }
 
     $: User = $Wallet.User
-    $: if(!User || !$User) open = false
+    $: if(!User) WalletDropdown.close()
 </script>
 
 <svelte:window on:click={closeSubmenu} />
-
 
 <nav>
     <!-- <img src="" alt="" class="logo"> -->
@@ -42,7 +41,7 @@
     {#if User}
         <div bind:this={container} class="container">
             {#if $User !== false}
-                <div on:click={() => open = !open} class="user">
+                <div on:click={WalletDropdown.toggle} class="user">
                     <img src={`https://avatars.dicebear.com/api/adventurer-neutral/${$User.address}.svg`} alt="" class="avatar">
                     <div>
                         <div class="wallet_provider">
@@ -57,7 +56,7 @@
                             <span class="address">{sliceAddress($User.address)}</span>
                         </Tooltip>
                     </div>
-                    {#if open}
+                    {#if $WalletDropdown}
                         <div transition:fly|local={{y: 20}} class="submenu">
                             <span on:click|stopPropagation={(e) => copyToClipboard(e, $User.address)}>Copy address</span>
                             <a href={`https://${Wallet.getNetwork() === "testnet" && "goerli." || ""}etherscan.io/address/${$User.address}`} target="_blank">View on Etherscan</a>
@@ -67,12 +66,12 @@
                     {/if}
                 </div>
             {:else}
-                <div on:click={() => open = !open} class="login">
+                <div on:click={WalletDropdown.toggle} class="login">
                     <svg xmlns="http://www.w3.org/2000/svg" width="36" height="31.5" viewBox="0 0 36 31.5">
                         <path id="Icon_open-account-login" data-name="Icon open-account-login" d="M13.5,0V4.5h18V27h-18v4.5H36V0ZM18,9v4.5H0V18H18v4.5l9-6.75Z"/>
                     </svg>                  
                     <span>Connect Wallet</span>
-                    {#if open}
+                    {#if $WalletDropdown}
                         <div transition:fly|local={{y: 20}} class="submenu">
                             {#each Object.entries(walletManager.getAvailableWallets()) as [id, info]}   
                                 <span class="wallet" on:click={() => walletManager.connect(id)}>

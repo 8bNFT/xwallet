@@ -15,7 +15,7 @@
 
   let defaultBalances = []
 
-  $: defaultBalances = $User ? [] : generateFakeBalances(tokens)
+  $: defaultBalances = $User ? [] : generateFakeBalances(tokens), $Wallet
 </script>
 
 <Flows />

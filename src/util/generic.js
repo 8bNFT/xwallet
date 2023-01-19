@@ -33,7 +33,7 @@ export const generateFakeBalances = tokens => {
           raw: "0"
         },
         withdrawable: {
-          parsed: "1",
+          parsed: "1", // makes it so that it passes the check to actually display the balance (any balance > 0)
           raw: "0"
         }
       }]
