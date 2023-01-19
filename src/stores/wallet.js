@@ -18,7 +18,6 @@ const createUserStore = async () => {
 
     const set = v => {
         if(v === false) cleanup()
-        if(v) console.log(v.starkPublicKey)
         current = v
         _set(current)
     }

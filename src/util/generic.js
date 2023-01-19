@@ -33,7 +33,7 @@ export const generateFakeBalances = tokens => {
           raw: "0"
         },
         withdrawable: {
-          parsed: "0",
+          parsed: "1",
           raw: "0"
         }
       }]
