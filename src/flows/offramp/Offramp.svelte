@@ -4,7 +4,7 @@
     import { createStepStore } from "src/stores/steps";
     import { createGenericStore, createGenericStores, withValidation } from "src/stores/generics"
     import { FlowStore } from 'src/stores/generics';
-    import { tokens, Wallet, Link, Balances } from "src/stores/wallet";
+    import { tokens, Wallet, Balances } from "src/stores/wallet";
     import { filterOfframpTokens } from "src/util/imx";
     import OfframpRequest from "./OfframpRequest.svelte";
     import merge from "lodash.merge"
@@ -83,7 +83,7 @@
                     text: () => `Sell ` + offrampTokens[$payloadStore.coin].symbol,
                     action: () => async () => {
                         loading = true
-                        resultStore.set(await handleOfframpCall({ link: $Link, payload: $payloadStore, tokens }))
+                        resultStore.set(await handleOfframpCall({ payload: $payloadStore }))
                         loading = false
                         STEP_STORE.next()
                     },

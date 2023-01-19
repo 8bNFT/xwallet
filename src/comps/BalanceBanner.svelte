@@ -35,8 +35,8 @@
                 <BannerButton disabled value="Receive" />
                 <BannerButton disabled={$User === false} value="Deposit" on:click={() => FlowStore.deposit()} />
                 <BannerButton disabled={$User === false || !Object.values($Balances).length} value="Withdraw" on:click={() => FlowStore.withdraw()} />
-                <BannerButton disabled={$User === false} value="Buy" on:click={() => FlowStore.buy()} />
-                <BannerButton disabled={$User === false || !$Balances || !Object.values(filterOfframpTokens($Balances, Wallet.getNetwork())).length} value="Sell" on:click={() => FlowStore.sell()} />
+                <BannerButton disabled={$User === false || !$User.wallet.supports("onramp")} value="Buy" on:click={() => FlowStore.buy()} />
+                <BannerButton disabled={$User === false || !$User.wallet.supports("offramp") || !$Balances || !Object.values(filterOfframpTokens($Balances, Wallet.getNetwork())).length} value="Sell" on:click={() => FlowStore.sell()} />
             </div>
         </div>
     </div>

@@ -25,6 +25,10 @@ export const parseWithDecimals = (amount, decimals, precision) => {
     if(!precision) return _amount
     return limitPrecision(_amount, precision)
 }
+
+export const parsedToRaw = (amount, decimals) => {
+    return (new BigNumber(amount).times(new BigNumber(Math.pow(10, decimals)))).toString()
+}
     
 export const formatFiatDisplay = v => fiatFormatter.format(v)
 
@@ -33,4 +37,3 @@ export const formatCryptoDisplay = v =>{
     const fiatFormat = formatFiatDisplay(decimalSplit[0]).split('.')[0]
     return `${v.startsWith("-") && "-" || ""}${fiatFormat.split("$")[1]}${decimalSplit[1] ? '.' : ''}${decimalSplit[1] || ""}`
 }
-    

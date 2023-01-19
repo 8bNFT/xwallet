@@ -8,7 +8,7 @@
     import { createGenericStore, createGenericStores, withValidation } from "src/stores/generics"
     import { allValid, validate } from "src/validation/validate";
     import { isEthAddress, isGtOrEq, isIMXUser, isLtOrEq, isNotEq, isNumber, isPositiveNumber, verifyPrecision } from "src/validation/validators";
-    import { Wallet, User, Balances, tokens, Link } from "src/stores/wallet";
+    import { Wallet, User, Balances, tokens } from "src/stores/wallet";
     import { handleTransferCall } from "./transfer";
     import merge from "lodash.merge";
 
@@ -46,6 +46,8 @@
             )
         )
     )
+
+    $: $User, $Balances ? $payloadStore.coin = Object.keys($Balances)[0] : null
 
     const resultStore = createGenericStore({})
 
@@ -100,7 +102,7 @@
                     action: () => { 
                         return async () => {
                             loading = true
-                            resultStore.set(await handleTransferCall({ link: $Link, payload: $payloadStore, tokens }))
+                            resultStore.set(await handleTransferCall({ payload: $payloadStore }))
                             loading = false
                             STEP_STORE.next()
                         }

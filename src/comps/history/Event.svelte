@@ -1,7 +1,7 @@
 <script>
     export let event
 
-    import { EVENT_ICONS, sliceAddress } from "src/util/generic";
+    import { copyToClipboard, EVENT_ICONS, sliceAddress } from "src/util/generic";
     import { formatCryptoDisplay } from "src/util/cfx";
     import { tokens, Wallet } from "src/stores/wallet";
 import Tooltip from "../Tooltip.svelte";
@@ -35,12 +35,12 @@ import Tooltip from "../Tooltip.svelte";
             <div class="timestamp">{event.timestamp.toISOString().split("T")[0]}</div>
         </Tooltip>
     </div>
-    <div class="from">
+    <div class="from" on:click={event.from && copyToClipboard(event.from)}>
         <Tooltip title={event.from}>
             {sliceAddress(event.from)}
         </Tooltip>
     </div>
-    <div class="to">
+    <div class="to" on:click={event.to && copyToClipboard(event.to)}>
         <Tooltip title={event.to}>
             {sliceAddress(event.to)}
         </Tooltip>
@@ -95,6 +95,9 @@ import Tooltip from "../Tooltip.svelte";
         font-weight: 500
     }
 
+    .from, .to {
+        cursor: copy
+    }
 
     .timestamp, .token_id {
         color: var(--grey);

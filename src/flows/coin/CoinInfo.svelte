@@ -1,6 +1,6 @@
 <script>
     import { FlowStore } from 'src/stores/generics';
-    import { tokens, Balances, Wallet } from "src/stores/wallet";
+    import { tokens, Balances, Wallet, User } from "src/stores/wallet";
     import { filterOnrampTokens, filterOfframpTokens } from "src/util/imx";
     import { DEFAULT_TOKEN_ICON } from "src/util/generic";
     import PriceChange from "src/comps/PriceChange.svelte";
@@ -72,10 +72,10 @@
         <FlowButton resetMargin big value={"Withdraw"} on:click={() => FlowStore.withdraw(coin)} />
     </Tooltip>
     <Tooltip title="Buy">
-        <FlowButton resetMargin big value={"Buy"} on:click={() => FlowStore.buy(coin)} disabled={!Object.keys(onrampTokens).includes(coin)} />
+        <FlowButton resetMargin big value={"Buy"} on:click={() => FlowStore.buy(coin)} disabled={!Object.keys(onrampTokens).includes(coin) || !$User.wallet.supports("onramp")} />
     </Tooltip>
     <Tooltip title="Sell">
-        <FlowButton resetMargin big value={"Sell"} on:click={() => FlowStore.sell(coin)} disabled={!Object.keys(offrampTokens).includes(coin)} />
+        <FlowButton resetMargin big value={"Sell"} on:click={() => FlowStore.sell(coin)} disabled={!Object.keys(offrampTokens).includes(coin) || !$User.wallet.supports("offramp")} />
     </Tooltip>
 </div>
 

@@ -7,7 +7,7 @@
     import { FlowStore } from 'src/stores/generics';
     import { allValid, validate } from "src/validation/validate";
     import { isGtOrEq, isLtOrEq, isNumber, isPositiveNumber, verifyPrecision } from "src/validation/validators";
-    import { Link, Balances, tokens } from "src/stores/wallet";
+    import { User, Link, Balances, tokens } from "src/stores/wallet";
     import WithdrawalRequest from "./WithdrawalRequest.svelte";
     import { handlePrepareCall, handleFinalizeCall } from "./withdraw";
     import merge from "lodash.merge"
@@ -44,6 +44,8 @@
         )
     )
 
+    $: $User, $Balances ? $payloadStore.coin = Object.keys($Balances)[0] : null
+
     const resultStore = createGenericStore({})
 
     const emptyValidationController = {}
@@ -52,7 +54,7 @@
     $: if($currentStep === "prepare"){
         allFilled = allValid({ payloadStore: $payloadStore, currentController: emptyValidationController, validationStore: $validationStore, emptyInvalid: true }) === true
     } else {
-        allFilled = Number($Balances[$payloadStore.coin].withdrawable.parsed) > 0
+        allFilled = $Balances && Number($Balances[$payloadStore.coin].withdrawable.parsed) > 0
     }    
     $: validate({ payloadStore: $payloadStore, validationStore: validationStore, currentController: validationController})
 
@@ -89,11 +91,11 @@
                 primary: {
                     text: () => {
                         if($currentStep === "prepare"){
-                            if($Balances[$payloadStore.coin].balance.parsed > 0) return "Prepare a withdrawal"
+                            if($Balances && $Balances[$payloadStore.coin].balance.parsed > 0) return "Prepare a withdrawal"
                             return "Nothing to prepare"
                         }
 
-                        if($Balances[$payloadStore.coin].withdrawable.parsed > 0) return `Withdraw ${formatCryptoDisplay($Balances[$payloadStore.coin].withdrawable.parsed, tokens[$payloadStore.coin].precision)} ${tokens[$payloadStore.coin].symbol}`
+                        if($Balances && $Balances[$payloadStore.coin].withdrawable.parsed > 0) return `Withdraw ${formatCryptoDisplay($Balances[$payloadStore.coin].withdrawable.parsed, tokens[$payloadStore.coin].precision)} ${tokens[$payloadStore.coin].symbol}`
                         return "Nothing to withdraw"
                     },
                     loading: () => {

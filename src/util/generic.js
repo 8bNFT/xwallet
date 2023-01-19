@@ -44,3 +44,5 @@ export const generateFakeBalances = tokens => {
 }
 
 export const randomInt = int => Math.floor(Math.random() * int)
+
+export const copyToClipboard = text => navigator.clipboard.writeText(text)

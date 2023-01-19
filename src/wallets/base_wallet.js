@@ -63,5 +63,9 @@ export const createBaseWalletClass = ({ identifier, name, icon }) => {
                 callback(args)
             }
         }
+
+        supports(_){
+            return false
+        }
     }
 }

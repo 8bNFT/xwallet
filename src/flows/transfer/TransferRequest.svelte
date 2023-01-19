@@ -29,8 +29,10 @@
 
 <Select bind:value={$formStore.coin} options={balancesToOptions($Balances)} />
 <div class="separator"></div>
+{#if $Balances}
 <CfxInput bind:value={$formStore.amount} valid={$validationStore.amount.valid} error={$validationStore.amount.error} label="Amount" asset={$Balances[$formStore.coin]}>
     <LabelButton slot="label-right" value={"Max. " + $Balances[$formStore.coin].balance.parsed + " " + $Balances[$formStore.coin].symbol} on:click={setAmount} />
 </CfxInput>
+{/if}
 <div class="separator"></div>
 <BasicInput placeholder={"Receiver address"} label="Receiver" bind:value={$formStore.receiver} valid={$validationStore.receiver.valid}  error={$validationStore.receiver.error} />

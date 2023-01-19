@@ -5,6 +5,7 @@
     import { fly } from "svelte/transition"
     import { walletManager } from "src/stores/wallet"
     import { link } from "svelte-spa-router"
+    import { copyToClipboard as copy } from "src/util/generic"
 
     let open = false
     let container
@@ -17,7 +18,7 @@
     const copyToClipboard = (e, address) => {
         if(!address) return
 
-        navigator.clipboard.writeText(address)
+        copy(address)
         e.target.innerText = "Copied to clipboard!"
         setTimeout(() => e.target.innerText = "Copy address", 1000)
     }
@@ -43,12 +44,23 @@
             {#if $User !== false}
                 <div on:click={() => open = !open} class="user">
                     <img src={`https://avatars.dicebear.com/api/adventurer-neutral/${$User.address}.svg`} alt="" class="avatar">
-                    <Tooltip title={$User.address}>
-                        <span class="address">{sliceAddress($User.address)}</span>
-                    </Tooltip>
+                    <div>
+                        <div class="wallet_provider">
+                            <div class="icon">
+                                <img src={$User.wallet.getIcon()} />
+                            </div>
+                            <span class="name">
+                                {$User.wallet.getName()}
+                            </span>
+                        </div>
+                        <Tooltip title={$User.address}>
+                            <span class="address">{sliceAddress($User.address)}</span>
+                        </Tooltip>
+                    </div>
                     {#if open}
                         <div transition:fly|local={{y: 20}} class="submenu">
                             <span on:click|stopPropagation={(e) => copyToClipboard(e, $User.address)}>Copy address</span>
+                            <a href={`https://${Wallet.getNetwork() === "testnet" && "goerli." || ""}etherscan.io/address/${$User.address}`} target="_blank">View on Etherscan</a>
                             <a href={`https://immutascan.io/address/${$User.address}`} target="_blank">View on Immutascan</a>
                             <span on:click={User.disconnect} class="destructive">Log out</span>
                         </div>
@@ -127,6 +139,26 @@
         position: relative
     }
 
+    .user {
+        font-size: .9rem
+    }
+
+    .wallet_provider {
+        display: flex;
+        font-size: .85em;
+        color: var(--grey);
+        margin-bottom: .2rem;
+        align-items: center;
+    }
+
+    .wallet_provider .icon {
+        height: 1.25em;
+        width: 1.25em;
+        margin-right: .5em;
+        border-radius: 50%;
+        overflow: hidden;
+    }
+
     .login {
         padding: 1rem
     }
@@ -152,6 +184,7 @@
     .submenu {
         cursor: default;
         width: 100%;
+        min-width: 200px;
         position: absolute;
         top: 100%;
         margin-top: .5rem;

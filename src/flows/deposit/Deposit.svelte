@@ -6,7 +6,7 @@
     import { FlowStore } from 'src/stores/generics';
     import { allValid, validate } from "src/validation/validate";
     import { isGtOrEq, isLtOrEq, isNumber, isPositiveNumber, verifyPrecision } from "src/validation/validators";
-    import { Link, tokens } from "src/stores/wallet";
+    import { tokens } from "src/stores/wallet";
     import DepositRequest from "./DepositRequest.svelte";
     import DepositReview from "./DepositReview.svelte";
     import { handleDepositCall } from "./deposit";
@@ -89,7 +89,7 @@
                     text: () => `Deposit ${tokens[$payloadStore.coin].symbol}`,
                     action: () => async () => {
                         loading = true
-                        resultStore.set(await handleDepositCall({ link: $Link, payload: $payloadStore, tokens }))
+                        resultStore.set(await handleDepositCall({ payload: $payloadStore }))
                         loading = false
                         STEP_STORE.next()
                     },

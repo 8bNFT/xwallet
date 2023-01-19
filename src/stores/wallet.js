@@ -1,16 +1,24 @@
 import { parseWithDecimals } from 'src/util/cfx.js';
-import { readable, writable, get } from 'svelte/store';
+import { readable, writable } from 'svelte/store';
 import { createLink } from './imx.js';
 import { API } from 'src/util/imx.js';
 import { WalletManager } from 'src/wallets/wallet_manager.js';
+import { ImmutableX, Config } from '@imtbl/core-sdk';
+import { FlowStore } from './generics.js';
 
 const TOKEN_PRICE_API = "https://tools.immutable.com/token-api/tokens/"
 
-const createUserStore = async network => {
+const createUserStore = async () => {
     let current = false
     const { subscribe, set: _set } = writable(current);
 
+    const cleanup = () => {
+        FlowStore.reset()
+    }
+
     const set = v => {
+        if(v === false) cleanup()
+        if(v) console.log(v.starkPublicKey)
         current = v
         _set(current)
     }
@@ -30,7 +38,7 @@ const fetchTokens = async network => {
 }
 
 const createBalanceStore = async (network, token_info, userStore) => {
-    return readable(false, function start(set) {
+    return readable({}, function start(set) {
         let interval = false
         let address
 
@@ -127,3 +135,4 @@ export let User
 export let tokens
 export let walletManager
 export const Wallet = createWalletStore()
+export const getCoreSDK = () =>new ImmutableX(Wallet.getNetwork() === "mainnet" ? Config.PRODUCTION : Config.SANDBOX)

@@ -10,6 +10,9 @@
 //     exchangeId: string;
 // }>;
 
+import { User, tokens } from "src/stores/wallet"
+import { get } from "svelte/store"
+
 const extractOnrampPayload = (payload, token) => {
     return { cryptoCurrencies: [token.symbol] }
 }
@@ -29,12 +32,12 @@ const parseOnrampResult = (result, token) => {
     }
 }
 
-export const handleOnrampCall = async ({link: Link, payload, tokens}) => {
+export const handleOnrampCall = async ({ payload }) => {
     const payloadCopy = {...payload}
     const token = tokens[payloadCopy.coin]
 
     try{
-        const result = await Link.fiatToCrypto(extractOnrampPayload(payloadCopy, token))
+        const result = await get(User).wallet.fiatToCrypto(extractOnrampPayload(payloadCopy, token))
         const parsedResult = parseOnrampResult(result, token)
         const message = buildOnrampSuccess(parsedResult)
 

@@ -68,4 +68,8 @@ export class IMXLink extends BaseWalletClass {
         this.wallet = { identifier, address, starkPublicKey, wallet: this }
         return this.wallet
     }
+
+    supports(action){
+        return ["onramp", "offramp"].includes(action.toLowerCase())
+    }
 }
