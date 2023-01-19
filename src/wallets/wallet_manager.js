@@ -1,14 +1,22 @@
 import { Gamestop } from "./gamestop"
+import { getLastUsedWallet } from "./helpers"
 import { IMXLink } from "./imx_link"
 import { MetaMask } from "./metamask"
 
 export class WalletManager {
-    constructor(network){
+    constructor(network, user){
+        this.network = network
         this.wallets = {
-            [IMXLink.getIdentifier()]: new IMXLink(network),
+            [MetaMask.getIdentifier()]: new MetaMask(network),
             [Gamestop.getIdentifier()]: new Gamestop(network),
-            [MetaMask.getIdentifier()]: new MetaMask(network)
+            [IMXLink.getIdentifier()]: new IMXLink(network),
         }
+
+        this.user = user
+    }
+
+    getWalletTypes(){
+        return Object.keys(this.wallets)
     }
 
     getWallet(identifier){
@@ -16,25 +24,56 @@ export class WalletManager {
         if(!id in this.wallets) throw "Unknown wallet identifier " + id
         const wallet = this.wallets[id]
         if(!wallet.isAvailable()) return false
-        return wallet
+        return {
+            ...wallet.getWalletInfo(),
+            wallet,
+        }
     }
 
     getWallets(){
-        return this.wallets
-    }
-
-    getWalletTypes(){
-        return Object.keys(this.wallets)
+        return Object.entries(this.wallets).reduce((dict, [id, wallet]) => {
+            dict[id] = { ...wallet.getWalletInfo(), wallet }
+            return dict
+        }, {})
     }
 
     getAvailableWallets(){
         const wallets = {}
         for(let [id, wallet] of Object.entries(this.wallets)){
             if(!wallet.isAvailable()) continue
-            wallets[id] = wallet
+            wallets[id] = {
+                ...wallet.getWalletInfo(),
+                wallet
+            }
         }
 
         return wallets
+    }
+
+    listenToChanges(wallet){
+        wallet.onAccountChange(wallet_object => {
+            if(wallet.getIdentifier() !== getLastUsedWallet(this.network).identifier) return
+            this.user.set(wallet_object)
+        }, "wallet_manager")
+    }
+
+    async connect(id){
+        const provider = this.getWallet(id)
+        if(!provider) return false
+        const { wallet } = provider
+        const wallet_object = await wallet.connect()
+        this.user.set(wallet_object)
+        this.listenToChanges(wallet)
+    }
+
+    async checkExistingSession(){
+        const { identifier } = getLastUsedWallet(this.network)
+        if(!identifier) return false
+        const provider = this.getWallet(identifier)
+        if(!provider) return false
+        const { wallet } = provider
+        this.user.set(await wallet.checkExistingSession())
+        this.listenToChanges(wallet)
     }
 }
 

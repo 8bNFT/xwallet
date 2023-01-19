@@ -1,5 +1,9 @@
+import { createStarkSigner } from "@imtbl/core-sdk"
+
 export const LOCAL_STORAGE_IDENTIFIER = network => `__wallet_${network}`
 export const STARK_KEY_MAPPING = "__stark_key_mapping"
+
+export const createWalletConnection = (signer, starkPrivateKey) => ({ ethSigner: signer, starkSigner: createStarkSigner(starkPrivateKey) })
 
 export const getLastUsedWallet = network => {
     const cache = localStorage.getItem(LOCAL_STORAGE_IDENTIFIER(network))

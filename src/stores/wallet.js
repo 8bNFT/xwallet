@@ -2,44 +2,25 @@ import { parseWithDecimals } from 'src/util/cfx.js';
 import { readable, writable, get } from 'svelte/store';
 import { createLink } from './imx.js';
 import { API } from 'src/util/imx.js';
+import { WalletManager } from 'src/wallets/wallet_manager.js';
 
 const TOKEN_PRICE_API = "https://tools.immutable.com/token-api/tokens/"
 
-const createUserStore = async (network, Link) => {
-    const { subscribe, set, update } = writable(false);
+const createUserStore = async network => {
+    let current = false
+    const { subscribe, set: _set } = writable(current);
 
-    function checkSession(){
-        const cached = localStorage.getItem('wallet_' + network)
-        if(!cached) return false
-
-        const info = JSON.parse(cached)
-        update(v => v.address && v.network === network ? v : info)
-        return info
+    const set = v => {
+        current = v
+        _set(current)
     }
 
-    async function login(){
-        try{
-            const { address, starkPublicKey } = await get(Link).setup({ providerPreference: "none" })
-            set({address, starkPublicKey, network})
-            localStorage.setItem('wallet_' + network, JSON.stringify({address, starkPublicKey, network}))
-            return { address, starkPublicKey, network }
-        }catch(err){
-            console.error(err)
-            return false
-        }
-    }
-
-    function logout(){
-        localStorage.removeItem('wallet_' + network)
-        set(false)
-    }
-
-    checkSession()
+    const disconnect = () => current?.wallet?.disconnect()
 
     return {
+        set,
         subscribe,
-        login,
-        logout
+        disconnect
     }
 }
 
@@ -110,7 +91,10 @@ const initializeWalletStore = async network => {
     Balances = BalanceInformation
     User = UserStore
     tokens = tokenInformation
-    
+    walletManager = new WalletManager(network, User)
+
+    await walletManager.checkExistingSession()
+
     return {
         User: UserStore,
         Link: LinkStore,
@@ -141,4 +125,5 @@ export let Link
 export let Balances
 export let User
 export let tokens
+export let walletManager
 export const Wallet = createWalletStore()

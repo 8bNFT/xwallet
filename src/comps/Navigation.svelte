@@ -3,6 +3,8 @@
     import { sliceAddress } from "src/util/generic"
     import Tooltip from "src/comps/Tooltip.svelte"
     import { fly } from "svelte/transition"
+    import { walletManager } from "src/stores/wallet"
+    import { link } from "svelte-spa-router"
 
     let open = false
     let container
@@ -30,56 +32,89 @@
 <nav>
     <!-- <img src="" alt="" class="logo"> -->
     <div class="logo">
-        wallet<span class="accent">.</span>
+        <a href="/" use:link>wallet<span class="accent">.</span></a>
     </div>
     <div class="links">
+        <a href="/" use:link>Home</a>
+        <a href="/inventory" use:link>inventory</a>
     </div>
     {#if User}
-        {#if $User !== false}
-            <div bind:this={container} on:click={() => open = !open} class="user">
-                <img src={`https://avatars.dicebear.com/api/adventurer-neutral/${$User.address}.svg`} alt="" class="avatar">
-                <Tooltip title={$User.address}>
-                    <span class="address">{sliceAddress($User.address)}</span>
-                </Tooltip>
-                {#if open}
-                <div transition:fly|local={{y: 20}} class="submenu">
-                    <span on:click|stopPropagation={(e) => copyToClipboard(e, $User.address)}>Copy address</span>
-                    <a href={`https://immutascan.io/address/${$User.address}`} target="_blank">View on Immutascan</a>
-                    <span on:click={User.logout} class="destructive">Log out</span>
+        <div bind:this={container} class="container">
+            {#if $User !== false}
+                <div on:click={() => open = !open} class="user">
+                    <img src={`https://avatars.dicebear.com/api/adventurer-neutral/${$User.address}.svg`} alt="" class="avatar">
+                    <Tooltip title={$User.address}>
+                        <span class="address">{sliceAddress($User.address)}</span>
+                    </Tooltip>
+                    {#if open}
+                        <div transition:fly|local={{y: 20}} class="submenu">
+                            <span on:click|stopPropagation={(e) => copyToClipboard(e, $User.address)}>Copy address</span>
+                            <a href={`https://immutascan.io/address/${$User.address}`} target="_blank">View on Immutascan</a>
+                            <span on:click={User.disconnect} class="destructive">Log out</span>
+                        </div>
+                    {/if}
                 </div>
-                {/if}
-            </div>
-        {:else}
-            <div on:click={User.login} class="login">
-                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="31.5" viewBox="0 0 36 31.5">
-                    <path id="Icon_open-account-login" data-name="Icon open-account-login" d="M13.5,0V4.5h18V27h-18v4.5H36V0ZM18,9v4.5H0V18H18v4.5l9-6.75Z"/>
-                </svg>                  
-                <span>Connect Wallet</span>
-            </div>
-        {/if}
+            {:else}
+                <div on:click={() => open = !open} class="login">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="31.5" viewBox="0 0 36 31.5">
+                        <path id="Icon_open-account-login" data-name="Icon open-account-login" d="M13.5,0V4.5h18V27h-18v4.5H36V0ZM18,9v4.5H0V18H18v4.5l9-6.75Z"/>
+                    </svg>                  
+                    <span>Connect Wallet</span>
+                    {#if open}
+                        <div transition:fly|local={{y: 20}} class="submenu">
+                            {#each Object.entries(walletManager.getAvailableWallets()) as [id, info]}   
+                                <span class="wallet" on:click={() => walletManager.connect(id)}>
+                                    <div class="icon">
+                                        <img src={info.icon}>
+                                    </div>
+                                    <span class="name">{info.name}</span>
+                                </span>
+                            {/each}
+                        </div>
+                    {/if}
+                </div>
+            {/if}
+        </div>
     {/if}
 </nav>
 
 <style>
     nav {
-        display: flex;
+        display: grid;
         align-items: center;
         margin-top: 1rem;
+        grid-template-columns: 20% 60% 20%;
         /* justify-content: space-between; */
+    }
+
+    .links {
+        text-align: center;
+        /* width: 100%; */
+        flex: 1;
+    }
+
+    .links a {
+        text-decoration: none;
+        display: inline-block;
+        margin: 0 .25rem
     }
 
     .logo {
         user-select: none;
-        cursor: pointer;
         font-weight: 700;
-        font-size: 1.35rem
+        font-size: 1.35rem;
+    }
+
+    .logo a {
+        color: inherit;
+        text-decoration: none;
     }
 
     .accent {
         color: var(--accent)
     }
 
-    .user, .login {
+    .user, .login, .container {
         user-select: none;
         margin-left: auto;
         display: flex;
@@ -130,7 +165,7 @@
         transform: translateX(-50%)
     }
 
-    .submenu span, .submenu a {
+    .submenu > span, .submenu a {
         display: block;
         text-decoration: none;
         font-size: .9rem;
@@ -142,11 +177,27 @@
         transition: background-color .2s;
     }
 
-    .submenu span:hover, .submenu a:hover {
+    .submenu > span:hover, .submenu a:hover {
         background: var(--l-grey);
     }
 
     .submenu .destructive {
         color: #dd0909
+    }
+
+    .submenu .wallet {
+        display: flex;
+        align-items: center;
+    }
+
+    .wallet .icon {
+        width: 1.25em;
+        height: 1.25em;
+        margin-right: .5rem
+    }
+
+    .icon img {
+        max-width: 100%;
+        object-fit: contain;
     }
 </style>

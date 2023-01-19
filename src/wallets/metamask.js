@@ -1,41 +1,54 @@
-import { addCachedStarkPrivateKey, getCachedStarkPrivateKey, getLastUsedWallet, setLastUsedWallet } from "./helpers"
+import { addCachedStarkPrivateKey, createWalletConnection, getCachedStarkPrivateKey, getLastUsedWallet, setLastUsedWallet } from "./helpers"
 import { CHAIN_ID } from "src/util/blockchain"
 import { ethers } from "ethers"
-import { createStarkSigner, generateLegacyStarkPrivateKey } from "@imtbl/core-sdk"
+import { generateLegacyStarkPrivateKey } from "@imtbl/core-sdk"
+import { createBaseWalletClass } from "./base_wallet"
 
 const IDENTIFIER = "METAMASK"
+const NAME = "MetaMask"
+const ICON = "https://link.x.immutable.com/static/media/metamask-logo.45038d58.svg"
 
-export class MetaMask {
+const BaseWalletClass = createBaseWalletClass({ name: NAME, identifier: IDENTIFIER, icon: ICON })
+
+export class MetaMask extends BaseWalletClass {
     constructor(network){
-        this.network = network
+        super(network)
+
         this.chain_id = CHAIN_ID[network]
-        this.identifier = IDENTIFIER
-        this.callback = () => {}
-        if(!this.isAvailable()) return
+        if(!this.isAvailable()) return this
+
         this.ethereum = window.ethereum
         this.ethereum.on('accountsChanged', this.accountChangeHandler.bind(this))
         this.ethereum.on('disconnect', () => this.accountChangeHandler([]))
         this.ethers = new ethers.providers.Web3Provider(this.ethereum)
     }
 
-    static getIdentifier(){
-        return IDENTIFIER
+    async accountChangeHandler(accounts){
+        if(!accounts.length) return this.disconnect()
+        const wallet = await this.checkExistingSession()
+        if(!wallet) return this.disconnect()
+        this.emitAccountChange(wallet)
     }
 
-    onAccountChange(callback){
-        this.callback = callback
-    }
-
-    accountChangeHandler(accounts){
-        if(!accounts.length) return this.callback(false)
-        const wallet = this.checkExistingSession()
-        if(!wallet) return this.callback(false)
-        this.callback(wallet)
+    static isAvailable(){
+        if(window.ethereum && window.ethereum.isMetaMask) return true
+        return false
     }
 
     isAvailable(){
-        if(window.ethereum && window.ethereum.isMetaMask) return true
-        return false
+        return this.constructor.isAvailable()
+    }
+
+    createWalletObject(signer, starkPrivateKey){
+        const walletConnection = createWalletConnection(signer, starkPrivateKey)
+
+        return {
+            identifier: this.getIdentifier(),
+            walletConnection,
+            address: this.address(),
+            starkPublicKey: walletConnection.starkSigner.getAddress(),
+            wallet: this
+        }
     }
 
     async getPermissions(){
@@ -73,7 +86,7 @@ export class MetaMask {
         return accounts_retry[0]
     }
 
-    async login(){
+    async connect(){
         if(!this.isAvailable()) return false
         try{
             const address = await this.getAccount()
@@ -82,19 +95,11 @@ export class MetaMask {
             const ether_signer = this.ethers.getSigner()
             const starkPrivateKey = getCachedStarkPrivateKey(address) || await generateLegacyStarkPrivateKey(ether_signer)
             if(!starkPrivateKey) return false
-
+            
+            this.wallet = this.createWalletObject(ether_signer, starkPrivateKey)
             addCachedStarkPrivateKey(address, starkPrivateKey)
-            const stark_signer = createStarkSigner(starkPrivateKey)
+            setLastUsedWallet(this.network, { identifier: this.getIdentifier() })
 
-            this.wallet = {
-                identifier: this.identifier,
-                ether_signer,
-                address,
-                stark_signer,
-                starkPublicKey: stark_signer.getAddress()
-            }
-
-            setLastUsedWallet(this.network, { identifier: this.identifier })
             return this.wallet
         }catch(err){
             console.error("[WALLET CONNECTION]", err)
@@ -102,9 +107,10 @@ export class MetaMask {
         }
     }
 
-    async logout(){
+    async disconnect(){
         const { identifier } = getLastUsedWallet(this.network)
-        if(identifier !== this.identifier) return
+        if(identifier !== this.getIdentifier()) return
+        this.emitAccountChange(false)
         setLastUsedWallet(this.network, {})
     }
 
@@ -112,26 +118,17 @@ export class MetaMask {
         return this.ethereum.selectedAddress || false
     }
 
-    checkExistingSession(){
+    async checkExistingSession(){
         if(!this.isAvailable()) return false
         if(!this.address()) return false
 
         const { identifier } = getLastUsedWallet(this.network)
-        if(identifier !== this.identifier) return false
+        if(identifier !== this.getIdentifier()) return false
 
         const starkPrivateKey = getCachedStarkPrivateKey(this.address())
         if(!starkPrivateKey) return false
 
-        const stark_signer = createStarkSigner(starkPrivateKey)
-
-        this.wallet = {
-            identifier,
-            ether_signer: this.ethers.getSigner(),
-            address: this.address(),
-            stark_signer,
-            starkPublicKey: stark_signer.getAddress()
-        }
-
+        this.wallet = this.createWalletObject(this.ethers.getSigner(), starkPrivateKey)
         return this.wallet
     }
 }

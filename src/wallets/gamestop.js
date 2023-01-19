@@ -1,45 +1,55 @@
-import { addCachedStarkPrivateKey, getCachedStarkPrivateKey, getLastUsedWallet, setLastUsedWallet } from "./helpers"
+import { addCachedStarkPrivateKey, createWalletConnection, getCachedStarkPrivateKey, getLastUsedWallet, setLastUsedWallet } from "./helpers"
 import { CHAIN_ID } from "src/util/blockchain"
 import { ethers } from "ethers"
-import { createStarkSigner, generateLegacyStarkPrivateKey } from "@imtbl/core-sdk"
+import { generateLegacyStarkPrivateKey } from "@imtbl/core-sdk"
+import { createBaseWalletClass } from "./base_wallet"
 
 const IDENTIFIER = "GAMESTOP"
+const NAME = "Gamestop"
+const ICON = "https://is3-ssl.mzstatic.com/image/thumb/Purple123/v4/30/cd/3a/30cd3a4a-301f-1e00-0899-94d3fb5d07cf/AppIcon-0-1x_U007emarketing-0-5-0-85-220.png/246x0w.webp"
 
-export class Gamestop {
+const getWindowObject = () => window.gamestop ? window.gamestop : window.ethereum && window.ethereum.isGamestop ? window.ethereum : false
+
+const BaseWalletClass = createBaseWalletClass({ name: NAME, identifier: IDENTIFIER, icon: ICON })
+
+export class Gamestop extends BaseWalletClass {
     constructor(network){
-        this.network = network
+        super(network)
+
         this.chain_id = CHAIN_ID[network]
-        this.identifier = IDENTIFIER
-        this.callback = () => {}
-        if(!this.isAvailable()) return
-        this.gamestop = this.getWindowObject()
+        if(!this.isAvailable()) return this
+
+        this.gamestop = getWindowObject()
         this.gamestop.on('accountsChanged', this.accountChangeHandler.bind(this))
         this.gamestop.on('disconnect', () => this.accountChangeHandler([]))
         this.ethers = new ethers.providers.Web3Provider(this.gamestop)
     }
 
-    static getIdentifier(){
-        return IDENTIFIER
-    }
-
-    onAccountChange(callback){
-        this.callback = callback
-    }
-
     async accountChangeHandler(accounts){
-        if(!accounts.length) return this.callback(this.logout())
+        if(!accounts.length) return this.disconnect()
         const wallet = await this.checkExistingSession()
-        if(!wallet) return this.callback(this.logout())
-        this.callback(wallet)
+        if(!wallet) return this.disconnect()
+        this.emitAccountChange(wallet)
     }
 
-    getWindowObject(){
-        return window.gamestop ? window.gamestop : window.ethereum && window.ethereum.isGamestop ? window.ethereum : false
+    static isAvailable(){
+        return getWindowObject() !== false
     }
 
     isAvailable(){
-        if(this.getWindowObject()) return true
-        return false
+        return this.constructor.isAvailable()
+    }
+
+    createWalletObject(signer, starkPrivateKey){
+        const walletConnection = createWalletConnection(signer, starkPrivateKey)
+
+        return {
+            identifier: this.getIdentifier(),
+            walletConnection,
+            address: this.address(),
+            starkPublicKey: walletConnection.starkSigner.getAddress(),
+            wallet: this
+        }
     }
 
     async getPermissions(){
@@ -77,7 +87,7 @@ export class Gamestop {
         return accounts_retry[0]
     }
 
-    async login(){
+    async connect(){
         if(!this.isAvailable()) return false
         try{
             const address = await this.getAccount()
@@ -86,19 +96,11 @@ export class Gamestop {
             const ether_signer = this.ethers.getSigner()
             const starkPrivateKey = getCachedStarkPrivateKey(address) || await generateLegacyStarkPrivateKey(ether_signer)
             if(!starkPrivateKey) return false
-
+            
+            this.wallet = this.createWalletObject(ether_signer, starkPrivateKey)
             addCachedStarkPrivateKey(address, starkPrivateKey)
-            const stark_signer = createStarkSigner(starkPrivateKey)
+            setLastUsedWallet(this.network, { identifier: this.getIdentifier() })
 
-            this.wallet = {
-                identifier: this.identifier,
-                ether_signer,
-                address,
-                stark_signer,
-                starkPublicKey: stark_signer.getAddress()
-            }
-
-            setLastUsedWallet(this.network, { identifier: this.identifier })
             return this.wallet
         }catch(err){
             console.error("[WALLET CONNECTION]", err)
@@ -106,9 +108,10 @@ export class Gamestop {
         }
     }
 
-    async logout(){
+    async disconnect(){
         const { identifier } = getLastUsedWallet(this.network)
-        if(identifier !== this.identifier) return false
+        if(identifier !== this.getIdentifier()) return false
+        this.emitAccountChange(false)
         setLastUsedWallet(this.network, {})
         return false
     }
@@ -117,18 +120,18 @@ export class Gamestop {
         return this.gamestop.currentAddress
     }
 
-    connected(){
+    _provider_connected(){
         return this.gamestop.isConnected()
     }
 
     // make this an async requirement so we can send async request to the provider?
-    // if last used identifier === GAMESTOP this.getAccounts() or this.unlock()
+    // if last used identifier === GAMESTOP this.getAccounts()
     async checkExistingSession(){
         if(!this.isAvailable()) return false
-        if(!this.connected()) return false
+        if(!this._provider_connected()) return false
         
         const { identifier } = getLastUsedWallet(this.network)
-        if(identifier !== this.identifier) return false
+        if(identifier !== this.getIdentifier()) return false
         
         await this.getAccount()
         if(!this.address()) return false
@@ -136,16 +139,7 @@ export class Gamestop {
         const starkPrivateKey = getCachedStarkPrivateKey(this.address())
         if(!starkPrivateKey) return false
 
-        const stark_signer = createStarkSigner(starkPrivateKey)
-
-        this.wallet = {
-            identifier,
-            ether_signer: this.ethers.getSigner(),
-            address: this.address(),
-            stark_signer,
-            starkPublicKey: stark_signer.getAddress()
-        }
-
+        this.wallet = this.createWalletObject(this.ethers.getSigner(), starkPrivateKey)
         return this.wallet
     }
 }

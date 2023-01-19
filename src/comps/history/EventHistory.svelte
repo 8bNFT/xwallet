@@ -33,7 +33,7 @@
     let eventList = []
     const signal = createGenericStore(false)
 
-    $: if(list && user) { getEventHistoryProgressive(user, network, list, signal) } else { list.set([]) }
+    $: if(list && user) { list.set([]); getEventHistoryProgressive(user, network, list, signal) } else { list.set([]) }
     $: eventList = ($list.filter(currentFilter)).sort(currentSort)
 </script>
 

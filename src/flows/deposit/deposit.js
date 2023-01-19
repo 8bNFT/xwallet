@@ -5,7 +5,7 @@ const extractDepositPayload = (payload, token) => {
         return {
                 type: "ETH",
                 amount: payload.amount,
-            }
+        }
     }
 
     return {
@@ -13,7 +13,7 @@ const extractDepositPayload = (payload, token) => {
             tokenAddress: token.token_address,
             symbol: token.symbol,
             amount: payload.amount
-        }
+    }
 }
 
 const buildDepositSuccess = ({ amount, amount_usd, symbol }) => {

@@ -1,47 +1,59 @@
 import { Link } from "@imtbl/imx-sdk"
 import { getLinkURL } from "src/util/imx"
+import { createBaseWalletClass } from "./base_wallet"
 import { getLastUsedWallet, setLastUsedWallet } from "./helpers"
 
 const IDENTIFIER = "IMX_LINK"
+const NAME = "IMX Link"
+const ICON = "https://market.immutable.com/apple-touch-icon.png"
 
-export class IMXLink {
+const BaseWalletClass = createBaseWalletClass({ name: NAME, identifier: IDENTIFIER, icon: ICON })
+
+export class IMXLink extends BaseWalletClass {
     constructor(network){
-        this.network = network
-        this.identifier = IDENTIFIER
+        super(network)
+
         this.Link = new Link(getLinkURL(network))
+        return new Proxy(this, this)
     }
 
-    static getIdentifier(){
-        return IDENTIFIER
+    get(target, prop){
+        if(target[prop]) return target[prop]
+        if(target.Link[prop]) return target.Link[prop]
+        return
     }
 
-    onAccountChange(_){}
-
-    isAvailable(){
-        if(this.Link) return true
+    static isAvailable(){
+        if(Link) return true
         return false
     }
 
-    async login(){
+    isAvailable(){
+        return this.constructor.isAvailable()
+    }
+
+    async connect(){
         try{
             const { address, starkPublicKey } = await this.Link.setup({ providerPreference: "none" })
             const wallet_object = {
-                identifier: this.identifier,
+                identifier: this.getIdentifier(),
                 address,
-                starkPublicKey
+                starkPublicKey,
             }
 
-            this.wallet = wallet_object
-            setLastUsedWallet(this.network, this.wallet)
-            return wallet_object
+            this.wallet = {...wallet_object, wallet: this}
+            setLastUsedWallet(this.network, wallet_object)
+            return this.wallet
         }catch(err){
             console.error(err)
             return false
         }
     }
 
-    logout(){
-        if(!this.checkExistingSession()) return
+    disconnect(){
+        const { identifier } = getLastUsedWallet(this.network)
+        if(identifier !== this.getIdentifier()) return
+        this.emitAccountChange(false)
         setLastUsedWallet(this.network, {})
     }
 
@@ -49,11 +61,11 @@ export class IMXLink {
         return this.wallet?.address || false
     }
 
-    checkExistingSession(){
+    async checkExistingSession(){
         const { identifier, address, starkPublicKey } = getLastUsedWallet(this.network)
-        if(!identifier !== this.identifier) return false
+        if(!identifier !== this.getIdentifier()) return false
 
-        this.wallet = { identifier, address, starkPublicKey }
+        this.wallet = { identifier, address, starkPublicKey, wallet: this }
         return this.wallet
     }
 }
