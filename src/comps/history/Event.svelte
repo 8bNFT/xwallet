@@ -35,12 +35,12 @@ import Tooltip from "../Tooltip.svelte";
             <div class="timestamp">{event.timestamp.toISOString().split("T")[0]}</div>
         </Tooltip>
     </div>
-    <div class="from" on:click={event.from && copyToClipboard(event.from)}>
+    <div class="from" on:click={event.from && copyToClipboard(event.from, "sender address")}>
         <Tooltip title={event.from}>
             {sliceAddress(event.from)}
         </Tooltip>
     </div>
-    <div class="to" on:click={event.to && copyToClipboard(event.to)}>
+    <div class="to" on:click={event.to && copyToClipboard(event.to, "receiver address")}>
         <Tooltip title={event.to}>
             {sliceAddress(event.to)}
         </Tooltip>
@@ -96,7 +96,7 @@ import Tooltip from "../Tooltip.svelte";
     }
 
     .from, .to {
-        cursor: copy
+        cursor: pointer
     }
 
     .timestamp, .token_id {

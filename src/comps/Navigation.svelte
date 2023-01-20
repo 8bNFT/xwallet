@@ -5,7 +5,7 @@
     import { fly } from "svelte/transition"
     import { walletManager } from "src/stores/wallet"
     import { link } from "svelte-spa-router"
-    import { copyToClipboard as copy } from "src/util/generic"
+    import { copyToClipboard } from "src/util/generic"
     import { WalletDropdown } from "src/stores/generics"
 
     let container
@@ -13,14 +13,6 @@
     const closeSubmenu = e => {
         if(!container || container.contains(e.target) || e.target.closest("[data-dropdown-toggle]")) return
         WalletDropdown.close()
-    }
-
-    const copyToClipboard = (e, address) => {
-        if(!address) return
-
-        copy(address)
-        e.target.innerText = "Copied to clipboard!"
-        setTimeout(() => e.target.innerText = "Copy address", 1000)
     }
 
     $: User = $Wallet.User
@@ -58,7 +50,7 @@
                     </div>
                     {#if $WalletDropdown}
                         <div transition:fly|local={{y: 20}} class="submenu">
-                            <span on:click|stopPropagation={(e) => copyToClipboard(e, $User.address)}>Copy address</span>
+                            <span on:click={() => copyToClipboard($User.address, "your address")}>Copy address</span>
                             <a href={`https://${Wallet.getNetwork() === "testnet" && "goerli." || ""}etherscan.io/address/${$User.address}`} target="_blank">View on Etherscan</a>
                             <a href={`https://immutascan.io/address/${$User.address}`} target="_blank">View on Immutascan</a>
                             <span on:click={User.disconnect} class="destructive">Log out</span>

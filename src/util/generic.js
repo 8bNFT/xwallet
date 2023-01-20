@@ -1,3 +1,5 @@
+import { ToastStore } from "src/stores/toast"
+
 export const DEFAULT_TOKEN_ICON = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxLvSc7QnNOFVh1SCKPbYrNTxBVeStbH9u2Q&usqp=CAU"
 
 export const DEFAULT_COLLECTION_ICON = "https://mantial-collections-production.s3.amazonaws.com/0x5c9f8b00db5ae281e8f401789224fe0227f24d81/icon.img"
@@ -45,4 +47,9 @@ export const generateFakeBalances = tokens => {
 
 export const randomInt = int => Math.floor(Math.random() * int)
 
-export const copyToClipboard = text => navigator.clipboard.writeText(text)
+export const copyToClipboard = (text, target) => {
+  if(!text) return
+  
+  navigator.clipboard.writeText(text)
+  if(target) ToastStore.success(`Copied ${target} to clipboard!`)
+}
