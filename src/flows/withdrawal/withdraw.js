@@ -1,21 +1,24 @@
-import { assetToUSD } from "src/util/cfx"
-import { Wallet } from "src/stores/wallet"
+import { assetToUSD, parsedToRaw } from "src/util/cfx"
+import { getCoreSDK, Wallet, User, tokens } from "src/stores/wallet"
 import { sliceAddress } from "src/util/generic"
+import { get } from "svelte/store"
 
 const extractWithdrawalPayload = (payload, token, preparing = false) => {
     if(token.id === "ETH"){
         return {
                 type: "ETH",
-                amount: preparing ? payload.amount : undefined,
-            }
+                amount: preparing ? payload.amount.wei : undefined,
+                amount_parsed: preparing ? payload.amount.parsed : undefined
+        }
     }
 
     return {
             type: "ERC20",
             tokenAddress: token.token_address,
             symbol: token.symbol,
-            amount: preparing ? payload.amount : undefined
-        }
+            amount: preparing ? payload.amount.wei : undefined,
+            amount_parsed: preparing ? payload.amount.parsed : undefined
+    }
 }
 
 const buildFinalizedSuccess = ({ transaction_id, symbol }) => {
@@ -34,7 +37,7 @@ const buildPreparedSuccess = ({ amount, amount_usd, symbol }) => {
 
 const parseFinalizedResult = (result, payload, token) => {
     const { symbol } = token
-    const { transactionId: transaction_id } = result
+    const { hash: transaction_id } = result
 
     return {
         transaction_id,
@@ -44,24 +47,28 @@ const parseFinalizedResult = (result, payload, token) => {
 
 const parsePreparedResult = (result, payload, token) => {
     const { amount } = payload
-    const { withdrawalId: transaction_id } = result
+    const { withdrawal_id: transaction_id } = result
     const { symbol, price } = token
 
     return {
         transaction_id,
-        amount,
-        amount_usd: assetToUSD(amount, price),
+        amount: amount.parsed,
+        amount_usd: assetToUSD(amount.parsed, price),
         symbol: symbol || "ETH",
     }
 }
 
-export const handlePrepareCall = async ({link: Link, payload, tokens}) => {
-    const payloadCopy = {...payload}
-    const token = tokens[payloadCopy.coin]
+export const handlePrepareCall = async ({ payload: { coin, amount } }) => {
+    const token = tokens[coin]
+    const payload = { amount: { parsed: amount, wei: parsedToRaw(amount, token.decimals) } }
+    const { wallet, walletConnection } = get(User)
+    const withdrawalPayload = extractWithdrawalPayload(payload, token, true)
+    const args = walletConnection ? [walletConnection, withdrawalPayload] : [withdrawalPayload]
+    const sdk = walletConnection ? getCoreSDK() : wallet
 
     try{
-        const result = await Link.prepareWithdrawal(extractWithdrawalPayload(payloadCopy, token, true))
-        const parsedResult = parsePreparedResult(result, payloadCopy, token)
+        const result = await sdk.prepareWithdrawal(...args)
+        const parsedResult = parsePreparedResult(result, payload, token)
         const message = buildPreparedSuccess(parsedResult)
 
         return {
@@ -76,13 +83,18 @@ export const handlePrepareCall = async ({link: Link, payload, tokens}) => {
     }
 }
 
-export const handleFinalizeCall = async ({link: Link, payload, tokens}) => {
-    const payloadCopy = {...payload}
-    const token = tokens[payloadCopy.coin]
+export const handleFinalizeCall = async ({ payload: { coin } }) => {
+    const token = tokens[coin]
+    const { wallet, walletConnection } = get(User)
+    const withdrawalPayload = extractWithdrawalPayload({}, token)
+    const args = walletConnection ? 
+                [walletConnection.ethSigner, walletConnection.starkSigner.getAddress(), withdrawalPayload] : 
+                [withdrawalPayload]
+    const sdk = walletConnection ? getCoreSDK() : wallet
 
     try{
-        const result = await Link.completeWithdrawal(extractWithdrawalPayload(payloadCopy, token))
-        const parsedResult = parseFinalizedResult(result, payloadCopy, token)
+        const result = await sdk.completeWithdrawal(...args)
+        const parsedResult = parseFinalizedResult(result, {}, token)
         const message = buildFinalizedSuccess(parsedResult)
 
         return {

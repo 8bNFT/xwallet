@@ -7,7 +7,7 @@
     import { FlowStore } from 'src/stores/generics';
     import { allValid, validate } from "src/validation/validate";
     import { isGtOrEq, isLtOrEq, isNumber, isPositiveNumber, verifyPrecision } from "src/validation/validators";
-    import { User, Link, Balances, tokens } from "src/stores/wallet";
+    import { User, Balances, tokens } from "src/stores/wallet";
     import WithdrawalRequest from "./WithdrawalRequest.svelte";
     import { handlePrepareCall, handleFinalizeCall } from "./withdraw";
     import merge from "lodash.merge"
@@ -107,9 +107,9 @@
                         return async () => {
                             loading = true
                             if($currentStep === "prepare"){
-                                resultStore.set(await handlePrepareCall({ link: $Link, payload: $payloadStore, tokens }))
+                                resultStore.set(await handlePrepareCall({ payload: $payloadStore }))
                             } else {
-                                resultStore.set(await handleFinalizeCall({ link: $Link, payload: $payloadStore, tokens }))
+                                resultStore.set(await handleFinalizeCall({ payload: $payloadStore }))
                             }
                             loading = false
                             STEP_STORE.next()

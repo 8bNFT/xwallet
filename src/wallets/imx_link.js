@@ -72,4 +72,49 @@ export class IMXLink extends BaseWalletClass {
     supports(action){
         return ["onramp", "offramp"].includes(action.toLowerCase())
     }
+
+    // custom implementation of methods
+    async transfer({ type, symbol, tokenAddress, tokenId, amount_parsed, receiver }){
+        const { result } = await this.Link.transfer(
+            [
+                { 
+                    type, 
+                    symbol, 
+                    tokenAddress, 
+                    tokenId,
+                    amount: amount_parsed, 
+                    toAddress: receiver 
+                }
+            ]
+        )
+
+        if(!result || !result.length) throw "Error occured while try to process your transfer"
+        const { status, txId: transfer_id, amount, message } = result[0]
+        return {
+            status,
+            transfer_id,
+            amount,
+            message
+        }
+    }
+    
+    async deposit({ type, symbol, tokenAddress, tokenId, amount_parsed }){
+        return this.Link.deposit({ type, symbol, tokenAddress, tokenId, amount: amount_parsed })
+    }
+
+    async prepareWithdrawal({ type, symbol, tokenAddress, tokenId, amount_parsed }){
+        const { withdrawalId: withdrawal_id } = await this.Link.prepareWithdrawal({ type, symbol, tokenAddress, tokenId, amount_parsed })
+        return {
+            status: withdrawal_id ? "success" : "error",
+            withdrawal_id
+        }
+    }
+
+    async completeWithdrawal({ type, symbol, tokenAddress, tokenId }){
+        const { transactionId: hash } = await this.Link.completeWithdrawal({ type, symbol, tokenAddress, tokenId })
+        return {
+            status: hash ? "success" : "error",
+            hash
+        }
+    }
 }

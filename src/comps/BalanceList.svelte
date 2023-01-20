@@ -1,16 +1,16 @@
 <script>
-  export let defaultBalances
-
   import { FlowStore, WalletDropdown } from "src/stores/generics";
-  import { Balances } from "src/stores/wallet";
+  import { Balances, tokens, User } from "src/stores/wallet";
   import { formatCryptoDisplay, formatFiatDisplay, assetToUSD } from "src/util/cfx";
-  import { DEFAULT_TOKEN_ICON } from "src/util/generic";
+  import { DEFAULT_TOKEN_ICON, generateFakeBalances } from "src/util/generic";
   import PriceChange from "./PriceChange.svelte";
   import Tooltip from "./Tooltip.svelte";
+
+  $: defaultBalances = $User ? [] : generateFakeBalances(tokens)
 </script>
 
 <div class="balances">
-    {#each Object.values($Balances || defaultBalances).sort((a, b) => a.name.localeCompare(b.name)) as asset}
+    {#each Object.values($Balances || defaultBalances || {}).sort((a, b) => a.name.localeCompare(b.name)) as asset}
         {#if [asset.balance, asset.preparing_withdrawal, asset.withdrawable].some(v => v.parsed > 0)}
             <div on:click={() => $Balances ? FlowStore.coinInformation(asset.id) : null} class="asset">
                 <div class="info">
