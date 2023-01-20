@@ -13,7 +13,7 @@
     // $: defaultBalances = generateFakeBalances(tokens)
 </script>
 
-<Title title="NFT inventory" />
+<Title noMargin={true} title="NFT inventory" />
 
 <TestSelect />
 

@@ -1,4 +1,5 @@
 import { Link } from "@imtbl/imx-sdk"
+import { ToastStore } from "src/stores/toast"
 import { getLinkURL } from "src/util/imx"
 import { createBaseWalletClass } from "./base_wallet"
 import { getLastUsedWallet, setLastUsedWallet } from "./helpers"
@@ -45,6 +46,7 @@ export class IMXLink extends BaseWalletClass {
             setLastUsedWallet(this.network, wallet_object)
             return this.wallet
         }catch(err){
+            ToastStore.error(err.message || err)
             console.error(err)
             return false
         }
@@ -63,7 +65,7 @@ export class IMXLink extends BaseWalletClass {
 
     async checkExistingSession(){
         const { identifier, address, starkPublicKey } = getLastUsedWallet(this.network)
-        if(!identifier !== this.getIdentifier()) return false
+        if(identifier !== this.getIdentifier()) return false
 
         this.wallet = { identifier, address, starkPublicKey, wallet: this }
         return this.wallet
@@ -102,8 +104,8 @@ export class IMXLink extends BaseWalletClass {
         return this.Link.deposit({ type, symbol, tokenAddress, tokenId, amount: amount_parsed })
     }
 
-    async prepareWithdrawal({ type, symbol, tokenAddress, tokenId, amount_parsed }){
-        const { withdrawalId: withdrawal_id } = await this.Link.prepareWithdrawal({ type, symbol, tokenAddress, tokenId, amount_parsed })
+    async prepareWithdrawal({ type, symbol, tokenAddress, tokenId, amount_parsed: amount }){
+        const { withdrawalId: withdrawal_id } = await this.Link.prepareWithdrawal({ type, symbol, tokenAddress, tokenId, amount })
         return {
             status: withdrawal_id ? "success" : "error",
             withdrawal_id

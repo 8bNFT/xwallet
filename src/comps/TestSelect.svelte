@@ -1,13 +1,19 @@
 <script>
+    import { ctxMenu } from "src/stores/generics";
     import { createNftTransferStore } from "src/stores/select";
     import { fetchNFTs } from "src/util/api";
-    import { DEFAULT_COLLECTION_ICON, DEFAULT_NFT_IMAGE } from "src/util/generic";
+    import { DEFAULT_NFT_IMAGE } from "src/util/generic";
+    import { ASSET_STATUS_NAMES } from "src/util/imx";
     import Selectable from "./Selectable.svelte";
+    import Submenu from "./Submenu.svelte";
+    import Tabs from "./Tabs.svelte";
+    import Toolbar from "./Toolbar.svelte";
 
     const store = createNftTransferStore()
 
-    let edit = true
+    let edit = false
     let length = 0
+    let collections = 0
 
     const NFTPromise = fetchNFTs()
 
@@ -21,24 +27,77 @@
     }
 
     $: length = store.length(), $store
+    $: collections = Object.entries($store).filter(([k, v]) => v.size).length
+
+    let currentOption = Object.keys(ASSET_STATUS_NAMES)[0]
+
+    const openContextMenu = e => {
+        const target = e.target
+        const bounding = target.getBoundingClientRect()
+
+        $ctxMenu = { top: bounding.bottom + 8, left: bounding.left }
+    }
+
+    const createOptions = token => {
+        const options = [
+            { text: "Transfer token", action: () => initTransferSelect(token) },
+            { text: "Withdraw token", action: () => initTransferSelect(token) },
+            { text: "View on Immutascan", action: () => window.open(`https://immutascan.io/address/${token.token_address}/${token.token_id}`, "_blank") },
+        ]
+        return options
+    }
+
+    let submenuTarget, options
+
+    const initTransferSelect = token => {
+        store.reset()
+        store.select({ address: token.token_address, id: token.token_id })
+        edit = true
+    }
+
+    const openSubmenu = (e, token) => {
+        const { target } = e
+        if(submenuTarget === target) return submenuTarget = false
+
+        options = createOptions(token)
+        submenuTarget = target
+    }
 </script>
 
 <svelte:body on:keydown={edit ? keyCombo : null} />
 
-<button on:click={() => edit = !edit}>Toggle edit ({edit})</button>
+<!-- <button on:click={() => edit = !edit}>Toggle edit ({edit})</button> -->
 
-{#if length}
+<!-- {#if length}
     <span>Transfer {length} {length === 1 ? "token" : "tokens"}</span>
     <button on:click={store.reset}>Clear selection</button>
+{/if} -->
+
+<!-- {ASSET_STATUS_NAMES[currentOption]} -->
+
+<Submenu bind:target={submenuTarget} {options} />
+
+{#if edit}
+    <Toolbar primaryAction={{ text: "Transfer tokens", disabled: !edit, action: () => edit = !edit }} secondaryAction={{ text: "Cancel", action: () => (store.reset(), edit = false) }}>
+        Transfer {length} {length === 1 ? "token" : "tokens"} from {collections} {collections === 1 ? "collection" : "collections"}
+    </Toolbar>
 {/if}
 
 <Selectable enabled={edit} targetsQuery=".grid .token" on:select={({ detail: { element: { dataset }}}) => store.select(dataset)} on:deselect={({ detail: { element: { dataset }}}) => store.deselect(dataset)}>
+    <div class="tabs">
+        <Tabs bind:currentOption options={Object.keys(ASSET_STATUS_NAMES)} />
+    </div>
     <div class="grid">
         {#await NFTPromise}
             Loading NFTs
         {:then { result }}
             {#each result as nft}
                 <div class="token" data-address={nft.token_address} data-id={nft.token_id} class:selected={edit && nft.token_address in $store && $store[nft.token_address].has(String(nft.token_id))} class:selectable={edit} on:click={edit ? () => store.toggle({ address: nft.token_address, id: nft.token_id }) : null}>
+                    {#if !edit}
+                        <button on:click={e => openSubmenu(e, nft) }>
+                            Toggle
+                        </button>
+                    {/if}
                     <div class="image">
                         <img src={nft.image_url || DEFAULT_NFT_IMAGE} on:error={e => e.target.src = DEFAULT_NFT_IMAGE} />
                     </div>
@@ -53,10 +112,29 @@
                 </div>
             {/each}
         {/await}
+
+        <!-- <div class="submenu" style={`left: ${$ctxMenu.left}px; top: ${$ctxMenu.top}px`}>
+            <div>
+                <div>Transfer token</div>
+                <div>Withdraw token</div>
+            </div>
+        </div> -->
     </div>
 </Selectable>
 
 <style>
+    button {
+        position: absolute;
+        /* right: .5rem; */
+        /* top: .5rem; */
+        /* background: red */
+    }
+
+    .tabs {
+        /* margin-top: .75rem; */
+        margin-bottom: 1rem
+    }
+
     .grid {
         padding-top: 8px;
         display: grid;
@@ -119,14 +197,6 @@
 
     .collection_name, .id {
         color: var(--grey);
-    }
-
-    .collection_icon {
-        width: 1.25em;
-        height: 1.25em;
-        margin-right: .25rem;
-        border-radius: 50%;
-        overflow: hidden;
     }
 
     .name {

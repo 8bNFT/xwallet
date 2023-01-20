@@ -78,7 +78,7 @@
             footer: {
                 primary: {
                     text: `Review deposit`
-                }
+                },
             }
         },
         {

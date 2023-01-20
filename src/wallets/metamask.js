@@ -3,6 +3,7 @@ import { CHAIN_ID } from "src/util/blockchain"
 import { ethers } from "ethers"
 import { generateLegacyStarkPrivateKey } from "@imtbl/core-sdk"
 import { createBaseWalletClass } from "./base_wallet"
+import { ToastStore } from "src/stores/toast"
 
 const IDENTIFIER = "METAMASK"
 const NAME = "MetaMask"
@@ -94,7 +95,10 @@ export class MetaMask extends BaseWalletClass {
 
             const ether_signer = this.ethers.getSigner()
             const starkPrivateKey = getCachedStarkPrivateKey(address) || await generateLegacyStarkPrivateKey(ether_signer)
-            if(!starkPrivateKey) return false
+            if(!starkPrivateKey){
+                ToastStore.error("Cannot generate stark account for " + address)
+                return false
+            }
             
             this.wallet = this.createWalletObject(ether_signer, starkPrivateKey)
             addCachedStarkPrivateKey(address, starkPrivateKey)
@@ -102,6 +106,7 @@ export class MetaMask extends BaseWalletClass {
 
             return this.wallet
         }catch(err){
+            ToastStore.error(err.code || err.message || err)
             console.error("[WALLET CONNECTION]", err)
             return false
         }

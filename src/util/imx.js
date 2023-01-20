@@ -183,3 +183,10 @@ export const getEventHistoryProgressive = async (user, network, list, signal) =>
 
     signal.set(true)
 }
+
+export const ASSET_STATUS_NAMES = {
+    "ImmutableX": "imx",
+    "Preparing withdrawal": "preparing_withdrawal",
+    "Withdrawable": "withdrawable",
+    "Ethereum": "eth"
+}

@@ -88,3 +88,5 @@ export const createOpenCloseStore = initial => {
 export const WalletDropdown = createOpenCloseStore()
 
 export const FlowStore = createFlowStore()
+
+export const ctxMenu = createGenericStore({})

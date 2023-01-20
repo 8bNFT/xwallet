@@ -1,3 +1,5 @@
+import { ToastStore } from "src/stores/toast"
+import { sliceAddress } from "src/util/generic"
 import { Gamestop } from "./gamestop"
 import { getLastUsedWallet } from "./helpers"
 import { IMXLink } from "./imx_link"
@@ -54,6 +56,7 @@ export class WalletManager {
         wallet.onAccountChange(wallet_object => {
             if(wallet.getIdentifier() !== getLastUsedWallet(this.network).identifier) return
             this.user.set(wallet_object)
+            if(wallet_object.address) ToastStore.success("Account changed " + sliceAddress(wallet_object.address))
         }, "wallet_manager")
     }
 

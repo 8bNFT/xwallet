@@ -6,18 +6,18 @@ import { get } from "svelte/store"
 const extractWithdrawalPayload = (payload, token, preparing = false) => {
     if(token.id === "ETH"){
         return {
-                type: "ETH",
-                amount: preparing ? payload.amount.wei : undefined,
-                amount_parsed: preparing ? payload.amount.parsed : undefined
+            type: "ETH",
+            amount: preparing ? payload.amount.wei : undefined,
+            amount_parsed: preparing ? payload.amount.parsed : undefined
         }
     }
 
     return {
-            type: "ERC20",
-            tokenAddress: token.token_address,
-            symbol: token.symbol,
-            amount: preparing ? payload.amount.wei : undefined,
-            amount_parsed: preparing ? payload.amount.parsed : undefined
+        type: "ERC20",
+        tokenAddress: token.token_address,
+        symbol: token.symbol,
+        amount: preparing ? payload.amount.wei : undefined,
+        amount_parsed: preparing ? payload.amount.parsed : undefined
     }
 }
 
