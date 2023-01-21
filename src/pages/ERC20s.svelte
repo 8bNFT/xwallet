@@ -1,5 +1,5 @@
 <script>
-    import { User, tokens } from 'src/stores/wallet';
+    // import { User, tokens } from 'src/stores/wallet';
     import Flows from 'src/flows/Flows.svelte';
     import BalanceBanner from 'src/comps/BalanceBanner.svelte';
     import EventHistory from 'src/comps/history/EventHistory.svelte';

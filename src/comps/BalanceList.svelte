@@ -1,12 +1,14 @@
 <script>
   import { FlowStore, WalletDropdown } from "src/stores/generics";
-  import { Balances, tokens, User } from "src/stores/wallet";
+  import { Wallet } from "src/stores/wallet";
   import { formatCryptoDisplay, formatFiatDisplay, assetToUSD } from "src/util/cfx";
   import { DEFAULT_TOKEN_ICON, generateFakeBalances } from "src/util/generic";
   import PriceChange from "./PriceChange.svelte";
   import Tooltip from "./Tooltip.svelte";
 
-  $: defaultBalances = $User ? [] : generateFakeBalances(tokens)
+  const { User, Balances, Tokens } = $Wallet
+
+  $: defaultBalances = $User ? [] : generateFakeBalances($Tokens)
 </script>
 
 <div class="balances">

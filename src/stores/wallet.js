@@ -1,14 +1,12 @@
 import { parseWithDecimals } from 'src/util/cfx.js';
-import { readable, writable } from 'svelte/store';
-import { createLink } from './imx.js';
+import { get, readable, writable } from 'svelte/store';
 import { API } from 'src/util/imx.js';
 import { WalletManager } from 'src/wallets/wallet_manager.js';
-import { ImmutableX, Config } from '@imtbl/core-sdk';
-import { FlowStore } from './generics.js';
+import { createGenericStore, FlowStore } from './generics.js';
 
 const TOKEN_PRICE_API = "https://tools.immutable.com/token-api/tokens/"
 
-const createUserStore = async () => {
+const createUserStore = () => {
     let current = false
     const { subscribe, set: _set } = writable(current);
 
@@ -36,48 +34,55 @@ const fetchTokens = async network => {
     return await result.json()
 }
 
-const createBalanceStore = async (network, token_info, userStore) => {
-    return readable({}, function start(set) {
-        let interval = false
-        let address
+const fetchBalances = async (network, userStore, tokenStore) => {
+    if(!network) return {}
 
-        const fetchBalance = async()=>{
-            const balances = await fetch(API(network) + '/v2/balances/' + address)
-    
-            try{
-                const { result } = await balances.json()
-                const state = {}
-                for(let token of result){
-                    let { token_address, ...balances } = token
-                    token_address ||= "ETH"
-                    const id = token_address
-                    if(!token_info[id]) continue
-    
-                    for(let key of Object.keys(balances)){
-                        if(!["balance", "preparing_withdrawal", "withdrawable"].includes(key)) continue
-                        balances[key] = {
-                            raw: balances[key],
-                            parsed: balances[key] ? parseWithDecimals(balances[key], token_info[id].decimals, token_info[id].precision) : 0
-                        }
-                    }
-                    state[id] = {...balances, ...token_info[id]}
+    const { address } = (get(userStore) || {})
+    if(!address) return {}
+
+    const token_info = get(tokenStore)
+    if(!Object.keys(token_info).length) return {}
+
+    try{
+        const { result } = await (await fetch(`${API(network)}/v2/balances/${address}`)).json()
+        const state = {}
+        for(const { token_address, ...balances } of result){
+            const id = token_address || "ETH"
+            if(!(id in token_info)) continue
+
+            for(const [balance_type, balance] of Object.entries(balances)){
+                if(!["balance", "preparing_withdrawal", "withdrawable"].includes(balance_type)) continue
+
+                balances[balance_type] = {
+                    raw: balance,
+                    parsed: balance ? parseWithDecimals(balance, token_info[id].decimals, token_info[id].precision) : 0
                 }
-    
-                set(state)
-            }catch(err){
-                console.error('[WALLET]', err)
+                state[id] = { ...balances, ...token_info[id] }
             }
         }
-    
-        const unsubscribe = userStore.subscribe(user =>{
+
+        return state
+    }catch(err){
+        console.error("[BALANCE]", err)
+    }
+
+    return {}
+}
+
+const createBalanceStore = (network, userStore, tokenStore) => {
+    const { subscribe } = readable(false, function start(set) {
+        let interval = false
+
+        const fetchBalance = async () => set(await fetchBalances(network, userStore, tokenStore))
+
+        const unsubscribe = userStore.subscribe(user => {
             clearInterval(interval)
             set(false)
     
             if(!user.address) return 
-            address = user.address
 
             fetchBalance()
-            interval = setInterval(async ()=>fetchBalance(), 10 * 1000)
+            interval = setInterval(() => fetchBalance(), 10 * 1000)
         })
     
         return function stop() {
@@ -86,34 +91,38 @@ const createBalanceStore = async (network, token_info, userStore) => {
             set(false)
         };
     })
+
+    return {
+        subscribe
+    }
 }
 
 const initializeWalletStore = async network => {
-    const LinkStore = createLink(network)
-    const tokenInformation = await fetchTokens(network)
-    const UserStore = await createUserStore(network, LinkStore)
-    const BalanceInformation = await createBalanceStore(network, tokenInformation, UserStore)
-
-    Link = LinkStore
-    Balances = BalanceInformation
-    User = UserStore
-    tokens = tokenInformation
-    walletManager = new WalletManager(network, User)
+    const tokenStore = createGenericStore(await fetchTokens(network))
+    const userStore = createUserStore()
+    const balanceStore = createBalanceStore(network, userStore, tokenStore)
+    const walletManager = new WalletManager(network, userStore)
 
     await walletManager.checkExistingSession()
 
     return {
-        User: UserStore,
-        Link: LinkStore,
-        tokens: tokenInformation,
-        Balances: BalanceInformation
+        User: userStore,
+        Tokens: tokenStore,
+        Balances: balanceStore,
+        Manager: createGenericStore(walletManager)
     }
 }
 
 export function createWalletStore(){
-    const { subscribe, set } = writable(false)
+    const { subscribe, set } = writable({
+        User: createGenericStore(false),
+        Tokens: createGenericStore({}),
+        Balances: createGenericStore(false),
+        Manager: createGenericStore({})
+    })
 
     let network
+
     const initialize = async _network => {
         set(await initializeWalletStore(_network))
         network = _network
@@ -124,14 +133,9 @@ export function createWalletStore(){
         subscribe, 
         initialize,
         isInitialized: () => typeof network !== "undefined",
-        getNetwork: _ => network
+        getNetwork: () => network
     }
 }
 
-export let Link
-export let Balances
-export let User
-export let tokens
-export let walletManager
 export const Wallet = createWalletStore()
-export const getCoreSDK = () =>new ImmutableX(Wallet.getNetwork() === "mainnet" ? Config.PRODUCTION : Config.SANDBOX)
+export const getFromWallet = prop => get(get(Wallet)[prop])

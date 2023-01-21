@@ -7,11 +7,13 @@
     import { FlowStore } from 'src/stores/generics';
     import { allValid, validate } from "src/validation/validate";
     import { isGtOrEq, isLtOrEq, isNumber, isPositiveNumber, verifyPrecision } from "src/validation/validators";
-    import { User, Balances, tokens } from "src/stores/wallet";
+    import { Wallet } from "src/stores/wallet";
     import WithdrawalRequest from "./WithdrawalRequest.svelte";
     import { handlePrepareCall, handleFinalizeCall } from "./withdraw";
     import merge from "lodash.merge"
     import { formatCryptoDisplay } from "src/util/cfx";
+
+    const { User, Balances, Tokens } = $Wallet
 
     const STEP_STORE = createStepStore(3, false)
     const currentStep = createToggleStore(["prepare", "finalize"])
@@ -33,9 +35,9 @@
                         validators: [
                             [isNumber, "Value must be a number"],
                             [isPositiveNumber, "Value must be more than 0"], 
-                            [(v) => isGtOrEq(v, tokens[$payloadStore.coin].minimum), () => `Value must be greater than ${tokens[$payloadStore.coin].minimum}`],
-                            [(v) => verifyPrecision(v, tokens[$payloadStore.coin].precision), () => `Decimal precision cannot exceed ${tokens[$payloadStore.coin].precision} places`],
-                            [(v) => isLtOrEq(v, $Balances[$payloadStore.coin].balance.parsed), () => `Not enough L2 balance (${$Balances[$payloadStore.coin].balance.parsed} ${tokens[$payloadStore.coin].symbol})`]
+                            [(v) => isGtOrEq(v, $Tokens[$payloadStore.coin].minimum), () => `Value must be greater than ${$Tokens[$payloadStore.coin].minimum}`],
+                            [(v) => verifyPrecision(v, $Tokens[$payloadStore.coin].precision), () => `Decimal precision cannot exceed ${$Tokens[$payloadStore.coin].precision} places`],
+                            [(v) => isLtOrEq(v, $Balances[$payloadStore.coin].balance.parsed), () => `Not enough L2 balance (${$Balances[$payloadStore.coin].balance.parsed} ${$Tokens[$payloadStore.coin].symbol})`]
                         ]
                     }
                 },
@@ -60,7 +62,7 @@
 
     $: defaultConfig = {
         title: {
-            text: "Withdraw " + tokens[$payloadStore.coin].symbol,
+            text: "Withdraw " + $Tokens[$payloadStore.coin].symbol,
         },
         footer: {
             primary: {
@@ -95,13 +97,13 @@
                             return "Nothing to prepare"
                         }
 
-                        if($Balances && $Balances[$payloadStore.coin].withdrawable.parsed > 0) return `Withdraw ${formatCryptoDisplay($Balances[$payloadStore.coin].withdrawable.parsed, tokens[$payloadStore.coin].precision)} ${tokens[$payloadStore.coin].symbol}`
+                        if($Balances && $Balances[$payloadStore.coin].withdrawable.parsed > 0) return `Withdraw ${formatCryptoDisplay($Balances[$payloadStore.coin].withdrawable.parsed, $Tokens[$payloadStore.coin].precision)} ${$Tokens[$payloadStore.coin].symbol}`
                         return "Nothing to withdraw"
                     },
                     loading: () => {
                         if(!loading) return false
                         if($currentStep === "prepare") return "Preparing withdrawal"
-                        return "Withdrawing tokens"
+                        return "Withdrawing $Tokens"
                     },
                     action: () => {
                         return async () => {

@@ -11,7 +11,7 @@ export function createGenericStores([...payloads]){
 }
 
 export function createGenericStore(initialPayload){
-	const initial = {...initialPayload}
+	const initial = typeof initialPayload === "object" ? {...initialPayload} : initialPayload
 	const { subscribe, set, update } = writable(initialPayload);
 
 	return {

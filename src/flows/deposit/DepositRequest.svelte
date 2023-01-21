@@ -1,13 +1,15 @@
 <script>
     export let formStore, validationStore
 
-    import { User, tokens } from "src/stores/wallet";
     import CfxInput from "src/comps/CfxInput.svelte";
     import Select from "src/comps/Select.svelte";
     import LabelButton from "src/comps/LabelButton.svelte";
     import { getTokenBalance } from "src/util/blockchain";
     import { limitPrecision } from "src/util/cfx";
     import { DEFAULT_TOKEN_ICON } from "src/util/generic";
+    import { Wallet } from "src/stores/wallet";
+
+    const { User, Tokens } = $Wallet
 
     let coin
 
@@ -30,7 +32,7 @@
         coin = newCoin
 
         if($formStore[coin]) return
-        $formStore[coin] = limitPrecision(await getTokenBalance({ wallet: $User.address, token: tokens[coin] }), tokens[coin].precision)
+        $formStore[coin] = limitPrecision(await getTokenBalance({ wallet: $User.address, token: $Tokens[coin] }), $Tokens[coin].precision)
     }
 
     const setAmount = () => $formStore.amount = $formStore[coin]
@@ -38,12 +40,12 @@
     $: fetchBalance($formStore.coin)
 </script>
 
-<Select bind:value={$formStore.coin} options={balancesToOptions(tokens)} />
+<Select bind:value={$formStore.coin} options={balancesToOptions($Tokens)} />
 <div class="separator"></div>
-<CfxInput bind:value={$formStore.amount} valid={$validationStore.amount.valid} error={$validationStore.amount.error} label="Amount" asset={tokens[$formStore.coin]}>
+<CfxInput bind:value={$formStore.amount} valid={$validationStore.amount.valid} error={$validationStore.amount.error} label="Amount" asset={$Tokens[$formStore.coin]}>
     <div slot="label-right">
         {#if $formStore[coin]}
-            <LabelButton slot="label-right" value={"Max. " + $formStore[coin] + " " + tokens[coin].symbol} on:click={setAmount} />
+            <LabelButton slot="label-right" value={"Max. " + $formStore[coin] + " " + $Tokens[coin].symbol} on:click={setAmount} />
         {/if}
     </div>
 </CfxInput>

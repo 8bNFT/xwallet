@@ -1,8 +1,10 @@
 <script>
     import { createGenericStore } from "src/stores/generics";
-    import { Wallet, User } from "src/stores/wallet";
+    import { Wallet } from "src/stores/wallet";
     import { getEventHistoryProgressive } from "src/util/imx";
     import Event from "./Event.svelte";
+
+    const { User } = $Wallet
 
     const filters = {
         "All transactions": v => true,

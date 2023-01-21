@@ -3,8 +3,10 @@
 
     import { copyToClipboard, EVENT_ICONS, sliceAddress } from "src/util/generic";
     import { formatCryptoDisplay } from "src/util/cfx";
-    import { tokens, Wallet } from "src/stores/wallet";
-import Tooltip from "../Tooltip.svelte";
+    import { Wallet } from "src/stores/wallet";
+    import Tooltip from "../Tooltip.svelte";
+
+    const { Tokens } = $Wallet
 
     const EVENTS = {
         "transfer_in": "Transfer In",
@@ -46,13 +48,13 @@ import Tooltip from "../Tooltip.svelte";
         </Tooltip>
     </div>
     <div class="collection">
-        {event.collection ? event.collection : tokens[event.token].symbol}
+        {event.collection ? event.collection : $Tokens[event.token].symbol}
         {#if event.token_id}
             <div class="token_id">{event.token_id}</div>
         {/if}
     </div>
     <div class="amount" class:negative={event.amount < 0}>
-        {formatCryptoDisplay(event.amount)} {tokens[event.token].symbol}
+        {formatCryptoDisplay(event.amount)} {$Tokens[event.token].symbol}
     </div>
 </div>
 

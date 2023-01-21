@@ -3,8 +3,10 @@
 
     import CfxInput from "src/comps/CfxInput.svelte";
     import Select from "src/comps/Select.svelte";
-    import { tokens } from "src/stores/wallet";
+    import { Wallet } from "src/stores/wallet";
     import { DEFAULT_TOKEN_ICON } from "src/util/generic";
+
+    const { Tokens } = $Wallet
 
     const balancesToOptions = (balances) => {
         const options = []
@@ -25,4 +27,4 @@
 
 <Select bind:value={$formStore.coin} {options} />
 <div class="separator"></div>
-<CfxInput {options} label={"Amount"} asset={tokens[$formStore.coin]} bind:value={$formStore.amount} valid={$validationStore.amount.valid} error={$validationStore.amount.error} />
+<CfxInput {options} label={"Amount"} asset={$Tokens[$formStore.coin]} bind:value={$formStore.amount} valid={$validationStore.amount.valid} error={$validationStore.amount.error} />

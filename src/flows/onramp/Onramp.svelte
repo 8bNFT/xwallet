@@ -4,16 +4,17 @@
     import { createStepStore } from "src/stores/steps";
     import { createGenericStore } from "src/stores/generics"
     import { FlowStore } from 'src/stores/generics';
-    import { tokens, Wallet, Link } from "src/stores/wallet";
+    import { Wallet } from "src/stores/wallet";
     import { filterOnrampTokens } from "src/util/imx";
     import OnrampRequest from "./OnrampRequest.svelte";
     import merge from "lodash.merge"
     import { handleOnrampCall } from "./onramp";
 
+    const { Tokens } = $Wallet
     const STEP_STORE = createStepStore(3, false)
     let loading = false
 
-    const onrampTokens = filterOnrampTokens(tokens, Wallet.getNetwork())
+    const onrampTokens = filterOnrampTokens($Tokens, Wallet.getNetwork())
 
     const payloadStore = createGenericStore(
             merge(
@@ -28,7 +29,7 @@
 
     $: defaultConfig = {
         title: {
-            text: "Buy " + tokens[$payloadStore.coin].symbol,
+            text: "Buy " + $Tokens[$payloadStore.coin].symbol,
         },
         footer: {
             primary: {
@@ -60,7 +61,7 @@
                     text: () => `Buy ` + onrampTokens[$payloadStore.coin].symbol,
                     action: () => async () => {
                         loading = true
-                        resultStore.set(await handleOnrampCall({ link: $Link, payload: $payloadStore, tokens }))
+                        resultStore.set(await handleOnrampCall({ payload: $payloadStore }))
                         loading = false
                         STEP_STORE.next()
                     },

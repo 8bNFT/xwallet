@@ -1,7 +1,7 @@
 import { assetToUSD, parsedToRaw } from "src/util/cfx"
-import { User, tokens, getCoreSDK, Wallet } from "src/stores/wallet"
-import { get } from "svelte/store"
+import { getFromWallet, Wallet } from "src/stores/wallet"
 import { sliceAddress } from "src/util/generic"
+import { getCoreSDK } from "src/util/imx"
 
 const extractDepositPayload = (payload, token) => {
     if(token.id === "ETH"){
@@ -41,9 +41,9 @@ const parseDepositResult = (result, token) => {
 }
 
 export const handleDepositCall = async ({ payload: { coin, amount } }) => {
-    const token = tokens[coin]
+    const token = getFromWallet("Tokens")[coin]
     const payload = { coin, amount: { parsed: amount, wei: parsedToRaw(amount, token.decimals) }, token }
-    const { wallet, walletConnection } = get(User)
+    const { wallet, walletConnection } = getFromWallet("User")
     const depositPayload = extractDepositPayload(payload, token)
     const sdk = walletConnection ? getCoreSDK() : wallet
     const args = walletConnection ? [walletConnection.ethSigner, depositPayload] : [depositPayload]

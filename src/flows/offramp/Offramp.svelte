@@ -4,7 +4,7 @@
     import { createStepStore } from "src/stores/steps";
     import { createGenericStore, createGenericStores, withValidation } from "src/stores/generics"
     import { FlowStore } from 'src/stores/generics';
-    import { tokens, Wallet, Balances } from "src/stores/wallet";
+    import { Wallet } from "src/stores/wallet";
     import { filterOfframpTokens } from "src/util/imx";
     import OfframpRequest from "./OfframpRequest.svelte";
     import merge from "lodash.merge"
@@ -12,6 +12,7 @@
     import { isGtOrEq, isLtOrEq, isNumber, isPositiveNumber, verifyPrecision } from "src/validation/validators";
     import { allValid, validate } from "src/validation/validate";
 
+    const { Tokens, Balances } = $Wallet
     const STEP_STORE = createStepStore(3, false)
     let loading = false
 
@@ -51,7 +52,7 @@
 
     $: defaultConfig = {
         title: {
-            text: "Sell " + tokens[$payloadStore.coin].symbol,
+            text: "Sell " + $Tokens[$payloadStore.coin].symbol,
         },
         footer: {
             primary: {

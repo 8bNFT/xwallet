@@ -1,6 +1,6 @@
 <script>
     import { FlowStore } from 'src/stores/generics';
-    import { tokens, Balances, Wallet, User } from "src/stores/wallet";
+    import { Wallet } from "src/stores/wallet";
     import { filterOnrampTokens, filterOfframpTokens } from "src/util/imx";
     import { DEFAULT_TOKEN_ICON } from "src/util/generic";
     import PriceChange from "src/comps/PriceChange.svelte";
@@ -9,21 +9,23 @@
     import BasicInfo from 'src/comps/BasicInfo.svelte';
     import FlowButton from 'src/comps/FlowButton.svelte';
 
+    const { Tokens, Balances, User } = $Wallet
+
     const balanceLabels = {
         "balance": "Active balance",
         "preparing_withdrawal": "Preparing withdrawal",
         "withdrawable": "Ready to withdraw"
     }
 
-    let coin = Object.keys(tokens).includes($FlowStore.props.coin) || Object.keys($Balances)[0]
-    $: if(Object.keys(tokens).includes($FlowStore.props.coin)) coin = $FlowStore.props.coin
+    let coin = Object.keys($Tokens).includes($FlowStore.props.coin) || Object.keys($Balances)[0]
+    $: if(Object.keys($Tokens).includes($FlowStore.props.coin)) coin = $FlowStore.props.coin
 
     let offrampTokens = {}
-    const onrampTokens = filterOnrampTokens(tokens, Wallet.getNetwork())
+    const onrampTokens = filterOnrampTokens($Tokens, Wallet.getNetwork())
     $: offrampTokens = filterOfframpTokens($Balances, Wallet.getNetwork())
 
-    let token = tokens[coin] || {}
-    $: token = tokens[coin] || {}
+    let token = $Tokens[coin] || {}
+    $: token = $Tokens[coin] || {}
 
     let price = 0
     $: price = `1 ${token.symbol} ≈ ${formatFiatDisplay(Number(token.price).toFixed(2))}`

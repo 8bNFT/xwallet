@@ -8,10 +8,11 @@
     import { createGenericStore, createGenericStores, withValidation } from "src/stores/generics"
     import { allValid, validate } from "src/validation/validate";
     import { isEthAddress, isGtOrEq, isIMXUser, isLtOrEq, isNotEq, isNumber, isPositiveNumber, verifyPrecision } from "src/validation/validators";
-    import { Wallet, User, Balances, tokens } from "src/stores/wallet";
+    import { Wallet } from "src/stores/wallet";
     import { handleTransferCall } from "./transfer";
     import merge from "lodash.merge";
 
+    const { Balances, User, Tokens } = $Wallet
     const STEP_STORE = createStepStore(3, false)
     let loading = false
 
@@ -58,7 +59,7 @@
 
     $: defaultConfig = {
         title: {
-            text: "Send " + tokens[$payloadStore.coin].symbol,
+            text: "Send " + $Tokens[$payloadStore.coin].symbol,
         },
         footer: {
             primary: {
@@ -98,7 +99,7 @@
             props: {}, 
             footer: {
                 primary: {
-                    text: "Transfer " + tokens[$payloadStore.coin].symbol,
+                    text: "Transfer " + $Tokens[$payloadStore.coin].symbol,
                     action: () => { 
                         return async () => {
                             loading = true

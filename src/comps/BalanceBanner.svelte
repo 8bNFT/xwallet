@@ -2,11 +2,13 @@
     export let defaultBalances
 
     import { FlowStore } from "src/stores/generics";
-    import { Balances, Wallet, User } from "src/stores/wallet";
+    import { Wallet } from "src/stores/wallet";
     import { formatFiatDisplay, assetToUSD } from "src/util/cfx";
     import { filterOfframpTokens } from "src/util/imx";
     import BalanceList from "./BalanceList.svelte";
     import BannerButton from "./FlowButton.svelte";
+
+    const { Balances, User } = $Wallet
 
     let totalBalance = 0
 

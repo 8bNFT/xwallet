@@ -1,7 +1,7 @@
 import { assetToUSD, parsedToRaw } from "src/util/cfx"
-import { getCoreSDK, Wallet, User, tokens } from "src/stores/wallet"
+import { Wallet, getFromWallet } from "src/stores/wallet"
+import { getCoreSDK } from "src/util/imx"
 import { sliceAddress } from "src/util/generic"
-import { get } from "svelte/store"
 
 const extractWithdrawalPayload = (payload, token, preparing = false) => {
     if(token.id === "ETH"){
@@ -59,9 +59,9 @@ const parsePreparedResult = (result, payload, token) => {
 }
 
 export const handlePrepareCall = async ({ payload: { coin, amount } }) => {
-    const token = tokens[coin]
+    const token = getFromWallet("Tokens")[coin]
     const payload = { amount: { parsed: amount, wei: parsedToRaw(amount, token.decimals) } }
-    const { wallet, walletConnection } = get(User)
+    const { wallet, walletConnection } = getFromWallet("User")
     const withdrawalPayload = extractWithdrawalPayload(payload, token, true)
     const args = walletConnection ? [walletConnection, withdrawalPayload] : [withdrawalPayload]
     const sdk = walletConnection ? getCoreSDK() : wallet
@@ -84,8 +84,8 @@ export const handlePrepareCall = async ({ payload: { coin, amount } }) => {
 }
 
 export const handleFinalizeCall = async ({ payload: { coin } }) => {
-    const token = tokens[coin]
-    const { wallet, walletConnection } = get(User)
+    const token = getFromWallet("Tokens")[coin]
+    const { wallet, walletConnection } = getFromWallet("User")
     const withdrawalPayload = extractWithdrawalPayload({}, token)
     const args = walletConnection ? 
                 [walletConnection.ethSigner, walletConnection.starkSigner.getAddress(), withdrawalPayload] : 

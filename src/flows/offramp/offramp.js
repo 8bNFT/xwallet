@@ -1,5 +1,4 @@
-import { tokens, User } from "src/stores/wallet"
-import { get } from "svelte/store"
+import { getFromWallet } from "src/stores/wallet"
 
 const extractOfframpPayload = (payload, token) => {
     return { cryptoCurrencies: [token.symbol], amount: payload.amount }
@@ -22,10 +21,10 @@ const parseOfframpResult = (result, token) => {
 
 export const handleOfframpCall = async ({ payload }) => {
     const payloadCopy = {...payload}
-    const token = tokens[payloadCopy.coin]
+    const token = getFromWallet("Tokens")[payloadCopy.coin]
 
     try{
-        const result = await get(User).wallet.cryptoToFiat(extractOfframpPayload(payloadCopy, token))
+        const result = await getFromWallet("User").wallet.cryptoToFiat(extractOfframpPayload(payloadCopy, token))
         const parsedResult = parseOfframpResult(result, token)
         const message = buildOfframpSuccess(parsedResult)
 

@@ -1,7 +1,7 @@
-import { getCoreSDK, User, tokens } from "src/stores/wallet"
+import { getFromWallet } from "src/stores/wallet"
+import { getCoreSDK } from "src/util/imx"
 import { assetToUSD, parsedToRaw } from "src/util/cfx"
 import { sliceAddress } from "src/util/generic"
-import { get } from "svelte/store"
 
 const extractTransferPayload = (payload, token) => {
     if(token.id === "ETH"){
@@ -40,9 +40,9 @@ const parseTransferResult = (result, token) => {
 }
 
 export const handleTransferCall = async ({ payload: { coin, amount, receiver } }) => {
-    const token = tokens[coin]
+    const token = getFromWallet("Tokens")[coin]
     const payload = { coin, amount: { parsed: amount, wei: parsedToRaw(amount, token.decimals) }, receiver }
-    const { wallet, walletConnection } = get(User)
+    const { wallet, walletConnection } = getFromWallet("User")
     const transferPayload = extractTransferPayload(payload, token)
     const args = walletConnection ? [walletConnection, transferPayload] : [transferPayload]
     const sdk = walletConnection ? getCoreSDK() : wallet

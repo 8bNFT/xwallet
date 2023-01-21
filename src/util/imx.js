@@ -1,11 +1,20 @@
 import { parseWithDecimals } from "./cfx"
 import { get } from "svelte/store"
+import { Wallet } from "src/stores/wallet"
+import { Link } from "@imtbl/imx-sdk"
+import { ImmutableX, Config } from "@imtbl/core-sdk"
 
-export const getLinkURL = network => network === "testnet" ? "https://link.sandbox.x.immutable.com" : "https://link.x.immutable.com"
+export const getLinkURL = network => (network || Wallet.getNetwork()) === "testnet" ? "https://link.sandbox.x.immutable.com" : "https://link.x.immutable.com"
 
-export const getAPIURL = network => network === "testnet" ? "https://api.sandbox.x.immutable.com" : "https://api.x.immutable.com" 
+export const getAPIURL = network => (network || Wallet.getNetwork()) === "testnet" ? "https://api.sandbox.x.immutable.com" : "https://api.x.immutable.com" 
 
-export const API = (network, path = "") => getAPIURL(network) + path
+export const API = (network, path = "") => getAPIURL((network || Wallet.getNetwork())) + path
+
+export const getLink = network => new Link(getLinkURL(network))
+
+export const getCoreConfig = network => (network || Wallet.getNetwork()) === "testnet" ? Config.SANDBOX : Config.PRODUCTION
+
+export const getCoreSDK = network => new ImmutableX(getCoreConfig(network))
 
 export const ONRAMP_TOKENS = {
     mainnet: ["ETH", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"],
@@ -30,7 +39,6 @@ export const OFFRAMP_TOKENS = {
 }
 
 export const filterOfframpTokens = (tokens, network) => filterTokens(tokens, OFFRAMP_TOKENS[network])
-
 
 const eventHistory = {}
 
@@ -101,7 +109,7 @@ export const getTransfersTo = async (user, network) => {
     return transformTransfers(result)
 }
 
-const transformOrders = (orders) => {
+const transformOrders = orders => {
     const temp = []
 
     for(let { user, updated_timestamp: timestamp, order_id: transaction_id, sell, buy } of orders){

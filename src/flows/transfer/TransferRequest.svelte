@@ -1,12 +1,14 @@
 <script>
     export let formStore, validationStore
 
-    import { Balances } from "src/stores/wallet";
+    import { Wallet } from "src/stores/wallet";
     import BasicInput from "src/comps/BasicInput.svelte";
     import CfxInput from "src/comps/CfxInput.svelte";
     import Select from "src/comps/Select.svelte";
     import LabelButton from "src/comps/LabelButton.svelte";
     import { DEFAULT_TOKEN_ICON } from "src/util/generic";
+
+    const { Balances } = $Wallet
 
     const balancesToOptions = (balances) => {
         const options = []

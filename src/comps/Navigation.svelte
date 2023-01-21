@@ -3,7 +3,6 @@
     import { sliceAddress } from "src/util/generic"
     import Tooltip from "src/comps/Tooltip.svelte"
     import { fly } from "svelte/transition"
-    import { walletManager } from "src/stores/wallet"
     import { link } from "svelte-spa-router"
     import { copyToClipboard } from "src/util/generic"
     import { WalletDropdown } from "src/stores/generics"
@@ -16,6 +15,7 @@
     }
 
     $: User = $Wallet.User
+    $: WalletManager = $Wallet.Manager
     $: if(!User) WalletDropdown.close()
 </script>
 
@@ -65,8 +65,8 @@
                     <span>Connect Wallet</span>
                     {#if $WalletDropdown}
                         <div transition:fly|local={{y: 20}} class="submenu">
-                            {#each Object.entries(walletManager.getAvailableWallets()) as [id, info]}   
-                                <span class="wallet" on:click={() => walletManager.connect(id)}>
+                            {#each Object.entries($WalletManager.getAvailableWallets()) as [id, info]}   
+                                <span class="wallet" on:click={() => $WalletManager.connect(id)}>
                                     <div class="icon">
                                         <img src={info.icon}>
                                     </div>

@@ -1,7 +1,7 @@
 <script>
     export let formStore, validationStore, currentStep
 
-    import { tokens, Balances } from "src/stores/wallet";
+    import { Wallet } from "src/stores/wallet";
     import CfxInput from "src/comps/CfxInput.svelte";
     import Select from "src/comps/Select.svelte";
     import BasicInfo from "src/comps/BasicInfo.svelte";
@@ -10,6 +10,8 @@
     import { DEFAULT_TOKEN_ICON } from "src/util/generic";
     import Toggle from "src/comps/Toggle.svelte";
     import Tooltip from "src/comps/Tooltip.svelte";
+
+    const { Tokens, Balances } = $Wallet
 
     const balancesToOptions = (balances) => {
         const options = []
@@ -34,17 +36,17 @@
     <Select bind:value={$formStore.coin} options={balancesToOptions($Balances)} />
     <div class="separator"></div>
     {#if $currentStep === "prepare"}
-        <CfxInput bind:value={$formStore.amount} valid={$validationStore.amount.valid} error={$validationStore.amount.error} label="Amount" asset={tokens[$formStore.coin]}>
-            <LabelButton slot="label-right" value={"Max. " + $Balances[$formStore.coin].balance.parsed + " " + tokens[$formStore.coin].symbol} on:click={() => setAmount($Balances[$formStore.coin].balance.parsed)} />
+        <CfxInput bind:value={$formStore.amount} valid={$validationStore.amount.valid} error={$validationStore.amount.error} label="Amount" asset={$Tokens[$formStore.coin]}>
+            <LabelButton slot="label-right" value={"Max. " + $Balances[$formStore.coin].balance.parsed + " " + $Tokens[$formStore.coin].symbol} on:click={() => setAmount($Balances[$formStore.coin].balance.parsed)} />
         </CfxInput>
         <div class="separator"></div>
         <div class="warning">Once you start a withdrawal it <b>can't be cancelled.</b><br/>This step can take between 24 - 48 hours.</div>
     {:else}
         <Tooltip title="This step can take up to 48h!">
-            <BasicInfo label={"Preparing withdrawal"} data={`${formatCryptoDisplay($Balances[$formStore.coin].preparing_withdrawal.parsed, tokens[$formStore.coin].precision)} ${tokens[$formStore.coin].symbol}`} />
+            <BasicInfo label={"Preparing withdrawal"} data={`${formatCryptoDisplay($Balances[$formStore.coin].preparing_withdrawal.parsed, $Tokens[$formStore.coin].precision)} ${$Tokens[$formStore.coin].symbol}`} />
         </Tooltip>
         <div class="separator"></div>
-        <BasicInfo label={"Withdrawable amount"} data={`${formatCryptoDisplay($Balances[$formStore.coin].withdrawable.parsed, tokens[$formStore.coin].precision)} ${tokens[$formStore.coin].symbol}`} />
+        <BasicInfo label={"Withdrawable amount"} data={`${formatCryptoDisplay($Balances[$formStore.coin].withdrawable.parsed, $Tokens[$formStore.coin].precision)} ${$Tokens[$formStore.coin].symbol}`} />
     {/if}
 {/if}
 

@@ -6,12 +6,13 @@
     import { FlowStore } from 'src/stores/generics';
     import { allValid, validate } from "src/validation/validate";
     import { isGtOrEq, isLtOrEq, isNumber, isPositiveNumber, verifyPrecision } from "src/validation/validators";
-    import { tokens } from "src/stores/wallet";
+    import { Wallet } from "src/stores/wallet";
     import DepositRequest from "./DepositRequest.svelte";
     import DepositReview from "./DepositReview.svelte";
     import { handleDepositCall } from "./deposit";
     import merge from "lodash.merge"
 
+    const { Tokens } = $Wallet
     const STEP_STORE = createStepStore(3, false)
     let loading = false
 
@@ -20,7 +21,7 @@
             merge(
                 {
                     coin: {
-                        value: Object.keys(tokens)[0]
+                        value: Object.keys($Tokens)[0]
                     },
                     amount: {
                         value: "",
@@ -28,9 +29,9 @@
                             [() => !isNaN($payloadStore[$payloadStore.coin]), "Fetching L1 balance..."],
                             [isNumber, "Value must be a number"],
                             [isPositiveNumber, "Value must be more than 0"], 
-                            [(v) => isGtOrEq(v, tokens[$payloadStore.coin].minimum), () => `Value must be greater than ${tokens[$payloadStore.coin].minimum}`],
-                            [(v) => verifyPrecision(v, tokens[$payloadStore.coin].precision), () => `Decimal precision cannot exceed ${tokens[$payloadStore.coin].precision} places`],
-                            [(v) => isLtOrEq(v, $payloadStore[$payloadStore.coin]), () => `Not enough L1 balance (${$payloadStore[$payloadStore.coin]} ${tokens[$payloadStore.coin].symbol})`]
+                            [(v) => isGtOrEq(v, $Tokens[$payloadStore.coin].minimum), () => `Value must be greater than ${$Tokens[$payloadStore.coin].minimum}`],
+                            [(v) => verifyPrecision(v, $Tokens[$payloadStore.coin].precision), () => `Decimal precision cannot exceed ${$Tokens[$payloadStore.coin].precision} places`],
+                            [(v) => isLtOrEq(v, $payloadStore[$payloadStore.coin]), () => `Not enough L1 balance (${$payloadStore[$payloadStore.coin]} ${$Tokens[$payloadStore.coin].symbol})`]
                         ]
                     }
                 },
@@ -48,7 +49,7 @@
 
     $: defaultConfig = {
         title: {
-            text: "Deposit " + tokens[$payloadStore.coin].symbol,
+            text: "Deposit " + $Tokens[$payloadStore.coin].symbol,
         },
         footer: {
             primary: {
@@ -86,7 +87,7 @@
             props: {},
             footer: {
                 primary: {
-                    text: () => `Deposit ${tokens[$payloadStore.coin].symbol}`,
+                    text: () => `Deposit ${$Tokens[$payloadStore.coin].symbol}`,
                     action: () => async () => {
                         loading = true
                         resultStore.set(await handleDepositCall({ payload: $payloadStore }))
