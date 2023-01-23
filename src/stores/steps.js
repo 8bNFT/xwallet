@@ -29,7 +29,7 @@ export function createStepStore(maxSteps, loop = false) {
         }
     )
 
-    const goto = (step) => {
+    const goto = step => {
         if(step < 0){
             if(loop) return set(MAX_STEPS)
             return set(0)

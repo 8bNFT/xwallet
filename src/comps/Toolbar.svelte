@@ -25,11 +25,11 @@
     .toolbar {
         position: fixed;
         width: 100%;
-        background: red;
         max-width: var(--max-width);
         padding: 1rem;
         border-radius: 8px;
-        background: white;
+        background: rgba(255, 255, 255, .85);
+        backdrop-filter: blur(20px);
         border: 1px solid var(--l-grey);
         z-index: 9999;
         box-shadow: 0px 0px 20px rgba(0, 0, 0, .04);

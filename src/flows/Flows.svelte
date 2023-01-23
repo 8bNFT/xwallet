@@ -6,6 +6,7 @@
     import Offramp from './offramp/Offramp.svelte';
     import Coin from './coin/Coin.svelte';
     import Withdrawal from './withdrawal/Withdrawal.svelte';
+    import DepositNft from './deposit_nft/DepositNft.svelte';
 
     const flows = {
         "transfer": Transfer,
@@ -13,7 +14,8 @@
         "buy": Onramp,
         "sell": Offramp,
         "coin": Coin,
-        "withdraw": Withdrawal
+        "withdraw": Withdrawal,
+        "depositNFT": DepositNft
     }
 </script>
 

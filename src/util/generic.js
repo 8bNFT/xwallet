@@ -47,9 +47,9 @@ export const generateFakeBalances = tokens => {
 
 export const randomInt = int => Math.floor(Math.random() * int)
 
-export const copyToClipboard = (text, target) => {
+export const copyToClipboard = (text, notificationText) => {
   if(!text) return
   
   navigator.clipboard.writeText(text)
-  if(target) ToastStore.success(`Copied ${target} to clipboard!`)
+  if(notificationText) ToastStore.success(`Copied ${notificationText} to clipboard!`)
 }

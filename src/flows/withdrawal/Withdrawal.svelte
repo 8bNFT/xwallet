@@ -103,7 +103,7 @@
                     loading: () => {
                         if(!loading) return false
                         if($currentStep === "prepare") return "Preparing withdrawal"
-                        return "Withdrawing $Tokens"
+                        return `Withdrawing ${$Tokens[$payloadStore.coin].symbol}`
                     },
                     action: () => {
                         return async () => {

@@ -1,5 +1,5 @@
 <script>
-    import { ctxMenu } from "src/stores/generics";
+    import { ctxMenu, FlowStore } from "src/stores/generics";
     import { createNftTransferStore } from "src/stores/select";
     import { fetchNFTs } from "src/util/api";
     import { DEFAULT_NFT_IMAGE } from "src/util/generic";
@@ -14,8 +14,12 @@
     let edit = false
     let length = 0
     let collections = 0
+    let assets
 
-    const NFTPromise = fetchNFTs()
+    const NFTPromise = (async () => {
+        assets = (await fetchNFTs()).result
+        return assets
+    })()
 
     const selectAll = () => NFTPromise.then(({ result }) => result.forEach(token => store.select({ address: token.token_address, id: token.token_id })))
 
@@ -62,6 +66,12 @@
         options = createOptions(token)
         submenuTarget = target
     }
+
+    const getSelectedNFT = () => {
+        const nft = Object.entries($store).filter(([k, v]) => v.size)[0]
+        const [ address, id ] = [nft[0], Array.from(nft[1])[0]]
+        return assets.find(v => v.token_address.toLowerCase() === address && String(v.token_id) === id)
+    }
 </script>
 
 <svelte:body on:keydown={edit ? keyCombo : null} />
@@ -78,7 +88,7 @@
 <Submenu bind:target={submenuTarget} {options} />
 
 {#if edit}
-    <Toolbar primaryAction={{ text: "Transfer tokens", disabled: !edit, action: () => edit = !edit }} secondaryAction={{ text: "Cancel", action: () => (store.reset(), edit = false) }}>
+    <Toolbar primaryAction={{ text: "Transfer tokens", disabled: !edit, action: () => FlowStore.depositNFT(getSelectedNFT()) }} secondaryAction={{ text: "Cancel", action: () => (store.reset(), edit = false) }}>
         Transfer {length} {length === 1 ? "token" : "tokens"} from {collections} {collections === 1 ? "collection" : "collections"}
     </Toolbar>
 {/if}
@@ -90,12 +100,14 @@
     <div class="grid">
         {#await NFTPromise}
             Loading NFTs
-        {:then { result }}
+        {:then result}
             {#each result as nft}
                 <div class="token" data-address={nft.token_address} data-id={nft.token_id} class:selected={edit && nft.token_address in $store && $store[nft.token_address].has(String(nft.token_id))} class:selectable={edit} on:click={edit ? () => store.toggle({ address: nft.token_address, id: nft.token_id }) : null}>
                     {#if !edit}
-                        <button on:click={e => openSubmenu(e, nft) }>
-                            Toggle
+                        <button class="toggle" on:click={e => openSubmenu(e, nft) }>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                              </svg>
                         </button>
                     {/if}
                     <div class="image">
@@ -123,6 +135,36 @@
 </Selectable>
 
 <style>
+    .toggle {
+        display: block;
+        padding: 6px 4px;
+        background: rgba(255, 255, 255, .7);
+        backdrop-filter: blur(15px);
+        border: none;
+        border-radius: 4px;
+        bottom: 1rem;
+        right: .75rem;
+        transition: all .15s;
+        color: var(--grey);
+        cursor: pointer;
+        opacity: 0;
+    }
+
+    .token:hover .toggle {
+        opacity: 1
+    }
+
+    .toggle:hover {
+        background: var(--l-grey);
+        color: black
+    }
+
+    .toggle svg {
+        /* width: 20px; */
+        height: 20px;
+        width: 20px;
+    }
+
     button {
         position: absolute;
         /* right: .5rem; */
@@ -143,19 +185,25 @@
     }
 
     .token {
-        border: 2px solid transparent;
+        position: relative;
+        border: 2px solid var(--l-grey);
         border-radius: .5rem;
         transition: all 0.15s;
         padding: .75rem;
         padding-bottom: 1rem;
-        box-shadow: 0 0 12px rgba(0, 0, 0, .1);
+        /* box-shadow: 0 0 12px rgba(0, 0, 0, .1); */
     }
 
     .token.selectable {
         cursor: pointer;
         transform: translateY(-4px);
+        border-color: transparent;
         box-shadow: 0 0 16px rgba(0, 0, 0, .04);
     }
+
+    /* .token.selectable img {
+        filter: opacity(0.5)
+    } */
 
     .token.selectable:not(.selected):hover {
         transform: translateY(-8px);
@@ -165,6 +213,10 @@
     .token.selected {
         border-color: var(--accent);
         background-color: #f9fbff
+    }
+
+    .token.selected img {
+        filter: none
     }
 
     .token img {

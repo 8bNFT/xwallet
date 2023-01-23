@@ -102,6 +102,10 @@ export const handleFinalizeCall = async ({ payload: { coin } }) => {
             message
         }
     }catch(err){
+        // TODO: figure out error formatting from core
+        const code = (err.message || "").slice(0, 120)
+        console.log(code)
+        console.log({ err: err.code, status: err.status, msg: err.message })
         const error = err && (typeof err === "string" ? err : err.message) || "Unknown error or action denied."
         return {
             error

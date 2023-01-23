@@ -33,21 +33,24 @@
 <style>
     .holder {
         position: fixed;
-        background: white;
+        background: rgba(255, 255, 255, .75);
+        backdrop-filter: blur(15px);
         padding: .5rem;
         box-shadow: 0px 0px 15px rgba(0, 0, 0, .06);
-        border-radius: 6px
+        border-radius: 6px;
+        z-index: 99999;
     }
 
     .holder div {
-        padding: .6rem .5rem;
-        font-size: .9rem;
+        padding: .75rem;
+        font-size: .8rem;
+        font-weight: 500;
         cursor: pointer;
         transition: all .25s;
         border-radius: 3px;
     }
 
     .holder div:hover {
-        background: var(--l-grey)
+        background: rgb(248, 248, 248)
     }
 </style>

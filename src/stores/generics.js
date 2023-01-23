@@ -51,6 +51,8 @@ function createFlowStore(){
 	const sell = token => set({ flow: "sell", props: token && { coin: { value: token } } || {} })
 	const coinInformation = token => !token ? null: set({ flow: "coin", props: { coin: token  } })
 
+	const depositNFT = asset => set({ flow: "depositNFT", props: { asset } })
+
 	return {
 		subscribe,
 		set,
@@ -62,7 +64,8 @@ function createFlowStore(){
 		buy,
 		sell,
 		send: transfer,
-		coinInformation
+		coinInformation,
+		depositNFT
 	}
 }
 

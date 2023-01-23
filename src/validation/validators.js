@@ -1,3 +1,4 @@
+import { getFromWallet } from "src/stores/wallet"
 import { API } from "src/util/imx"
 
 export const isNumber = v => !isNaN(v)
@@ -53,4 +54,13 @@ export const isIMXUser = async (user, controller, network) => {
         console.log(err)
         return false
     }
+}
+
+export const isAssetOwner = (token, _address) => {
+    if(!token) return false
+
+    const address = _address || getFromWallet("User")?.address
+    if(!address) return false
+    
+    return (token.user).toLowerCase() === (address).toLowerCase()
 }

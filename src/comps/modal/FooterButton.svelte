@@ -7,4 +7,4 @@
     $: action = config.action || defaultConfig.action
 </script>
 
-<Button disabled={disabled || loading} action={action({current, max})} {type} text={loading ? loading : typeof text === "string" ? text : typeof text === "function" ? text({current, max}) : ""} />
+<Button disabled={disabled || loading} action={action({current, max})} {type} text={loading ? loading : typeof disabled === "string" ? disabled : typeof text === "string" ? text : typeof text === "function" ? text({current, max}) : ""} />
