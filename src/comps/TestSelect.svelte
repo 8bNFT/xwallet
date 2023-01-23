@@ -21,7 +21,7 @@
         return assets
     })()
 
-    const selectAll = () => NFTPromise.then(({ result }) => result.forEach(token => store.select({ address: token.token_address, id: token.token_id })))
+    const selectAll = () => NFTPromise.then((result) => result.forEach(token => store.select(token)))
 
     const keyCombo = e => {
         if(!e.ctrlKey) return
@@ -31,16 +31,9 @@
     }
 
     $: length = store.length(), $store
-    $: collections = Object.entries($store).filter(([k, v]) => v.size).length
+    $: collections = Object.entries($store).filter(([k, v]) => v.length).length
 
     let currentOption = Object.keys(ASSET_STATUS_NAMES)[0]
-
-    const openContextMenu = e => {
-        const target = e.target
-        const bounding = target.getBoundingClientRect()
-
-        $ctxMenu = { top: bounding.bottom + 8, left: bounding.left }
-    }
 
     const createOptions = token => {
         const options = [
@@ -55,7 +48,7 @@
 
     const initTransferSelect = token => {
         store.reset()
-        store.select({ address: token.token_address, id: token.token_id })
+        store.select(token)
         edit = true
     }
 
@@ -69,8 +62,8 @@
 
     const getSelectedNFT = () => {
         const nft = Object.entries($store).filter(([k, v]) => v.size)[0]
-        const [ address, id ] = [nft[0], Array.from(nft[1])[0]]
-        return assets.find(v => v.token_address.toLowerCase() === address && String(v.token_id) === id)
+        const [ address, token ] = [nft[0], Array.from(nft[1])[0]]
+        return token
     }
 </script>
 
@@ -88,12 +81,12 @@
 <Submenu bind:target={submenuTarget} {options} />
 
 {#if edit}
-    <Toolbar primaryAction={{ text: "Transfer tokens", disabled: !edit, action: () => FlowStore.depositNFT(getSelectedNFT()) }} secondaryAction={{ text: "Cancel", action: () => (store.reset(), edit = false) }}>
+    <Toolbar primaryAction={{ text: "Transfer tokens", disabled: !edit, action: () => FlowStore.depositNFT() }} secondaryAction={{ text: "Cancel", action: () => (store.reset(), edit = false) }}>
         Transfer {length} {length === 1 ? "token" : "tokens"} from {collections} {collections === 1 ? "collection" : "collections"}
     </Toolbar>
 {/if}
 
-<Selectable enabled={edit} targetsQuery=".grid .token" on:select={({ detail: { element: { dataset }}}) => store.select(dataset)} on:deselect={({ detail: { element: { dataset }}}) => store.deselect(dataset)}>
+<Selectable enabled={edit} targetsQuery=".grid .token" on:select={({ detail: { element, index }}) => store.select(assets[index])} on:deselect={({ detail: { element, index }}) => store.deselect(assets[index])}>
     <div class="tabs">
         <Tabs bind:currentOption options={Object.keys(ASSET_STATUS_NAMES)} />
     </div>
@@ -102,7 +95,7 @@
             Loading NFTs
         {:then result}
             {#each result as nft}
-                <div class="token" data-address={nft.token_address} data-id={nft.token_id} class:selected={edit && nft.token_address in $store && $store[nft.token_address].has(String(nft.token_id))} class:selectable={edit} on:click={edit ? () => store.toggle({ address: nft.token_address, id: nft.token_id }) : null}>
+                <div class="token" data-token={JSON.stringify(nft)} class:selected={edit && nft.token_address in $store && store.contains(nft)} class:selectable={edit} on:click={edit ? () => store.toggle(nft) : null}>
                     {#if !edit}
                         <button class="toggle" on:click={e => openSubmenu(e, nft) }>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">

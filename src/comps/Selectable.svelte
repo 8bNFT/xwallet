@@ -3,7 +3,7 @@
     import { createEventDispatcher } from "svelte";
     const emit = createEventDispatcher()
 
-    // let area
+    let area
     let drag = {dragging: false, x1: 0, y1: 0, x2: 0, y2: 0, scroll: {x: 0, y: 0}}
 
     const startDrag = e => {
@@ -51,10 +51,12 @@
     }
 
     const overlayCheck = append => {
-        const elements = document.querySelectorAll(targetsQuery);
+        const elements = area.querySelectorAll(targetsQuery);
         const { top, right, bottom, left } = getCoords(container)
 
-        for (let element of elements) {
+        for (let i = 0; i < elements.length; ++i) {
+            const element = elements[i]
+
             const { top: eTop, right: eRight, bottom: eBottom, left: eLeft } = getCoords(element)
             const isOverlapping = !(
                 right < eLeft ||
@@ -64,9 +66,9 @@
             )
 
             if(isOverlapping){
-                emit("select", { element })
+                emit("select", { element, index: i })
             } else if(!append) {
-                emit("deselect", { element })
+                emit("deselect", { element, index: i })
             }
         }
     }
@@ -100,7 +102,7 @@
     <div class="container" bind:this={container}></div>
 {/if}
 
-<div class="area">
+<div bind:this={area} class="area">
     <slot></slot>
 </div>
 
