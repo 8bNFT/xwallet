@@ -25,6 +25,24 @@ const URLS = {
         [NETWORKS.SANDBOX]: Config.SANDBOX,
         [NETWORKS.MAINNET]: Config.PRODUCTION,
         [NETWORKS.DEV]: Config.DEV
+    },
+    ETHERSCAN: {
+        [NETWORKS.SANDBOX]: "https://goerli.etherscan.io",
+        [NETWORKS.MAINNET]: "https://etherscan.io",
+        [NETWORKS.DEV]: "https://goerli.etherscan.io"
+    }
+}
+
+const TOKENS = {
+    ONRAMP: {
+        [NETWORKS.MAINNET]: ["ETH", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"],
+        [NETWORKS.SANDBOX]: ["ETH"],
+        [NETWORKS.DEV]: []
+    },
+    OFFRAMP: {
+        [NETWORKS.MAINNET]: ["ETH"],
+        [NETWORKS.SANDBOX]: ["ETH"],
+        [NETWORKS.DEV]: []
     }
 }
 
@@ -40,12 +58,6 @@ export const getLink = network => new Link(getLinkURL(network))
 
 export const getCoreSDK = network => new ImmutableX(getCoreConfig(network))
 
-export const ONRAMP_TOKENS = {
-    [NETWORKS.MAINNET]: ["ETH", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"],
-    [NETWORKS.SANDBOX]: ["ETH"],
-    [NETWORKS.DEV]: []
-}
-
 const filterTokens = (tokens, validTokens) => {
     if(Array.isArray(tokens)) return tokens.filter(v => validTokens.includes(v.id))
     if(typeof tokens === "object"){
@@ -56,15 +68,9 @@ const filterTokens = (tokens, validTokens) => {
     return null
 }
 
-export const filterOnrampTokens = (tokens, network) => filterTokens(tokens, ONRAMP_TOKENS[network])
+export const filterOnrampTokens = (tokens, network) => filterTokens(tokens, TOKENS.ONRAMP[network])
 
-export const OFFRAMP_TOKENS = {
-    [NETWORKS.MAINNET]: ["ETH"],
-    [NETWORKS.SANDBOX]: ["ETH"],
-    [NETWORKS.DEV]: []
-}
-
-export const filterOfframpTokens = (tokens, network) => filterTokens(tokens, OFFRAMP_TOKENS[network])
+export const filterOfframpTokens = (tokens, network) => filterTokens(tokens, TOKENS.OFFRAMP[network])
 
 const eventHistory = {}
 

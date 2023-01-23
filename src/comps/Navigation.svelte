@@ -7,6 +7,7 @@
     import { copyToClipboard } from "src/util/generic"
     import { WalletDropdown } from "src/stores/generics"
     import { NETWORKS } from "src/util/imx";
+    import { routesWithDetails } from "src/routes";
 
     let container
 
@@ -28,8 +29,12 @@
         <a href="/" use:link>wallet<span class="accent">.</span></a>
     </div>
     <div class="links">
-        <a href="/" use:link>Home</a>
-        <a href="/inventory" use:link>inventory</a>
+        <!-- {} -->
+        {#each Object.entries(routesWithDetails) as [url, {name, hidden}]}
+            {#if !hidden}
+                <a href={url} use:link>{name}</a>
+            {/if}
+        {/each}
     </div>
     {#if User}
         <div bind:this={container} class="container">
