@@ -14,7 +14,8 @@
         await tick()
         if(!target || !container) return
         const rect = target.getBoundingClientRect()
-        style = `top: ${rect.bottom + 10}px; left: ${rect.left}px`
+        const xaxis = rect.left + container.clientWidth > window.innerWidth ? rect.right - container.clientWidth : rect.left
+        style = `top: ${rect.bottom + 10}px; left: ${xaxis}px`
     }
 
     $: if(target) (calculatePosition())

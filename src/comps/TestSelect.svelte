@@ -39,6 +39,7 @@
         const options = [
             { text: "Transfer token", action: () => initTransferSelect(token) },
             { text: "Withdraw token", action: () => initTransferSelect(token) },
+            { text: "Deposit token", action: () => FlowStore.depositNFT(token) },
             { text: "View on Immutascan", action: () => window.open(`https://immutascan.io/address/${token.token_address}/${token.token_id}`, "_blank") },
         ]
         return options
@@ -60,8 +61,15 @@
         submenuTarget = target
     }
 
+    const parseSelectedNFTs = () => {
+        const nfts = Object.entries($store).filter(([k, v]) => v.length)
+        if(!nfts.length) return []
+        edit = false
+        return nfts.reduce((acc, current) => [...acc, [current[1][0].collection, current[1]]], [])
+    }
+
     const getSelectedNFT = () => {
-        const nft = Object.entries($store).filter(([k, v]) => v.size)[0]
+        const nft = Object.entries($store).filter(([k, v]) => v.length)[0]
         const [ address, token ] = [nft[0], Array.from(nft[1])[0]]
         return token
     }
@@ -81,7 +89,7 @@
 <Submenu bind:target={submenuTarget} {options} />
 
 {#if edit}
-    <Toolbar primaryAction={{ text: "Transfer tokens", disabled: !edit, action: () => FlowStore.depositNFT() }} secondaryAction={{ text: "Cancel", action: () => (store.reset(), edit = false) }}>
+    <Toolbar primaryAction={{ text: "Transfer tokens", disabled: !edit || ($store && !store.length()), action: () => FlowStore.transferNFTs(parseSelectedNFTs()) }} secondaryAction={{ text: "Cancel", action: () => (store.reset(), edit = false) }}>
         Transfer {length} {length === 1 ? "token" : "tokens"} from {collections} {collections === 1 ? "collection" : "collections"}
     </Toolbar>
 {/if}
@@ -95,7 +103,7 @@
             Loading NFTs
         {:then result}
             {#each result as nft}
-                <div class="token" data-token={JSON.stringify(nft)} class:selected={edit && nft.token_address in $store && store.contains(nft)} class:selectable={edit} on:click={edit ? () => store.toggle(nft) : null}>
+                <div class="token" class:selected={edit && nft.token_address in $store && store.contains(nft)} class:selectable={edit} on:click={edit ? () => store.toggle(nft) : null}>
                     {#if !edit}
                         <button class="toggle" on:click={e => openSubmenu(e, nft) }>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">

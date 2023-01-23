@@ -1,4 +1,7 @@
 <script>
+    import { tick } from "svelte";
+
+
 	export let title = '';
 	let isHovered = false;
 	let x;
@@ -17,37 +20,34 @@
 		}
 	}
 
-	const calculatePosition = ({ pageX, pageY, offset }) => {
+	const calculatePosition = async ({ pageX, pageY, offset }) => {
+		await tick()
 		if(!tooltip) return [x, y]
-
-		const isNewCoord = newCoordSystem(tooltip)
-
-		const bounding  = isNewCoord ? parent.getBoundingClientRect() : {x: 0, y: 0}
-		let newX = Math.min(pageX - bounding.x - window.scrollX + (isNewCoord ? parent.offsetLeft : 0) - 10, window.innerWidth - bounding.x - tooltip.clientWidth)
-		let newY = Math.min(pageY - bounding.y - window.scrollY + (isNewCoord ? parent.offsetTop  : 0) - tooltip.clientHeight - 10, window.innerHeight - bounding.y - tooltip.clientHeight)
-
-		return [newX, newY]
+		
+		const bounding  = parent.getBoundingClientRect()
+		const center = bounding.left + (bounding.width / 2)
+		const centerPosition = center - (tooltip.clientWidth / 2)
+		const left = centerPosition + tooltip.clientWidth > window.innerWidth ? centerPosition - (centerPosition + tooltip.clientWidth - window.innerWidth + 16) : centerPosition
+		return [left, bounding.top - tooltip.clientHeight - 10 - offset]
 	}
 	
 	function mouseOver(event) {
 		isHovered = true;
-		[x, y] = calculatePosition({pageX: event.pageX, pageY: event.pageY, offset: 0})
-	}
-
-	function mouseMove(event) {
-		[x, y] = calculatePosition({pageX: event.pageX, pageY: event.pageY, offset: 0})
+		calculatePosition({pageX: event.pageX, pageY: event.pageY, offset: 0}).then(([nx, ny]) => (x = nx, y = ny))
 	}
 
 	function mouseLeave() {
 		isHovered = false;
 	}
+
+	$: tooltip && document.body.appendChild(tooltip)
 </script>
 
 <div
 	bind:this={parent}
 	on:mouseover={mouseOver}
   	on:mouseleave={mouseLeave}
-	on:mousemove={mouseMove}>
+>
 	<slot />
 </div>
 
