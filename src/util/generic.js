@@ -1,4 +1,5 @@
 import { ToastStore } from "src/stores/toast"
+import { NETWORKS } from "./imx"
 
 export const DEFAULT_TOKEN_ICON = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxLvSc7QnNOFVh1SCKPbYrNTxBVeStbH9u2Q&usqp=CAU"
 
@@ -52,4 +53,10 @@ export const copyToClipboard = (text, notificationText) => {
   
   navigator.clipboard.writeText(text)
   if(notificationText) ToastStore.success(`Copied ${notificationText} to clipboard!`)
+}
+
+export const getWalletNetwork = () => {
+  if(window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.href.includes("testnet") || window.location.href.includes("sandbox")) return NETWORKS.SANDBOX
+  if(window.location.includes("dev") || window.location.includes("devnet")) return NETWORKS.DEV
+  return NETWORKS.MAINNET
 }

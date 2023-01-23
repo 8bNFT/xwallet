@@ -5,6 +5,7 @@
     import { formatCryptoDisplay } from "src/util/cfx";
     import { Wallet } from "src/stores/wallet";
     import Tooltip from "../Tooltip.svelte";
+    import { NETWORKS } from "src/util/imx";
 
     const { Tokens } = $Wallet
 
@@ -27,7 +28,7 @@
     }
 </script>
 
-<div class="event" class:hover={Wallet.getNetwork() === "mainnet"} on:click={Wallet.getNetwork() === "testnet" ? null: () => window.open(`https://immutascan.io/tx/${event.transaction_id}`, '_blank')}>
+<div class="event" class:hover={Wallet.getNetwork() === NETWORKS.MAINNET} on:click={Wallet.getNetwork() !== NETWORKS.MAINNET ? null: () => window.open(`https://immutascan.io/tx/${event.transaction_id}`, '_blank')}>
     <div class="icon">
         {@html EVENT_ICONS[EVENTS_TO_ICONS[event.event]]}
     </div>

@@ -1,6 +1,6 @@
 import { assetToUSD, parsedToRaw } from "src/util/cfx"
 import { Wallet, getFromWallet } from "src/stores/wallet"
-import { getCoreSDK } from "src/util/imx"
+import { getCoreSDK, NETWORKS } from "src/util/imx"
 import { sliceAddress } from "src/util/generic"
 
 const extractWithdrawalPayload = (payload, token, preparing = false) => {
@@ -22,7 +22,7 @@ const extractWithdrawalPayload = (payload, token, preparing = false) => {
 }
 
 const buildFinalizedSuccess = ({ transaction_id, symbol }) => {
-    if(Wallet.getNetwork() === "mainnet"){
+    if(Wallet.getNetwork() === NETWORKS.MAINNET){
         return `You've successfully withdrawn ${symbol} to your L1 account.<br/>Transaction ID: <a target="_blank" href="https://etherscan.io/tx/${transaction_id}">${sliceAddress(transaction_id)}</a>`
     }
 

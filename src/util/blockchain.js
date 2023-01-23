@@ -1,15 +1,18 @@
 import Web3 from "web3"
 import { Wallet } from "src/stores/wallet"
 import { parseWithDecimals } from "./cfx"
+import { NETWORKS } from "./imx"
 
 export const RPC_ENDPOINTS = {
-    testnet: "https://eth-goerli.alchemyapi.io/v2/l8_rK0oy2uLAVLZwUVBimAc4qwcBTU2z",
-    mainnet: "https://eth-mainnet.alchemyapi.io/v2/l8_rK0oy2uLAVLZwUVBimAc4qwcBTU2z"
+    [NETWORKS.SANDBOX]: "https://eth-goerli.alchemyapi.io/v2/l8_rK0oy2uLAVLZwUVBimAc4qwcBTU2z",
+    [NETWORKS.DEV]: "https://eth-goerli.alchemyapi.io/v2/l8_rK0oy2uLAVLZwUVBimAc4qwcBTU2z",
+    [NETWORKS.MAINNET]: "https://eth-mainnet.alchemyapi.io/v2/l8_rK0oy2uLAVLZwUVBimAc4qwcBTU2z"
 }
 
 export const CHAIN_ID = {
-    testnet: 5,
-    mainnet: 1
+    [NETWORKS.SANDBOX]: 5,
+    [NETWORKS.DEV]: 5,
+    [NETWORKS.MAINNET]: 1
 }
 
 const CONTRACT_ABI = {
@@ -28,7 +31,7 @@ const balanceCache = {}
 
 export const buildWeb3 = network => {
     network = network || Wallet.getNetwork()
-    if(!network) throw "No network specified (mainnet|testnet)"
+    if(!network) throw "No network specified (MAINNET|SANDBOX|DEV)"
 
     return new Web3(RPC_ENDPOINTS[network])
 }

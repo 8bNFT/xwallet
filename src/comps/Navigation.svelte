@@ -6,6 +6,7 @@
     import { link } from "svelte-spa-router"
     import { copyToClipboard } from "src/util/generic"
     import { WalletDropdown } from "src/stores/generics"
+    import { NETWORKS } from "src/util/imx";
 
     let container
 
@@ -51,7 +52,7 @@
                     {#if $WalletDropdown}
                         <div transition:fly|local={{y: 20}} class="submenu">
                             <span on:click={() => copyToClipboard($User.address, "your address")}>Copy address</span>
-                            <a href={`https://${Wallet.getNetwork() === "testnet" && "goerli." || ""}etherscan.io/address/${$User.address}`} target="_blank">View on Etherscan</a>
+                            <a href={`https://${Wallet.getNetwork() !== NETWORKS.MAINNET && "goerli." || ""}etherscan.io/address/${$User.address}`} target="_blank">View on Etherscan</a>
                             <a href={`https://immutascan.io/address/${$User.address}`} target="_blank">View on Immutascan</a>
                             <span on:click={User.disconnect} class="destructive">Log out</span>
                         </div>

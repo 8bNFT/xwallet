@@ -11,6 +11,7 @@
     import { Wallet } from "src/stores/wallet";
     import { handleTransferCall } from "./transfer";
     import merge from "lodash.merge";
+    import { NETWORKS } from "src/util/imx";
 
     const { Balances, User, Tokens } = $Wallet
     const STEP_STORE = createStepStore(3, false)
@@ -127,7 +128,7 @@
                         FlowStore.reset()
                     }
                 },
-                secondary: Wallet.getNetwork() === "testnet" ? 
+                secondary: Wallet.getNetwork() !== NETWORKS.MAINNET ? 
                 $resultStore.error ? 
                 {
                     text: () =>  "Cancel",

@@ -8,8 +8,9 @@
   import Flows from "./flows/Flows.svelte";
   import MaxWidth from "./comps/MaxWidth.svelte";
   import ToastHolder from "./comps/toast/ToastHolder.svelte";
+  import { getWalletNetwork } from "./util/generic";
 
-  const currentNetwork = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.href.includes("goerli") || window.location.href.includes("testnet") ? "testnet" : "mainnet"
+  const currentNetwork = getWalletNetwork()
   const walletPromise = Wallet.initialize(currentNetwork)
 </script>
 

@@ -4,21 +4,46 @@ import { Wallet } from "src/stores/wallet"
 import { Link } from "@imtbl/imx-sdk"
 import { ImmutableX, Config } from "@imtbl/core-sdk"
 
-export const getLinkURL = network => (network || Wallet.getNetwork()) === "testnet" ? "https://link.sandbox.x.immutable.com" : "https://link.x.immutable.com"
+export const NETWORKS = {
+    MAINNET: "mainnet",
+    SANDBOX: "testnet",
+    DEV: "dev"
+}
 
-export const getAPIURL = network => (network || Wallet.getNetwork()) === "testnet" ? "https://api.sandbox.x.immutable.com" : "https://api.x.immutable.com" 
+const URLS = {
+    LINK: {
+        [NETWORKS.SANDBOX]: "https://link.sandbox.x.immutable.com",
+        [NETWORKS.MAINNET]: "https://link.x.immutable.com",
+        [NETWORKS.DEV]: "https://link.dev.x.immutable.com"
+    },
+    API: {
+        [NETWORKS.SANDBOX]: "https://api.sandbox.x.immutable.com",
+        [NETWORKS.MAINNET]: "https://api.x.immutable.com",
+        [NETWORKS.DEV]: "https://api.dev.x.immutable.com"
+    },
+    CORE: {
+        [NETWORKS.SANDBOX]: Config.SANDBOX,
+        [NETWORKS.MAINNET]: Config.PRODUCTION,
+        [NETWORKS.DEV]: Config.DEV
+    }
+}
 
-export const API = (network, path = "") => getAPIURL((network || Wallet.getNetwork())) + path
+export const getLinkURL = network => URLS.LINK[(network || Wallet.getNetwork())]
+
+export const getAPIURL = network => URLS.API[(network || Wallet.getNetwork())]
+
+export const API = (network, path = "") => getAPIURL(network) + path
+
+export const getCoreConfig = network => URLS.CORE[(network || Wallet.getNetwork())]
 
 export const getLink = network => new Link(getLinkURL(network))
-
-export const getCoreConfig = network => (network || Wallet.getNetwork()) === "testnet" ? Config.SANDBOX : Config.PRODUCTION
 
 export const getCoreSDK = network => new ImmutableX(getCoreConfig(network))
 
 export const ONRAMP_TOKENS = {
-    mainnet: ["ETH", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"],
-    testnet: ["ETH"]
+    [NETWORKS.MAINNET]: ["ETH", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"],
+    [NETWORKS.SANDBOX]: ["ETH"],
+    [NETWORKS.DEV]: []
 }
 
 const filterTokens = (tokens, validTokens) => {
@@ -34,8 +59,9 @@ const filterTokens = (tokens, validTokens) => {
 export const filterOnrampTokens = (tokens, network) => filterTokens(tokens, ONRAMP_TOKENS[network])
 
 export const OFFRAMP_TOKENS = {
-    mainnet: ["ETH"],
-    testnet: ["ETH"]
+    [NETWORKS.MAINNET]: ["ETH"],
+    [NETWORKS.SANDBOX]: ["ETH"],
+    [NETWORKS.DEV]: []
 }
 
 export const filterOfframpTokens = (tokens, network) => filterTokens(tokens, OFFRAMP_TOKENS[network])
