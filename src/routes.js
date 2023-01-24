@@ -4,11 +4,16 @@ import NFTs from "./pages/NFTs.svelte"
 export const routesWithDetails = {
     '/': {
         component: ERC20s,
-        name: "Home",
+        name: "Dashboard",
+    },
+    '/dashboard': {
+        component: ERC20s,
+        name: "Dashboard",
+        hidden: true
     },
     '/inventory': {
         component: NFTs,
-        name: "Inventory"
+        name: "NFTs"
     }
 }
 

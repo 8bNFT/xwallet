@@ -1,6 +1,6 @@
 import { assetToUSD, parsedToRaw } from "src/util/cfx"
 import { getFromWallet, Wallet } from "src/stores/wallet"
-import { sliceAddress } from "src/util/generic"
+import { extractError, sliceAddress } from "src/util/generic"
 import { getCoreSDK, NETWORKS } from "src/util/imx"
 
 const extractDepositPayload = (payload, token) => {
@@ -58,10 +58,8 @@ export const handleDepositCall = async ({ payload: { coin, amount } }) => {
             message
         }
     }catch(err){
-        console.log(err)
-        const error = err && (typeof err === "string" ? err : err.message) || "Unknown error or action denied."
         return {
-            error
+            error: extractError(err)
         }
     }
 }

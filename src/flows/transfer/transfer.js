@@ -1,7 +1,7 @@
 import { getFromWallet } from "src/stores/wallet"
 import { getCoreSDK } from "src/util/imx"
 import { assetToUSD, parsedToRaw } from "src/util/cfx"
-import { sliceAddress } from "src/util/generic"
+import { extractError, sliceAddress } from "src/util/generic"
 
 const extractTransferPayload = (payload, token) => {
     if(token.id === "ETH"){
@@ -60,9 +60,8 @@ export const handleTransferCall = async ({ payload: { coin, amount, receiver } }
             message
         }
     }catch(err){
-        const error = err && (typeof err === "string" ? err : err.message) || "Unknown error or action denied."
         return {
-            error
+            error: extractError(err)
         }
     }
 }

@@ -4,6 +4,7 @@
     import Tooltip from "src/comps/Tooltip.svelte"
     import { fly } from "svelte/transition"
     import { link } from "svelte-spa-router"
+    import active from 'svelte-spa-router/active'
     import { copyToClipboard } from "src/util/generic"
     import { WalletDropdown } from "src/stores/generics"
     import { NETWORKS } from "src/util/imx";
@@ -32,7 +33,7 @@
         <!-- {} -->
         {#each Object.entries(routesWithDetails) as [url, {name, hidden}]}
             {#if !hidden}
-                <a href={url} use:link>{name}</a>
+                <a use:active href={url} use:link>{name}</a>
             {/if}
         {/each}
     </div>
@@ -91,21 +92,32 @@
     nav {
         display: grid;
         align-items: center;
-        margin-top: 1rem;
+        padding-top: 1rem;
         grid-template-columns: 20% 60% 20%;
-        /* justify-content: space-between; */
     }
 
     .links {
         text-align: center;
-        /* width: 100%; */
         flex: 1;
     }
 
-    .links a {
+    .links a, .links a:visited {
         text-decoration: none;
         display: inline-block;
-        margin: 0 .25rem
+        margin: 0 .5rem;
+        color: black;
+        font-size: .95rem;
+        font-weight: 500;
+        opacity: .5;
+        transition: opacity .15s
+    }
+
+    .links a:hover {
+        opacity: 1
+    }
+
+    :global(.links a.active) {
+        opacity: 1 !important;
     }
 
     .logo {

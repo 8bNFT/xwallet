@@ -11,6 +11,7 @@
 // }>;
 
 import { getFromWallet } from "src/stores/wallet"
+import { extractError } from "src/util/generic"
 
 const extractOnrampPayload = (payload, token) => {
     return { cryptoCurrencies: [token.symbol] }
@@ -45,9 +46,8 @@ export const handleOnrampCall = async ({ payload }) => {
             message
         }
     }catch(err){
-        const error = err && (typeof err === "string" ? err : err.message) || "Unknown error or action denied."
         return {
-            error
+            error: extractError(err)
         }
     }
 }

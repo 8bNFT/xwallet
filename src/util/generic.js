@@ -60,3 +60,10 @@ export const getWalletNetwork = () => {
   if(window.location.includes("dev") || window.location.includes("devnet")) return NETWORKS.DEV
   return NETWORKS.MAINNET
 }
+
+export const extractError = err => {
+  console.log("[FLOW ERROR]", err)
+  const error_text = err.message || err
+  const message = error_text.includes("code=") ? "Error code: " + /code=([^\s,.]*)/gi.exec(error_text)[1] : error_text
+  return err && message || "Unknown error or action denied."
+}

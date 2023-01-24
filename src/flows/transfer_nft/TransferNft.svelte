@@ -22,11 +22,12 @@
         return Object.entries(assets).reduce((acc, [address, assets]) => {
             if(!assets.length) return acc
             const collection = assets[0].collection
-            return [...acc, [collection, assets]]
+            return [...acc, [{...collection, address}, assets]]
         }, [])
     }
 
     $: assets = parseAssets($assetStore)
+    $: if(!assets.length) FlowStore.reset()
     // add validation of ownership!
     const { resetAll: resetFlow, stores: [payloadStore, validationStore] } = createGenericStores(
         withValidation(

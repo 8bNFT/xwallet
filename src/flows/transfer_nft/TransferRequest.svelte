@@ -8,7 +8,7 @@
 <BasicInput placeholder={"Receiver address"} label="Receiver" bind:value={$formStore.receiver} valid={$validationStore.receiver.valid}  error={$validationStore.receiver.error} />
 <!-- <div class="separator"></div> -->
 <div class="height scrollbar--thin">
-    {#each assets as [collection, nfts]}
+    {#each assets as [collection, nfts] (collection.address)}
         <NftTransferSummary {collection} assets={nfts} {assetStore} />
     {/each}
 </div>

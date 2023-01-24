@@ -13,7 +13,7 @@
 <div class="separator"></div>
 <BasicInfo label={"Receiver"} dataTooltip={$formStore.receiver} data={sliceAddress($formStore.receiver)} />
 <div class="height scrollbar--thin">
-    {#each assets as [collection, nfts]}
+    {#each assets as [collection, nfts] (collection.address)}
         <NftTransferSummary {collection} assets={nfts} />
     {/each}
 </div>
