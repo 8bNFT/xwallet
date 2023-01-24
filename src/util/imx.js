@@ -93,11 +93,12 @@ const transformBridging = (bridge, from = false) => {
     return temp
 }
 
-const fetchWithCache = async (url, ...config) => {
+const fetchWithCache = async (url, ..._config) => {
+    const { expiration, ...config } = _config
     if(eventHistory[url] && eventHistory[url].expires > Date.now()) return eventHistory[url].data
     const response = await fetch(url, config)
     const json = await response.json()
-    eventHistory[url] = { expires: Date.now() + (15 * 60 * 1000), data: json }
+    eventHistory[url] = { expires: Date.now() + ((expiration || 15 * 60) * 1000), data: json }
     return json
 }
 
@@ -222,6 +223,13 @@ export const getEventHistoryProgressive = async (user, network, list, signal) =>
     ])
 
     signal.set(true)
+}
+
+export const fetchAssets = async (user, type = "imx") => {
+    const network = Wallet.getNetwork()
+    const url = API(network, `/v1/assets?user=${user}&status=${type}&order_by=updated_at`)
+    const { result } = await fetchWithCache(url, { expiration: 10 })
+    return result
 }
 
 export const ASSET_STATUS_NAMES = {

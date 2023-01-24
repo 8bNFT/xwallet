@@ -1,12 +1,12 @@
 <script>
     export let options, currentOption
 
-    $: typeof currentOption === "undefined" ? currentOption = options.length ? options[0] : undefined : null
+    $: typeof currentOption === "undefined" ? currentOption = options.length ? Object.values(options)[0] : undefined : null
 </script>
 
 <div class="tabs">
-    {#each options as option}
-        <div class="tab" class:active={currentOption === option} on:click={() => currentOption = option}>{option}</div>
+    {#each Object.entries(options) as [name, value]}
+        <div class="tab" class:active={currentOption === value} on:click={() => currentOption = value}>{name}</div>
     {/each}
 </div>
 

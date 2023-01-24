@@ -1,25 +1,36 @@
 <script>
     import { FlowStore } from "src/stores/generics";
     import { createNftTransferStore } from "src/stores/select";
+    import { Wallet } from "src/stores/wallet";
     import { fetchNFTs } from "src/util/api";
     import { DEFAULT_NFT_IMAGE } from "src/util/generic";
-    import { ASSET_STATUS_NAMES } from "src/util/imx";
+    import { ASSET_STATUS_NAMES, fetchAssets } from "src/util/imx";
     import Selectable from "./Selectable.svelte";
     import Submenu from "./Submenu.svelte";
     import Tabs from "./Tabs.svelte";
     import Toolbar from "./Toolbar.svelte";
 
+    const { User } = $Wallet
     const store = createNftTransferStore()
 
     let edit = false
     let length = 0
     let collections = 0
     let assets
+    let currentOption = Object.values(ASSET_STATUS_NAMES)[0]
 
-    const NFTPromise = (async () => {
-        assets = (await fetchNFTs()).result
+    const fetchUserAssets = async type => {
+        const result = await fetchAssets($User.address, type)
+        assets = result
         return assets
-    })()
+    }
+
+    const resetAndFetch = async type => {
+        edit = false
+        return NFTPromise = fetchUserAssets(type)
+    }
+
+    let NFTPromise
 
     const selectAll = () => NFTPromise.then((result) => result.forEach(token => store.select(token)))
 
@@ -32,8 +43,7 @@
 
     $: length = store.length(), $store
     $: collections = Object.entries($store).filter(([k, v]) => v.length).length
-
-    let currentOption = Object.keys(ASSET_STATUS_NAMES)[0]
+    $: resetAndFetch(currentOption)
 
     const createOptions = token => {
         const options = [
@@ -89,7 +99,7 @@
 
 <Selectable enabled={edit} targetsQuery=".grid .token" on:select={({ detail: { element, index }}) => store.select(assets[index])} on:deselect={({ detail: { element, index }}) => store.deselect(assets[index])}>
     <div class="tabs">
-        <Tabs bind:currentOption options={Object.keys(ASSET_STATUS_NAMES)} />
+        <Tabs bind:currentOption options={ASSET_STATUS_NAMES} />
     </div>
     <div class="grid">
         {#await NFTPromise}

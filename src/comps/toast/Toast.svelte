@@ -32,7 +32,8 @@
     .icon {
         height: 1.75em;
         width: 1.75em;
-        margin-right: 1rem
+        margin-right: 1rem;
+        flex-shrink: 0;
     }
 
     img {

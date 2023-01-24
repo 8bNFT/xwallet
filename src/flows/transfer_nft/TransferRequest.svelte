@@ -1,11 +1,11 @@
 <script>
-    import BasicInput from "src/comps/BasicInput.svelte";
+    import EnsInput from "src/comps/ENSInput.svelte";
     import NftTransferSummary from "src/comps/NftTransferSummary.svelte";
 
     export let formStore, validationStore, assets, assetStore
 </script>
 
-<BasicInput placeholder={"Receiver address"} label="Receiver" bind:value={$formStore.receiver} valid={$validationStore.receiver.valid}  error={$validationStore.receiver.error} />
+<EnsInput placeholder={"Receiver address"} label="Receiver" bind:value={$formStore.receiver} valid={$validationStore.receiver.valid}  error={$validationStore.receiver.error} />
 <!-- <div class="separator"></div> -->
 <div class="height scrollbar--thin">
     {#each assets as [collection, nfts] (collection.address)}

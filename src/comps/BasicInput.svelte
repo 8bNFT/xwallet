@@ -3,8 +3,9 @@
 </script>
 
 <script>
-    export let value, valid, error, label, placeholder = ""
+    export let value, valid, error, info, label, placeholder = "", disabled
     import ErrorMessage from "./ErrorMessage.svelte"
+    import InfoMessage from "./InfoMessage.svelte";
     import Label from "./Label.svelte"
 
     let active = false
@@ -17,9 +18,10 @@
         <slot name="label-left" slot="left" />
         <slot name="label-right" slot="right" />
     </Label>
-    <input {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value>
+    <input {placeholder} on:focus={() => active = true} on:blur={() => active = false} {id} bind:value {disabled}>
     
     <ErrorMessage {error} />
+    <InfoMessage {info} />
 </div>
 
 <style>

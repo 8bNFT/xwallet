@@ -2,8 +2,11 @@
     export let collection, assets, assetStore
 
     import Tooltip from "src/comps/Tooltip.svelte";
+    import { Wallet } from "src/stores/wallet";
 
     let toggled = false
+
+    const { User } = $Wallet
 </script>
 
 <div class="collection">
@@ -23,6 +26,11 @@
                         </div>
                         <div>
                             <div class="token__name">
+                                {#if $User.address !== asset.user}
+                                    <Tooltip title={"You are not the owner of this asset"}>
+                                        <span class="error">!</span>
+                                    </Tooltip>
+                                {/if}
                                 {asset.name}
                                 {#if assetStore}
                                     <span class="remove" on:click|stopPropagation={() => assetStore.deselect(asset)}>Remove</span>
@@ -91,8 +99,8 @@
     }
 
     .image img {
-        max-width: 100%;
-        max-height: 100%;
+        width: 100%;
+        height: 100%;
         object-fit: cover;
         display: block
     }
@@ -158,7 +166,14 @@
         opacity: 0;
     }
 
-    .remove:hover {
+    .error {
+        font-weight: 600;
+        display: block;
+        padding: 0 .25rem;
+        cursor: pointer
+    }
+
+    .remove:hover, .error {
         color: rgb(194, 3, 3);
     }
 

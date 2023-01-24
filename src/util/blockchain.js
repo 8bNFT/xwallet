@@ -2,6 +2,7 @@ import Web3 from "web3"
 import { Wallet } from "src/stores/wallet"
 import { parseWithDecimals } from "./cfx"
 import { NETWORKS } from "./imx"
+import { JsonRpcProvider } from "@ethersproject/providers"
 
 export const RPC_ENDPOINTS = {
     [NETWORKS.SANDBOX]: "https://eth-goerli.alchemyapi.io/v2/l8_rK0oy2uLAVLZwUVBimAc4qwcBTU2z",
@@ -79,4 +80,9 @@ export const getETHBalance = async ({ wallet, network }) => {
 export const getTokenBalance = ({ wallet, token, network }) => {
     if(token.id === "ETH") return getETHBalance({ wallet, network })
     return getERC20Balance({ wallet, token, network })
+}
+
+export const resolveENSDomain = (domain, network) => {
+    const provider = new JsonRpcProvider(RPC_ENDPOINTS[network || Wallet.getNetwork()])
+    return provider.resolveName(domain)
 }

@@ -67,3 +67,11 @@ export const extractError = err => {
   const message = error_text.includes("code=") ? "Error code: " + /code=([^\s,.]*)/gi.exec(error_text)[1] : error_text
   return err && message || "Unknown error or action denied."
 }
+
+export function debounce(func, timeout = 300){
+  let timer;
+  return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => { func.apply(this, args); }, timeout);
+  };
+}
