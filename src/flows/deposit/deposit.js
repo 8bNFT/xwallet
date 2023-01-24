@@ -1,7 +1,7 @@
 import { assetToUSD, parsedToRaw } from "src/util/cfx"
 import { getFromWallet, Wallet } from "src/stores/wallet"
 import { extractError, sliceAddress } from "src/util/generic"
-import { getCoreSDK, NETWORKS } from "src/util/imx"
+import { getCoreSDK, getEtherscanURL, NETWORKS } from "src/util/imx"
 
 const extractDepositPayload = (payload, token) => {
     if(token.id === "ETH"){
@@ -25,8 +25,8 @@ const buildDepositSuccess = ({ amount, amount_usd, symbol, hash }) => {
     const message = `You successfully deposited <span>${amount} ${symbol} ($${amount_usd})</span> to your Immutable X account.<br>It may take up to 10 minutes before your balance updates.`
     if(!hash) return message
 
-    const etherscan = Wallet.getNetwork() === NETWORKS.MAINNET ? "https://etherscan.io/tx/" : "https://goerli.etherscan.io/tx/"
-    return message + `<br><br>Transaction: <a target="_blank" href="${etherscan + hash}">${sliceAddress(hash)}</a>`
+    const etherscan = `${getEtherscanURL()}/tx/${hash}`
+    return message + `<br><br>Transaction: <a target="_blank" href="${etherscan}">${sliceAddress(hash)}</a>`
 }
 
 const parseDepositResult = (result, token) => {

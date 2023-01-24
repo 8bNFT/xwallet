@@ -58,6 +58,8 @@ export const getLink = network => new Link(getLinkURL(network))
 
 export const getCoreSDK = network => new ImmutableX(getCoreConfig(network))
 
+export const getEtherscanURL = network => URLS.ETHERSCAN[(network || Wallet.getNetwork())]
+
 const filterTokens = (tokens, validTokens) => {
     if(Array.isArray(tokens)) return tokens.filter(v => validTokens.includes(v.id))
     if(typeof tokens === "object"){
