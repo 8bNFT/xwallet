@@ -52,7 +52,7 @@ function createFlowStore(){
 	const coinInformation = token => !token ? null: set({ flow: "coin", props: { coin: token  } })
 
 	const depositNFT = asset => set({ flow: "depositNFT", props: { asset } })
-	const transferNFTs = assets => assets.length ? set({ flow: "transferNFT", props: { assets: { value: assets } } }) : null
+	const transferNFTs = store => store.length() ? set({ flow: "transferNFT", props: { assetStore: { value: store } } }) : null
 
 	return {
 		subscribe,
@@ -93,5 +93,3 @@ export const createOpenCloseStore = initial => {
 export const WalletDropdown = createOpenCloseStore()
 
 export const FlowStore = createFlowStore()
-
-export const ctxMenu = createGenericStore({})

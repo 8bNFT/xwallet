@@ -1,11 +1,9 @@
 <script>
     import { tick } from "svelte";
 
-
     export let target, options = {}
 
     let container
-    let open = false
     let style = ""
 
     const checkIfOutside = e => e.target !== target ? target = undefined : null

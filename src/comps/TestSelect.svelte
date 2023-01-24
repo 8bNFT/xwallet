@@ -1,5 +1,5 @@
 <script>
-    import { ctxMenu, FlowStore } from "src/stores/generics";
+    import { FlowStore } from "src/stores/generics";
     import { createNftTransferStore } from "src/stores/select";
     import { fetchNFTs } from "src/util/api";
     import { DEFAULT_NFT_IMAGE } from "src/util/generic";
@@ -77,19 +77,12 @@
 
 <svelte:body on:keydown={edit ? keyCombo : null} />
 
-<!-- <button on:click={() => edit = !edit}>Toggle edit ({edit})</button> -->
-
-<!-- {#if length}
-    <span>Transfer {length} {length === 1 ? "token" : "tokens"}</span>
-    <button on:click={store.reset}>Clear selection</button>
-{/if} -->
-
 <!-- {ASSET_STATUS_NAMES[currentOption]} -->
 
 <Submenu bind:target={submenuTarget} {options} />
 
 {#if edit}
-    <Toolbar primaryAction={{ text: "Transfer tokens", disabled: !edit || ($store && !store.length()), action: () => FlowStore.transferNFTs(parseSelectedNFTs()) }} secondaryAction={{ text: "Cancel", action: () => (store.reset(), edit = false) }}>
+    <Toolbar primaryAction={{ text: "Transfer tokens", disabled: !edit || ($store && !store.length()), action: () => (edit = false, FlowStore.transferNFTs(store)) }} secondaryAction={{ text: "Cancel", action: () => (store.reset(), edit = false) }}>
         Transfer {length} {length === 1 ? "token" : "tokens"} from {collections} {collections === 1 ? "collection" : "collections"}
     </Toolbar>
 {/if}
@@ -224,7 +217,7 @@
         max-width: 100%;
         object-fit: contain;
         pointer-events: none;
-        user-select: none;
+        user-select: none
     }
 
     .image {

@@ -9,12 +9,24 @@
     import { Wallet } from "src/stores/wallet";
     import merge from "lodash.merge"
     import TransferRequest from "./TransferRequest.svelte";
+    import TransferReview from "./TransferReview.svelte";
+    import { handleNftTransferCall } from "./transfer"
 
     const { User } = $Wallet
 
     const STEP_STORE = createStepStore(3, false)
     let loading = false
 
+    const assetStore = $FlowStore.props.assetStore.value
+    const parseAssets = assets => {
+        return Object.entries(assets).reduce((acc, [address, assets]) => {
+            if(!assets.length) return acc
+            const collection = assets[0].collection
+            return [...acc, [collection, assets]]
+        }, [])
+    }
+
+    $: assets = parseAssets($assetStore)
     // add validation of ownership!
     const { resetAll: resetFlow, stores: [payloadStore, validationStore] } = createGenericStores(
         withValidation(
@@ -30,7 +42,7 @@
                         reactiveRevalidation: false
                     }
                 },
-                ($FlowStore.props || {})
+                // ($FlowStore.props || {})
             )
         )
     )
@@ -54,7 +66,7 @@
                     }
                     return STEP_STORE.next
                 },
-                disabled: () => !allFilled
+                disabled: () => loading
             },
             secondary: {
                 text: "Back",
@@ -69,7 +81,24 @@
     $: steps = [
         {
             component: TransferRequest,
-            props: { assets: $payloadStore.assets },
+            props: { assets, assetStore },
+            footer: {
+                primary: {
+                    text: () => `Review transfer`,
+                    action: () => async () => {
+                        // loading = true
+                        // resultStore.set(await handleDepositCall({ payload: $payloadStore }))
+                        // loading = false
+                        STEP_STORE.next()
+                    },
+                    disabled: () => !allFilled || !$User,
+                    // loading: () => loading && "Transfer  in progress" || false
+                }
+            }
+        },
+        {
+            component: TransferReview,
+            props: { assets },
             footer: {
                 primary: {
                     text: () => `Transfer NFTs`,
@@ -79,8 +108,8 @@
                         // loading = false
                         STEP_STORE.next()
                     },
-                    disabled: () => false,
-                    loading: () => loading && "Transfer  in progress" || false
+                    disabled: () => !$User,
+                    loading: () => loading && "Transfer in progress" || false
                 }
             }
         },

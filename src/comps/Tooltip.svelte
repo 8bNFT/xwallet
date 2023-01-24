@@ -1,5 +1,6 @@
 <script>
-    import { tick } from "svelte";
+    import { portal } from "src/actions/portal";
+	import { tick } from "svelte"
 
 
 	export let title = '';
@@ -7,7 +8,7 @@
 	let x;
 	let y;
 	let parent;
-	let tooltip
+	let tooltip;
 
 	const newCoordSystem = (tooltip) => {
 		let parent = tooltip.parentNode;
@@ -52,7 +53,7 @@
 </div>
 
 {#if isHovered}
-	<div bind:this={tooltip} style="top: {y}px; left: {x}px;" class="tooltip">{title}</div>
+	<div use:portal bind:this={tooltip} style="top: {y}px; left: {x}px;" class="tooltip">{title}</div>
 {/if}
 
 <style>
