@@ -2,11 +2,11 @@
     export let formStore, validationStore
 
     import { Wallet } from "src/stores/wallet";
-    import BasicInput from "src/comps/BasicInput.svelte";
     import CfxInput from "src/comps/CfxInput.svelte";
     import Select from "src/comps/Select.svelte";
     import LabelButton from "src/comps/LabelButton.svelte";
     import { DEFAULT_TOKEN_ICON } from "src/util/generic";
+    import EnsInput from "src/comps/ENSInput.svelte";
 
     const { Balances } = $Wallet
 
@@ -37,4 +37,4 @@
 </CfxInput>
 {/if}
 <div class="separator"></div>
-<BasicInput placeholder={"Receiver address"} label="Receiver" bind:value={$formStore.receiver} valid={$validationStore.receiver.valid}  error={$validationStore.receiver.error} />
+<EnsInput placeholder={"Receiver address"} label="Receiver" bind:value={$formStore.receiver} valid={$validationStore.receiver.valid}  error={$validationStore.receiver.error} />
