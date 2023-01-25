@@ -23,7 +23,6 @@
     "events": "^3.3.0",
     "lodash.merge": "^4.6.2",
     "stream-browserify": "^3.0.0",
-    "svelte-spa-router": "^3.3.0",
-    "web3": "^1.7.4"
+    "svelte-spa-router": "^3.3.0"
   }
 }

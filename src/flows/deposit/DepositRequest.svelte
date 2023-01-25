@@ -12,6 +12,7 @@
     const { User, Tokens } = $Wallet
 
     let coin
+    let address
 
     const balancesToOptions = (balances) => {
         const options = []
@@ -27,17 +28,18 @@
         return options
     }
 
-    const fetchBalance = async (newCoin) => {
-        if(coin === newCoin) return
+    const fetchBalance = async (newCoin, wallet) => {
+        if(coin === newCoin && address === wallet) return
         coin = newCoin
+        address = wallet
 
-        if($formStore[coin]) return
-        $formStore[coin] = limitPrecision(await getTokenBalance({ wallet: $User.address, token: $Tokens[coin] }), $Tokens[coin].precision)
+        // if($formStore[coin]) return
+        $formStore[coin] = limitPrecision(await getTokenBalance({ wallet, token: $Tokens[coin] }), $Tokens[coin].precision)
     }
 
     const setAmount = () => $formStore.amount = $formStore[coin]
 
-    $: fetchBalance($formStore.coin)
+    $: if($User) fetchBalance($formStore.coin, $User.address)
 </script>
 
 <Select bind:value={$formStore.coin} options={balancesToOptions($Tokens)} />

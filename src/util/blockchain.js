@@ -1,4 +1,4 @@
-import Web3 from "web3"
+import { ethers } from "ethers"
 import { Wallet } from "src/stores/wallet"
 import { parseWithDecimals } from "./cfx"
 import { NETWORKS } from "./imx"
@@ -30,11 +30,11 @@ const CONTRACT_ABI = {
 
 const balanceCache = {}
 
-export const buildWeb3 = network => {
-    network = network || Wallet.getNetwork()
-    if(!network) throw "No network specified (MAINNET|SANDBOX|DEV)"
+export const buildEthersProvider = _network => {
+    const network = _network || Wallet.getNetwork()
+    if(!network) throw "No network specified. Options: " + Object.keys(NETWORKS).join(", ")
 
-    return new Web3(RPC_ENDPOINTS[network])
+    return new JsonRpcProvider(RPC_ENDPOINTS[network])
 }
 
 const getBalanceCacheKey = ({ wallet, token, network }) => `${wallet.toLowerCase()}|${token && token.id + "|" || ""}${network}`
@@ -56,13 +56,19 @@ export const getERC20Balance = async ({ wallet, token, network }) => {
     const cache = getBalanceCache({ wallet, token, network })
     if(cache) return cache
 
-    const web3 = buildWeb3(network)
+    const provider = buildEthersProvider(network)
     const ABI = CONTRACT_ABI.ERC20
-    const contract = new web3.eth.Contract(ABI, token.token_address)
+    const contract = new ethers.Contract(token.token_address, ABI, provider)
 
-    const balance = await contract.methods.balanceOf(wallet).call()
+    let balance
+    try{
+        balance = (await contract.balanceOf(wallet)).toString()
+    }catch(err){
+        console.log("[ERC20 Contract]", err)
+        balance = 0
+    }
+
     const parsedBalance = parseWithDecimals(balance, token.decimals, token.precision)
-
     return setBalanceCache({ data: parsedBalance, wallet, token, network })
 }
 
@@ -70,8 +76,8 @@ export const getETHBalance = async ({ wallet, network }) => {
     const cache = getBalanceCache({ wallet, network })
     if(cache) return cache
 
-    const web3 = buildWeb3(network)
-    const balance = await web3.eth.getBalance(wallet)
+    const provider = buildEthersProvider(network)
+    const balance = (await provider.getBalance(wallet)).toString()
     const parsedBalance = parseWithDecimals(balance, 18, 10)
     
     return setBalanceCache({ wallet, network, data: parsedBalance })
