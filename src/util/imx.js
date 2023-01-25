@@ -95,8 +95,7 @@ const transformBridging = (bridge, from = false) => {
     return temp
 }
 
-const fetchWithCache = async (url, ..._config) => {
-    const { expiration, ...config } = _config
+const fetchWithCache = async (url, { expiration, ...config  } = {}) => {
     if(eventHistory[url] && eventHistory[url].expires > Date.now()) return eventHistory[url].data
     const response = await fetch(url, config)
     const json = await response.json()
@@ -120,13 +119,15 @@ const transformTransfers = (transfers, from = false) => {
     const temp = []
 
     for(let { user, receiver, timestamp, token, transaction_id } of transfers){
-        if(!["ETH", "ERC20"].includes(token.type)) continue
+        if(!["ETH", "ERC20", "ERC721"].includes(token.type)) continue
 
         temp.push({
             transaction_id,
             event: from ? "transfer_out" : "transfer_in",
             token: token.type === "ETH" && "ETH" || token.data.token_address,
-            amount: parseWithDecimals(`${from && '-' || ''}${token.data.quantity}`, token.data.decimals),
+            collection: token.type === "ERC721" && "ERC721",
+            token_id: token.data.token_id,
+            amount: token.type === "ERC721" ? false : parseWithDecimals(`${from && '-' || ''}${token.data.quantity}`, token.data.decimals),
             from: user,
             to: receiver,
             timestamp: new Date(timestamp)
@@ -229,10 +230,10 @@ export const getEventHistoryProgressive = async (user, network, list, signal) =>
     signal.set(true)
 }
 
-export const fetchAssets = async (user, type = "imx") => {
-    const network = Wallet.getNetwork()
+export const fetchAssets = async (user, type = "imx", _network = false) => {
+    const network = _network || Wallet.getNetwork()
     const url = API(network, `/v1/assets?user=${user}&status=${type}&order_by=updated_at`)
-    const { result } = await fetchWithCache(url, { expiration: 10 })
+    const { result } = await fetchWithCache(url, { expiration: 3 })
     return result
 }
 

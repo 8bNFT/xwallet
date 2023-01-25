@@ -21,7 +21,7 @@
         const domain = d
         if(!domain.endsWith(".eth") || domain.includes(" ")) return
 
-        ToastStore.warning("Resolving ETH address for " + domain)
+        ToastStore.info("Resolving ETH address for " + domain)
 
         disabled = "true"
         info = "Resolving " + domain

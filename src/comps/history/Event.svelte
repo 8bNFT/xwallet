@@ -55,7 +55,9 @@
         {/if}
     </div>
     <div class="amount" class:negative={event.amount < 0}>
-        {formatCryptoDisplay(event.amount)} {$Tokens[event.token].symbol}
+        {#if event.amount !== false}
+            {formatCryptoDisplay(event.amount)} {$Tokens[event.token].symbol}
+        {/if}
     </div>
 </div>
 

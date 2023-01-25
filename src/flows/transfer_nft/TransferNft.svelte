@@ -10,27 +10,17 @@
     import TransferRequest from "./TransferRequest.svelte";
     import TransferReview from "./TransferReview.svelte";
     import { handleNftTransferCall } from "./transfer"
+    import { parseAssets, flattenAssets } from "./util";
+
+    let loading = false
 
     const { User } = $Wallet
-
-    $: console.log($FlowStore.props)
+    const STEP_STORE = createStepStore(3, false)
     const { assetStore, promise } = $FlowStore.props
     
-    const parseAssets = assets => {
-        return Object.entries(assets).reduce((acc, [address, assets]) => {
-            if(!assets.length) return acc
-            const collection = assets[0].collection
-            return [...acc, [{...collection, address}, assets]]
-        }, [])
-    }
-
-    const flattenAssets = assets => Object.values(assets).reduce((acc, v) => [...acc, ...v], [])
-
     $: assets = parseAssets($assetStore)
     $: if(!assets.length) FlowStore.reset()
 
-    const STEP_STORE = createStepStore(3, false)
-    let loading = false
     
     const { resetAll: resetFlow, stores: [payloadStore, validationStore] } = createGenericStores(
         withValidation(
@@ -77,7 +67,7 @@
         },
         props: { formStore: payloadStore, validationStore },
         close: () => {
-            promise.reject()
+            promise.reject("FLOW_CLOSED")
             FlowStore.reset()
         }
     }
@@ -103,7 +93,7 @@
                         loading = true
                         resultStore.set(await handleNftTransferCall({ receiver: $payloadStore.receiver, tokens: flattenAssets($assetStore) }))
                         loading = false
-                        $resultStore.error ? promise.reject() : promise.resolve()
+                        $resultStore.error ? promise.reject($resultStore) : promise.resolve($resultStore)
                         STEP_STORE.next()
                     },
                     disabled: () => !$User,

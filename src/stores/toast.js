@@ -34,6 +34,7 @@ function createToastStore(){
 		subscribe: notificationsCleanup.subscribe,
         send,
         success: (message, timeout) => send(message, "success", timeout),
+        info: (message, timeout) => send(message, "info", timeout),
         warning: (message, timeout) => send(message, "warning", timeout),
         error: (message, timeout) => send(message, "error", timeout),
 		clearAll: () => notificationStore.set([])
