@@ -3,7 +3,7 @@
     import Result from "src/flows/Result.svelte";
     import { createStepStore } from "src/stores/steps";
     import { createGenericStore, createGenericStores, withValidation } from "src/stores/generics"
-    import { FlowStore } from 'src/stores/generics';
+    import { FlowStore } from "src/stores/flows";
     import { allValid, validate } from "src/validation/validate";
     import { isAssetOwner } from "src/validation/validators";
     import { Wallet } from "src/stores/wallet";

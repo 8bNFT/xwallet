@@ -3,21 +3,19 @@
     import Result from "src/flows/Result.svelte";
     import { createStepStore } from "src/stores/steps";
     import { createGenericStore, createGenericStores, withValidation } from "src/stores/generics"
-    import { FlowStore } from 'src/stores/generics';
+    import { FlowStore } from 'src/stores/flows';
     import { allValid, validate } from "src/validation/validate";
     import { isNotEq, isEthAddress, isIMXUser } from "src/validation/validators";
     import { Wallet } from "src/stores/wallet";
-    import merge from "lodash.merge"
     import TransferRequest from "./TransferRequest.svelte";
     import TransferReview from "./TransferReview.svelte";
     import { handleNftTransferCall } from "./transfer"
 
     const { User } = $Wallet
 
-    const STEP_STORE = createStepStore(3, false)
-    let loading = false
-
-    const assetStore = $FlowStore.props.assetStore.value
+    $: console.log($FlowStore.props)
+    const { assetStore, promise } = $FlowStore.props
+    
     const parseAssets = assets => {
         return Object.entries(assets).reduce((acc, [address, assets]) => {
             if(!assets.length) return acc
@@ -26,31 +24,33 @@
         }, [])
     }
 
+    const flattenAssets = assets => Object.values(assets).reduce((acc, v) => [...acc, ...v], [])
+
     $: assets = parseAssets($assetStore)
     $: if(!assets.length) FlowStore.reset()
-    // add validation of ownership!
+
+    const STEP_STORE = createStepStore(3, false)
+    let loading = false
+    
     const { resetAll: resetFlow, stores: [payloadStore, validationStore] } = createGenericStores(
         withValidation(
-            merge(
-                {
-                    receiver: {
-                        value: "",
-                        validators: [
-                            [isEthAddress, "Invalid ETH address"], 
-                            [(v) => isNotEq(v.toLowerCase(), $User.address), "Receiver can't be same as sender"],
-                            [async (v, controller) => isIMXUser(v, controller, Wallet.getNetwork()), "Receiver not registered on L2"]
-                        ],
-                        reactiveRevalidation: false
-                    }
-                },
-                // ($FlowStore.props || {})
-            )
+            {
+                receiver: {
+                    value: "",
+                    validators: [
+                        [isEthAddress, "Invalid ETH address"], 
+                        [v => isNotEq(v.toLowerCase(), $User.address), "Receiver can't be same as sender"],
+                        [async (v, controller) => isIMXUser(v, controller, Wallet.getNetwork()), "Receiver not registered on L2"]
+                    ],
+                    reactiveRevalidation: false
+                }
+            }
         )
     )
     const resultStore = createGenericStore({})
-
     const emptyValidationController = {}
     const validationController = {}
+
     $: allFilled = allValid({ payloadStore: $payloadStore, currentController: emptyValidationController, validationStore: $validationStore, emptyInvalid: true }) === true
     $: validate({ payloadStore: $payloadStore, validationStore: validationStore, currentController: validationController})
 
@@ -76,7 +76,10 @@
             }
         },
         props: { formStore: payloadStore, validationStore },
-        close: () => FlowStore.reset()
+        close: () => {
+            promise.reject()
+            FlowStore.reset()
+        }
     }
 
     $: steps = [
@@ -86,14 +89,7 @@
             footer: {
                 primary: {
                     text: () => `Review transfer`,
-                    action: () => async () => {
-                        // loading = true
-                        // resultStore.set(await handleDepositCall({ payload: $payloadStore }))
-                        // loading = false
-                        STEP_STORE.next()
-                    },
-                    disabled: () => !allFilled || !$User,
-                    // loading: () => loading && "Transfer  in progress" || false
+                    disabled: () => !allFilled || !$User || flattenAssets($assetStore).some(v => v.user !== $User?.address).length,
                 }
             }
         },
@@ -104,9 +100,10 @@
                 primary: {
                     text: () => `Transfer NFTs`,
                     action: () => async () => {
-                        // loading = true
-                        // resultStore.set(await handleDepositCall({ payload: $payloadStore }))
-                        // loading = false
+                        loading = true
+                        resultStore.set(await handleNftTransferCall({ receiver: $payloadStore.receiver, tokens: flattenAssets($assetStore) }))
+                        loading = false
+                        $resultStore.error ? promise.reject() : promise.resolve()
                         STEP_STORE.next()
                     },
                     disabled: () => !$User,
@@ -119,7 +116,7 @@
             title: false,
             props: {
                 resultStore: $resultStore,
-                title: () => $resultStore.error ? "Oops! Deposit failed." : "Deposit success!"
+                title: () => $resultStore.error ? "Oops! Transfer failed." : "Transfers success!"
             }, 
             footer: {
                 primary: {

@@ -1,7 +1,7 @@
 <script>
     export let defaultBalances
 
-    import { FlowStore } from "src/stores/generics";
+    import { FlowStore } from "src/stores/flows";
     import { Wallet } from "src/stores/wallet";
     import { formatFiatDisplay, assetToUSD } from "src/util/cfx";
     import { filterOfframpTokens } from "src/util/imx";

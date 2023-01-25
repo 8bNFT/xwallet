@@ -104,6 +104,8 @@ const fetchWithCache = async (url, ..._config) => {
     return json
 }
 
+const invalidateCache = url => delete eventHistory[url]
+
 export const getDeposits = async (user, network) => {
     const { result } = await fetchWithCache(API(network, `/v1/deposits?page_size=200&user=${user}`))
     return transformBridging(result)
@@ -233,6 +235,8 @@ export const fetchAssets = async (user, type = "imx") => {
     const { result } = await fetchWithCache(url, { expiration: 10 })
     return result
 }
+
+export const invalidateAssetsCache = user => Object.keys(eventHistory).filter(k => k.includes(`/v1/assets?user=${user}`)).forEach(invalidateCache)
 
 export const ASSET_STATUS_NAMES = {
     "ImmutableX": "imx",

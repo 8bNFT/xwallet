@@ -90,7 +90,7 @@ export class IMXLink extends BaseWalletClass {
             ]
         )
 
-        if(!result || !result.length) throw "Error occured while try to process your transfer"
+        if(!result || !result.length) throw "Error occured while trying to process your transfer"
         const { status, txId: transfer_id, amount, message } = result[0]
         return {
             status,
@@ -98,6 +98,19 @@ export class IMXLink extends BaseWalletClass {
             amount,
             message
         }
+    }
+
+    async batchNftTransfer(nfts){
+        const payload = []
+        for(let { type, receiver: toAddress, tokenId, tokenAddress } of nfts){
+            if(type !== "ERC721") continue
+            payload.push({ type, toAddress, tokenAddress, tokenId })
+        }
+
+        const { result } = await this.Link.batchNftTransfer(payload)
+        if(!result || !result.length) throw "Error occured while trying to process transfers"
+
+        return { transfer_ids: result.map(v => v.txId) }
     }
     
     async deposit({ type, symbol, tokenAddress, tokenId, amount_parsed }){

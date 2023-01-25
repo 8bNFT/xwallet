@@ -4,7 +4,7 @@
     import { createStepStore } from "src/stores/steps";
     import { createToggleStore } from "src/stores/toggle";
     import { createGenericStore, createGenericStores, withValidation } from "src/stores/generics"
-    import { FlowStore } from 'src/stores/generics';
+    import { FlowStore } from "src/stores/flows";
     import { allValid, validate } from "src/validation/validate";
     import { isGtOrEq, isLtOrEq, isNumber, isPositiveNumber, verifyPrecision } from "src/validation/validators";
     import { Wallet } from "src/stores/wallet";

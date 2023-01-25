@@ -1,5 +1,5 @@
 <script>
-    import { FlowStore } from 'src/stores/generics';    
+    import { FlowStore } from "src/stores/flows";
     import Transfer from './transfer/Transfer.svelte'
     import Deposit from './deposit/Deposit.svelte';
     import Onramp from './onramp/Onramp.svelte';

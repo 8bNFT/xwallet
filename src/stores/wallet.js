@@ -2,7 +2,8 @@ import { parseWithDecimals } from 'src/util/cfx.js';
 import { get, readable, writable } from 'svelte/store';
 import { API } from 'src/util/imx.js';
 import { WalletManager } from 'src/wallets/wallet_manager.js';
-import { createGenericStore, FlowStore } from './generics.js';
+import { createGenericStore } from './generics.js';
+import { FlowStore } from "src/stores/flows";
 
 const TOKEN_PRICE_API = "https://tools.immutable.com/token-api/tokens/"
 

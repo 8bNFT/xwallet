@@ -1,5 +1,5 @@
 <script>
-    import { FlowStore } from "src/stores/generics";
+    import { FlowStore } from "src/stores/flows";
     import { createNftTransferStore } from "src/stores/select";
     import { Wallet } from "src/stores/wallet";
     import { fetchNFTs } from "src/util/api";
@@ -43,7 +43,7 @@
 
     $: length = store.length(), $store
     $: collections = Object.entries($store).filter(([k, v]) => v.length).length
-    $: resetAndFetch(currentOption)
+    $: if($User) resetAndFetch(currentOption)
 
     const createOptions = token => {
         const options = [
@@ -71,28 +71,18 @@
         submenuTarget = target
     }
 
-    const parseSelectedNFTs = () => {
-        const nfts = Object.entries($store).filter(([k, v]) => v.length)
-        if(!nfts.length) return []
+    const transferNFTs = async () => {
         edit = false
-        return nfts.reduce((acc, current) => [...acc, [current[1][0].collection, current[1]]], [])
-    }
-
-    const getSelectedNFT = () => {
-        const nft = Object.entries($store).filter(([k, v]) => v.length)[0]
-        const [ address, token ] = [nft[0], Array.from(nft[1])[0]]
-        return token
+        await FlowStore.transferNFTs(store).then(() => resetAndFetch(currentOption)).catch(() => {})
     }
 </script>
 
 <svelte:body on:keydown={edit ? keyCombo : null} />
 
-<!-- {ASSET_STATUS_NAMES[currentOption]} -->
-
 <Submenu bind:target={submenuTarget} {options} />
 
 {#if edit}
-    <Toolbar primaryAction={{ text: "Transfer tokens", disabled: !edit || ($store && !store.length()), action: () => (edit = false, FlowStore.transferNFTs(store)) }} secondaryAction={{ text: "Cancel", action: () => (store.reset(), edit = false) }}>
+    <Toolbar primaryAction={{ text: "Transfer tokens", disabled: !edit || ($store && !store.length()), action: transferNFTs }} secondaryAction={{ text: "Cancel", action: () => (store.reset(), edit = false) }}>
         Transfer {length} {length === 1 ? "token" : "tokens"} from {collections} {collections === 1 ? "collection" : "collections"}
     </Toolbar>
 {/if}

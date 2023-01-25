@@ -33,7 +33,6 @@
         coin = newCoin
         address = wallet
 
-        // if($formStore[coin]) return
         $formStore[coin] = limitPrecision(await getTokenBalance({ wallet, token: $Tokens[coin] }), $Tokens[coin].precision)
     }
 

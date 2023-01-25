@@ -1,6 +1,6 @@
 <script>
     import StepperForm from "src/comps/modal/StepperModal.svelte";
-    import { FlowStore } from 'src/stores/generics';
+    import { FlowStore } from "src/stores/flows";
     import TransferRequest from "./TransferRequest.svelte";
     import TransferReview from "./TransferReview.svelte";
     import Result from "src/flows/Result.svelte";

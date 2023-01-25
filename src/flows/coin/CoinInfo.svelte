@@ -1,5 +1,5 @@
 <script>
-    import { FlowStore } from 'src/stores/generics';
+    import { FlowStore } from "src/stores/flows";
     import { Wallet } from "src/stores/wallet";
     import { filterOnrampTokens, filterOfframpTokens } from "src/util/imx";
     import { DEFAULT_TOKEN_ICON } from "src/util/generic";

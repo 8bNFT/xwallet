@@ -41,36 +41,6 @@ export function withValidation(payload){
 	return [payloadStore, validationStore]
 }
 
-function createFlowStore(){
-	const { subscribe, set, update, reset } = createGenericStore({ flow: false, props: {} })
-
-	const deposit = token => set({ flow: "deposit", props: token && { coin: { value: token } } || {} })
-	const withdraw = token => set({ flow: "withdraw", props: token && { coin: { value: token } } || {} })
-	const transfer = token => set({ flow: "transfer", props: token && { coin: { value: token } } || {} })
-	const buy = token => set({ flow: "buy", props: token && { coin: token } || {} })
-	const sell = token => set({ flow: "sell", props: token && { coin: { value: token } } || {} })
-	const coinInformation = token => !token ? null: set({ flow: "coin", props: { coin: token  } })
-
-	const depositNFT = asset => set({ flow: "depositNFT", props: { asset } })
-	const transferNFTs = store => store.length() ? set({ flow: "transferNFT", props: { assetStore: { value: store } } }) : null
-
-	return {
-		subscribe,
-		set,
-		update,
-		reset,
-		deposit,
-		withdraw,
-		transfer,
-		buy,
-		sell,
-		send: transfer,
-		coinInformation,
-		depositNFT,
-		transferNFTs
-	}
-}
-
 export const createOpenCloseStore = initial => {
 	let current = initial || false
 	const { subscribe, set: _set } = writable(current);
@@ -91,5 +61,3 @@ export const createOpenCloseStore = initial => {
 }
 
 export const WalletDropdown = createOpenCloseStore()
-
-export const FlowStore = createFlowStore()

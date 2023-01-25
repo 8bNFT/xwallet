@@ -3,7 +3,7 @@
     import Result from "src/flows/Result.svelte";
     import { createStepStore } from "src/stores/steps";
     import { createGenericStore, createGenericStores, withValidation } from "src/stores/generics"
-    import { FlowStore } from 'src/stores/generics';
+    import { FlowStore } from "src/stores/flows";
     import { Wallet } from "src/stores/wallet";
     import { filterOfframpTokens } from "src/util/imx";
     import OfframpRequest from "./OfframpRequest.svelte";

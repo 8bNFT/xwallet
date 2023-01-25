@@ -1,5 +1,6 @@
 <script>
-  import { FlowStore, WalletDropdown } from "src/stores/generics";
+  import { WalletDropdown } from "src/stores/generics";
+  import { FlowStore } from "src/stores/flows";
   import { Wallet } from "src/stores/wallet";
   import { formatCryptoDisplay, formatFiatDisplay, assetToUSD } from "src/util/cfx";
   import { DEFAULT_TOKEN_ICON, generateFakeBalances } from "src/util/generic";
