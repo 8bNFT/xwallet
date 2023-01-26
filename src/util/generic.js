@@ -57,7 +57,7 @@ export const copyToClipboard = (text, notificationText) => {
 
 export const getWalletNetwork = () => {
   if(window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.href.includes("testnet") || window.location.href.includes("sandbox")) return NETWORKS.SANDBOX
-  if(window.location.includes("dev") || window.location.includes("devnet")) return NETWORKS.DEV
+  if(window.location.href.includes("dev") || window.location.href.includes("devnet")) return NETWORKS.DEV
   return NETWORKS.MAINNET
 }
 
