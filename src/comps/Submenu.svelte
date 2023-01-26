@@ -13,13 +13,15 @@
         if(!target || !container) return
         const rect = target.getBoundingClientRect()
         const xaxis = rect.left + container.clientWidth > window.innerWidth ? rect.right - container.clientWidth : rect.left
-        style = `top: ${rect.bottom + 10}px; left: ${xaxis}px`
+        const yxis = rect.bottom + container.clientHeight > window.innerHeight ? rect.top - container.clientHeight : rect.bottom
+        
+        style = `top: ${yxis}px; left: ${xaxis}px`
     }
 
     $: if(target) (calculatePosition())
 </script>
 
-<svelte:window on:click={checkIfOutside} on:scroll={calculatePosition} on:resize={calculatePosition} />
+<svelte:window on:click={checkIfOutside} on:scroll={() => target = undefined} on:resize={calculatePosition} />
 
 {#if target}
     <div bind:this={container} class="holder" {style}>

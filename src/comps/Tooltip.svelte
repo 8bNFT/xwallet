@@ -1,9 +1,9 @@
 <script>
+	export let title = '';
+
     import { portal } from "src/actions/portal";
 	import { tick } from "svelte"
 
-
-	export let title = '';
 	let isHovered = false;
 	let x;
 	let y;
@@ -52,7 +52,7 @@
 	<slot />
 </div>
 
-{#if isHovered}
+{#if isHovered && title}
 	<div use:portal bind:this={tooltip} style="top: {y}px; left: {x}px;" class="tooltip">{title}</div>
 {/if}
 

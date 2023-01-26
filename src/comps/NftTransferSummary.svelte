@@ -2,11 +2,9 @@
     export let collection, assets, assetStore
 
     import Tooltip from "src/comps/Tooltip.svelte";
-    import { Wallet } from "src/stores/wallet";
+    import { isAssetOwner } from "src/validation/validators";
 
     let toggled = false
-
-    const { User } = $Wallet
 </script>
 
 <div class="collection">
@@ -26,7 +24,7 @@
                         </div>
                         <div>
                             <div class="token__name">
-                                {#if $User.address !== asset.user}
+                                {#if !isAssetOwner(asset)}
                                     <Tooltip title={"You are not the owner of this asset"}>
                                         <span class="error">!</span>
                                     </Tooltip>

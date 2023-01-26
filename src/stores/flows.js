@@ -20,7 +20,8 @@ function createFlowStore(){
 	const sell = (token, promise) => set({ flow: "sell", props: token && { coin: { value: token } } || {} })
 	const coinInformation = (token, promise) => !token ? null: set({ flow: "coin", props: { coin: token  } })
 
-	const depositNFT = (asset, promise) => set({ flow: "depositNFT", props: { asset } })
+	const depositNFT = (token, promise) => set({ flow: "depositNFT", props: { token } })
+	const withdrawNFT = (token, promise) => set({ flow: "withdrawNFT", props: { token } })
 	const transferNFTs = (store, promise) => store.length() ? set({ flow: "transferNFT", props: { assetStore: store, promise } }) : null
 
     const wrapWithPromise = fn => {
@@ -44,6 +45,7 @@ function createFlowStore(){
 		send: transfer,
 		coinInformation,
 		depositNFT: wrapWithPromise(depositNFT),
+		withdrawNFT: wrapWithPromise(withdrawNFT),
 		transferNFTs: wrapWithPromise(transferNFTs)
 	}
 }

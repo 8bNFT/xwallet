@@ -5,6 +5,7 @@
     import NFT from "./NFT.svelte"
     import { getEtherscanURL, NETWORKS } from "src/util/imx";
     import { Wallet } from "src/stores/wallet";
+    import { FlowStore } from "src/stores/flows";
 
     let submenuTarget
     let options
@@ -12,9 +13,9 @@
     const createOptions = nft => {
         const options = [
             ...(nft.status === "imx" && [{text: "Transfer NFT", action: () => initSelect(nft) }] || []),
-            ...(nft.status === "imx" && [{ text: "Withdraw NFT (soon)" }] || []),
-            ...(nft.status === "withdrawable" && [{ text: "Finalize NFT withdrawal (soon)" }] || []),
-            ...(nft.status === "eth" && [{ text: "Deposit NFT (soon)" }] || []),
+            ...(nft.status === "imx" && [{ text: "Withdraw NFT", action: () => FlowStore.withdrawNFT(nft) }] || []),
+            ...(nft.status === "withdrawable" && [{ text: "Finalize NFT withdrawal", action: () => FlowStore.withdrawNFT(nft) }] || []),
+            ...(nft.status === "eth" && [{ text: "Deposit NFT", action: () => FlowStore.depositNFT(nft) }] || []),
             ...[(nft.status === "eth" && Wallet.getNetwork() === NETWORKS.MAINNET) && { text: "View on Etherscan", action: () => window.open(`${getEtherscanURL()}/nft/${nft.token_address}/${nft.token_id}`, "_blank")} || { text: "View on Immutascan", action: () => window.open(`https://immutascan.io/address/${nft.token_address}/${nft.token_id}`, "_blank") }]
         ]
         return options

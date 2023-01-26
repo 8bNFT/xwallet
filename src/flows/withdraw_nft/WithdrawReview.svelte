@@ -6,6 +6,10 @@
 </script>
 
 <div class="holder">
+    {#if token.status === "imx"}
+        <div class="warning">Once you start a withdrawal it <b>can't be cancelled.</b><br/>This step can take between 24 - 48 hours.</div>
+        <div class="separator"></div>
+    {/if}
     <div class="image">
         <img src={token.image_url} />
     </div>
@@ -66,5 +70,16 @@
         color: var(--grey);
         font-size: .95rem;
         margin-top: .25rem
+    }
+
+    .warning {
+        font-size: .8rem;
+        color: var(--grey);
+        line-height: 1.35em;
+    }
+
+    .warning b {
+        color: black;
+        font-weight: 600
     }
 </style>

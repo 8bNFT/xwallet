@@ -1,5 +1,6 @@
 import { ToastStore } from "src/stores/toast"
 import { sliceAddress } from "src/util/generic"
+import { DummyWallet } from "./dummy_wallet"
 import { Gamestop } from "./gamestop"
 import { getLastUsedWallet } from "./helpers"
 import { IMXLink } from "./imx_link"
@@ -12,6 +13,7 @@ export class WalletManager {
             [MetaMask.getIdentifier()]: new MetaMask(network),
             [Gamestop.getIdentifier()]: new Gamestop(network),
             [IMXLink.getIdentifier()]: new IMXLink(network),
+            ...(["localhost", "127.0.0.1"].includes(window.location.hostname) && {[DummyWallet.getIdentifier()]: new DummyWallet(network)} || {})
         }
 
         this.user = user

@@ -1,7 +1,7 @@
 import { assetToUSD, parsedToRaw } from "src/util/cfx"
-import { getFromWallet, Wallet } from "src/stores/wallet"
+import { getFromWallet } from "src/stores/wallet"
 import { extractError, sliceAddress } from "src/util/generic"
-import { getCoreSDK, getEtherscanURL, NETWORKS } from "src/util/imx"
+import { getCoreSDK, getEtherscanURL } from "src/util/imx"
 
 const extractDepositPayload = (payload, token) => {
     if(token.id === "ETH"){
@@ -22,7 +22,7 @@ const extractDepositPayload = (payload, token) => {
 }
 
 const buildDepositSuccess = ({ amount, amount_usd, symbol, hash }) => {
-    const message = `You successfully deposited <span>${amount} ${symbol} ($${amount_usd})</span> to your Immutable X account.<br>It may take up to 10 minutes before your balance updates.`
+    const message = `You successfully deposited <span>${amount} ${symbol} ($${amount_usd})</span> to your Immutable X account.<br><br>It may take up to 10 minutes before your balance updates.`
     if(!hash) return message
 
     const etherscan = `${getEtherscanURL()}/tx/${hash}`

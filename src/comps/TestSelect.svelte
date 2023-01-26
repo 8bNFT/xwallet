@@ -16,7 +16,6 @@
     let selectable = false
     let length = 0
     let collections = 0
-    let NFTPromise
     let currentOption = Object.values(ASSET_STATUS_NAMES)[0]
 
     const selectAll = () => $NFTStore[currentOption].forEach(token => SelectStore.select(token))
@@ -52,11 +51,11 @@
         <Tabs bind:currentOption options={ASSET_STATUS_NAMES} />
     </div>
 
-    {#await NFTPromise}
-        <NftGridSkeleton items={4} />
-    {:then _}
+    {#if !$NFTStore[currentOption]}
+        <NftGridSkeleton items={8} />
+    {:else}
         <SelectableNftGrid bind:selectable nfts={NFTStore && $NFTStore[currentOption] || []} store={SelectStore} />
-    {/await}
+    {/if}
 </Selectable>
 
 <style>

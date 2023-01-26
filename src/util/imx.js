@@ -232,7 +232,7 @@ export const getEventHistoryProgressive = async (user, network, list, signal) =>
 
 export const fetchAssets = async (user, type = "imx", _network = false) => {
     const network = _network || Wallet.getNetwork()
-    const url = API(network, `/v1/assets?user=${user}&status=${type}&order_by=updated_at`)
+    const url = API(network, `/v1/assets?user=${user}&status=${type}&page_size=200&order_by=updated_at`)
     const { result } = await fetchWithCache(url, { expiration: 3 })
     return result
 }

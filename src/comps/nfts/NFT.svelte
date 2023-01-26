@@ -3,28 +3,31 @@
 
     import { createEventDispatcher } from 'svelte';
     import { DEFAULT_NFT_IMAGE } from 'src/util/generic';
+    import Tooltip from '../Tooltip.svelte';
 
     const dispatch = createEventDispatcher();
     const onToggle = e => dispatch('toggle', { target: e.target, nft })
 </script>
 
-<div class="token" on:click class:selected class:selectable>
-    {#if !selectable}
-        <button class="toggle" on:click={onToggle}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
-              </svg>
-        </button>
-    {/if}
-    <div class="image">
-        <img src={nft.image_url || DEFAULT_NFT_IMAGE} on:error={e => e.target.src = DEFAULT_NFT_IMAGE} />
+<Tooltip title={nft.status === "preparing_withdrawal" && "This token is being prepared for withdrawal."}>
+    <div class="token" class:preparing_withdrawal={nft.status === "preparing_withdrawal"} on:click class:selected class:selectable>
+        {#if !selectable && nft.status !== "preparing_withdrawal"}
+            <button class="toggle" on:click={onToggle}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                </svg>
+            </button>
+        {/if}
+        <div class="image">
+            <img src={nft.image_url || DEFAULT_NFT_IMAGE} on:error={e => e.target.src = DEFAULT_NFT_IMAGE} />
+        </div>
+        <div class="collection">
+            <div class="collection_name">{nft.collection.name}</div>
+        </div>
+        <div class="name">{nft.name}</div>
+        <div class="id">{nft.token_id}</div>
     </div>
-    <div class="collection">
-        <div class="collection_name">{nft.collection.name}</div>
-    </div>
-    <div class="name">{nft.name}</div>
-    <div class="id">{nft.token_id}</div>
-</div>
+</Tooltip>
 
 <style>
     .toggle {
@@ -64,6 +67,11 @@
         transition: all 0.15s;
         padding: .75rem;
         padding-bottom: 1rem;
+    }
+
+    .token.preparing_withdrawal {
+        opacity: .5;
+        cursor: not-allowed;
     }
 
     .token.selectable {

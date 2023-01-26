@@ -21,12 +21,8 @@ const extractWithdrawalPayload = (payload, token, preparing = false) => {
     }
 }
 
-const buildFinalizedSuccess = ({ transaction_id, symbol }) => {
-    if(Wallet.getNetwork() === NETWORKS.MAINNET){
-        return `You've successfully withdrawn ${symbol} to your L1 account.<br/>Transaction ID: <a target="_blank" href="${getEtherscanURL()}/tx/${transaction_id}">${sliceAddress(transaction_id)}</a>`
-    }
-
-    return `You've successfully withdrawn ${symbol} to your L1 account.<br/>Transaction ID: <a target="_blank" href="${getEtherscanURL()}/tx/${transaction_id}">${sliceAddress(transaction_id)}</a>`
+const buildFinalizedSuccess = ({ hash, symbol }) => {
+    return `You've successfully withdrawn ${symbol} to your L1 account.<br/><br/>Transaction: <a target="_blank" href="${getEtherscanURL()}/tx/${hash}">${sliceAddress(hash)}</a>`
 }
 
 const buildPreparedSuccess = ({ amount, amount_usd, symbol }) => {
@@ -35,23 +31,20 @@ const buildPreparedSuccess = ({ amount, amount_usd, symbol }) => {
     When a withdrawal is ready you <span>MUST</span> finalize it before the funds become available. Gas fees apply.`
 }
 
-const parseFinalizedResult = (result, payload, token) => {
-    const { symbol } = token
-    const { hash: transaction_id } = result
-
+const parseFinalizedResult = ({ hash }, { symbol }) => {
     return {
-        transaction_id,
+        hash,
         symbol
     }
 }
 
 const parsePreparedResult = (result, payload, token) => {
     const { amount } = payload
-    const { withdrawal_id: transaction_id } = result
+    const { withdrawal_id } = result
     const { symbol, price } = token
 
     return {
-        transaction_id,
+        withdrawal_id,
         amount: amount.parsed,
         amount_usd: assetToUSD(amount.parsed, price),
         symbol: symbol || "ETH",
@@ -76,9 +69,8 @@ export const handlePrepareCall = async ({ payload: { coin, amount } }) => {
             message
         }
     }catch(err){
-        const error = err && (typeof err === "string" ? err : err.message) || "Unknown error or action denied."
         return {
-            error
+            error: extractError(err)
         }
     }
 }

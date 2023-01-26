@@ -6,24 +6,29 @@
     import { FlowStore } from "src/stores/flows";
     import { isAssetOwner } from "src/validation/validators";
     import { Wallet } from "src/stores/wallet";
-    import DepositReview from "./DepositReview.svelte";
-    import { handleNftDepositCall } from "./deposit";
+    import { handleFinalizeNftCall, handlePrepareNftCall } from "./withdraw";
+    import WithdrawReview from "./WithdrawReview.svelte";
 
     const { User } = $Wallet
 
     const STEP_STORE = createStepStore(3, false)
     let loading = false
 
-    // add validation of ownership!
     const { token } = $FlowStore.props
     const resultStore = createGenericStore({})
 
+    const step = token.status === "withdrawable" ? "finalize" : "prepare"
+    const isPreparing = step === "prepare"
+    const prettyStep = name => isPreparing ? `Prepare ${name || "NFT"} Withdrawal` : `Finalize ${name || "NFT"} Withdrawal`
+    
+
     $: defaultConfig = {
         title: {
-            text: "Deposit NFT",
+            text: prettyStep(),
         },
         props: {
-            token
+            token,
+            step
         },
         footer: {
             primary: {
@@ -47,18 +52,18 @@
 
     $: steps = [
         {
-            component: DepositReview,
+            component: WithdrawReview,
             footer: {
                 primary: {
-                    text: () => `Deposit ${token.name}`,
+                    text: () => prettyStep(token.name),
                     action: () => async () => {
                         loading = true
-                        resultStore.set(await handleNftDepositCall({ token }))
+                        resultStore.set(isPreparing ? await handlePrepareNftCall({ token }) : await handleFinalizeNftCall({ token }))
                         loading = false
                         STEP_STORE.next()
                     },
                     disabled: () => !isAssetOwner(token, $User?.address) && "You don't own this asset" || false,
-                    loading: () => loading && "Deposit in progress" || false
+                    loading: () => loading && "Withdrawal in progress" || false
                 }
             }
         },
@@ -67,7 +72,7 @@
             title: false,
             props: {
                 resultStore: $resultStore,
-                title: () => $resultStore.error ? "Oops! Deposit failed." : "Deposit success!"
+                title: () => $resultStore.error ? "Oops! Withdraw failed." : "Withdraw success!"
             }, 
             footer: {
                 primary: {
