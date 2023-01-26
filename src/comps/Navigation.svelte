@@ -27,7 +27,7 @@
 <nav>
     <!-- <img src="" alt="" class="logo"> -->
     <div class="logo">
-        <a href="/" use:link>wallet<span class="accent">.</span></a>
+        <a href="/" use:link>wallet<span class="accent">.</span><span class="network">{$Wallet && Wallet.getNetwork() || ""}</span></a>
     </div>
     <div class="links">
         <!-- {} -->
@@ -129,6 +129,10 @@
     .logo a {
         color: inherit;
         text-decoration: none;
+    }
+
+    .logo .network {
+        font-size: .65em;
     }
 
     .accent {
