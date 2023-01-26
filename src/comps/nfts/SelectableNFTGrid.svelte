@@ -1,14 +1,16 @@
 <script>
-    export let nfts, store, selectable
+    export let nfts, store, selectable, status
 
     import Submenu from "../Submenu.svelte";
     import NFT from "./NFT.svelte"
-    import { getEtherscanURL, NETWORKS } from "src/util/imx";
+    import { getEtherscanURL, getMarketplaceURL, NETWORKS } from "src/util/imx";
     import { Wallet } from "src/stores/wallet";
     import { FlowStore } from "src/stores/flows";
 
     let submenuTarget
     let options
+
+    const { User } = $Wallet
 
     const createOptions = nft => {
         const options = [
@@ -42,7 +44,22 @@
     {#each nfts as nft}
         <NFT {nft} selected={selectable && nft.token_address in $store && store.contains(nft)} {selectable} on:click={selectable ? () => store.toggle(nft) : null} on:toggle={openSubmenu} />
     {:else}
-        <h1>No NFTs brokie</h1>
+        <div class="empty" style="text-align: center; padding: 3rem">
+            <h3 style="font-weight: 500">Nothing to see here.. yet!</h3>
+            {#if $User === false}
+                <span class="note"><span on:click={User.connect} style="text-decoration:underline;cursor:pointer">Connect your wallet</span> in order to manage your NFTs</span>
+            {:else}
+                {#if status === "preparing_withdrawal"}
+                    <span class="note">No NFTs are being prepared for withdrawal. If you initiated a withdrawal, check "Withdrawable".</span>
+                {:else if status === "withdrawable"}
+                    <span class="note">No NFTs are available for withdrawal. If you initiated a withdrawal, check "Preparing withdrawal".<br/>It can take up to 48h before your NFT becomes withdrawable.</span>
+                {:else if status === "eth"}
+                    <span class="note">It seems like you have no IMX-minted NFTs on L1. Good. All hail L2.</span>
+                {:else}
+                    <span class="note">It seems like you have no NFTs? Check out our <a href={getMarketplaceURL()} target="_blank">marketplace</a> to get some!</span>
+                {/if}
+            {/if}
+        </div>
     {/each}
 </div>
 
@@ -52,5 +69,19 @@
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 1rem;
+    }
+
+    .empty {
+        grid-column: 1 / 5;
+    }
+
+    h3 {
+        margin: 0;
+        margin-bottom: .5rem
+    }
+
+    .note {
+        font-size: .9rem;
+        color: var(--grey)
     }
 </style>

@@ -26,6 +26,11 @@ const URLS = {
         [NETWORKS.MAINNET]: Config.PRODUCTION,
         [NETWORKS.DEV]: Config.DEV
     },
+    MARKETPLACE: {
+        [NETWORKS.SANDBOX]: "https://market.sandbox.immutable.com",
+        [NETWORKS.MAINNET]: "https://market.immutable.com",
+        [NETWORKS.DEV]: "https://market.dev.immutable.com"
+    },
     ETHERSCAN: {
         [NETWORKS.SANDBOX]: "https://goerli.etherscan.io",
         [NETWORKS.MAINNET]: "https://etherscan.io",
@@ -59,6 +64,8 @@ export const getLink = network => new Link(getLinkURL(network))
 export const getCoreSDK = network => new ImmutableX(getCoreConfig(network))
 
 export const getEtherscanURL = network => URLS.ETHERSCAN[(network || Wallet.getNetwork())]
+
+export const getMarketplaceURL = network => URLS.MARKETPLACE[(network || Wallet.getNetwork())]
 
 const filterTokens = (tokens, validTokens) => {
     if(Array.isArray(tokens)) return tokens.filter(v => validTokens.includes(v.id))

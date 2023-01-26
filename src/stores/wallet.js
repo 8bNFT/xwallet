@@ -2,7 +2,7 @@ import { parseWithDecimals } from 'src/util/cfx.js';
 import { get, readable, writable } from 'svelte/store';
 import { API, fetchAssets } from 'src/util/imx.js';
 import { WalletManager } from 'src/wallets/wallet_manager.js';
-import { createGenericStore } from './generics.js';
+import { createGenericStore, WalletDropdown } from './generics.js';
 import { FlowStore } from "src/stores/flows";
 
 const TOKEN_PRICE_API = "https://tools.immutable.com/token-api/tokens/"
@@ -23,10 +23,17 @@ const createUserStore = () => {
 
     const disconnect = () => current?.wallet?.disconnect()
 
+    const connect = e => {
+        if(e) e.stopImmediatePropagation()
+        if(!WalletDropdown) return
+        WalletDropdown.open()
+    }
+
     return {
         set,
         subscribe,
-        disconnect
+        disconnect,
+        connect
     }
 }
 

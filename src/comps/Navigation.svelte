@@ -13,7 +13,7 @@
     let container
 
     const closeSubmenu = e => {
-        if(!container || container.contains(e.target) || e.target.closest("[data-dropdown-toggle]")) return
+        if(!container || container.contains(e.target)) return
         WalletDropdown.close()
     }
 

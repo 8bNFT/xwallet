@@ -51,10 +51,10 @@
         <Tabs bind:currentOption options={ASSET_STATUS_NAMES} />
     </div>
 
-    {#if !$NFTStore[currentOption]}
+    {#if $User &&!$NFTStore[currentOption]}
         <NftGridSkeleton items={8} />
     {:else}
-        <SelectableNftGrid bind:selectable nfts={NFTStore && $NFTStore[currentOption] || []} store={SelectStore} />
+        <SelectableNftGrid bind:selectable nfts={NFTStore && $NFTStore[currentOption] || []} store={SelectStore} status={currentOption} />
     {/if}
 </Selectable>
 

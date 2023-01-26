@@ -67,7 +67,7 @@
         <div style="text-align: center; padding: 3rem 0">
             <h3 style="font-weight: 500">Nothing to see here.. yet!</h3>
             {#if $User === false}
-                <span class="note"><span on:click={User.login} style="text-decoration:underline;cursor:pointer">Connect your wallet</span> in order to see your transaction history</span>
+                <span class="note"><span on:click={User.connect} style="text-decoration:underline;cursor:pointer">Connect your wallet</span> in order to see your transaction history</span>
             {:else}
                 <span class="note">Only the past 200 transactions of each type are fetched</span>
             {/if}
@@ -87,7 +87,7 @@
 
     h3 {
         margin: 0;
-        margin-bottom: .35rem
+        margin-bottom: .5rem
     }
 
     .limit {
