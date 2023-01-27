@@ -89,6 +89,6 @@ export const getTokenBalance = ({ wallet, token, network }) => {
 }
 
 export const resolveENSDomain = (domain, network) => {
-    const provider = new JsonRpcProvider(RPC_ENDPOINTS[network || Wallet.getNetwork()])
+    const provider = new JsonRpcProvider(RPC_ENDPOINTS[NETWORKS.MAINNET])
     return provider.resolveName(domain)
 }

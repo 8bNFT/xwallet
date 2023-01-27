@@ -1,13 +1,13 @@
-import ERC20s from "./pages/ERC20s.svelte"
+import Dashboard from "./pages/Dashboard.svelte"
 import NFTs from "./pages/NFTs.svelte"
 
 export const routesWithDetails = {
     '/': {
-        component: ERC20s,
+        component: Dashboard,
         name: "Dashboard",
     },
     '/dashboard': {
-        component: ERC20s,
+        component: Dashboard,
         name: "Dashboard",
         hidden: true
     },
